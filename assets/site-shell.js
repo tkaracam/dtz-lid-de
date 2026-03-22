@@ -356,6 +356,7 @@
     const base = routeBaseName();
     const protectedRoutes = new Set([
       "index.html",
+      "portal.html",
       "dtz.html",
       "h.html",
       "l.html",

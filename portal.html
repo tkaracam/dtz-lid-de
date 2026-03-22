@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal | DTZ-LiD.de</title>
+  <style>
+    :root {
+      --ora-bg: #f6fbff;
+      --ora-text: #1f3142;
+      --ora-stroke: #d8e7f5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ora-text);
+      font-family: "Sora", sans-serif;
+      background:
+        radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),
+        radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),
+        var(--ora-bg);
+    }
+    .page-shell {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
+    }
+    .card {
+      margin-top: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--ora-stroke);
+      background: linear-gradient(160deg, #ffffff, #f5faff);
+      padding: 22px;
+    }
+    .section-title { margin: 0; font-size: 1.35rem; }
+    .section-subtitle { margin: 6px 0 0; color: #587089; font-size: 0.92rem; }
+    .field-label {
+      display: block;
+      margin: 12px 0 6px;
+      color: #284763;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+    .select {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 10px;
+      border: 1px solid #c8daef;
+      background: #ffffff;
+      color: #234363;
+      font: inherit;
+      padding: 7px 10px;
+    }
+    .result-box {
+      margin-top: 12px;
+      border: 1px solid #d6e4f3;
+      border-radius: 12px;
+      background: #f9fcff;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .kpi {
+      border: 1px solid #d6e4f3;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px;
+    }
+    .kpi .label { color: #5b768f; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .value { margin-top: 4px; font-size: 1.05rem; font-weight: 700; color: #1f3f60; }
+    .text-block {
+      border: 1px solid #d6e4f3;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px;
+      white-space: pre-wrap;
+      line-height: 1.45;
+      font-size: 0.92rem;
+      color: #274764;
+    }
+    .status {
+      margin-top: 10px;
+      min-height: 1.2em;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #385a77;
+    }
+    .status.error { color: #b1324f; }
+    @media (max-width: 760px) {
+      .kpi-row { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script defer src="/assets/site-shell.js"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <main>
+      <section class="card">
+        <h1 class="section-title">Korrigierte Briefe</h1>
+        <p class="section-subtitle">Auswahl und Detailansicht Ihrer freigegebenen Korrekturen.</p>
+
+        <label class="field-label" for="portalCorrectionSelect">Korrektur auswählen</label>
+        <select id="portalCorrectionSelect" class="select"></select>
+
+        <div id="portalCorrectionWrap" class="result-box hidden">
+          <div class="kpi-row">
+            <div class="kpi">
+              <div class="label">Punkte</div>
+              <div id="portalCorrectionScore" class="value">-</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Niveau</div>
+              <div id="portalCorrectionLevel" class="value">-</div>
+            </div>
+          </div>
+          <div class="kpi">
+            <div class="label">Thema</div>
+            <div id="portalCorrectionTopic" class="value">-</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Lehrkraft-Feedback</div>
+            <div id="portalCorrectionFeedback" class="text-block">-</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Korrigierter Brief</div>
+            <div id="portalCorrectionText" class="text-block">-</div>
+          </div>
+        </div>
+
+        <div id="portalStatus" class="status"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const selectNode = document.getElementById("portalCorrectionSelect");
+    const wrapNode = document.getElementById("portalCorrectionWrap");
+    const statusNode = document.getElementById("portalStatus");
+    const scoreNode = document.getElementById("portalCorrectionScore");
+    const levelNode = document.getElementById("portalCorrectionLevel");
+    const topicNode = document.getElementById("portalCorrectionTopic");
+    const feedbackNode = document.getElementById("portalCorrectionFeedback");
+    const textNode = document.getElementById("portalCorrectionText");
+    let corrections = [];
+
+    function setStatus(type, text) {
+      if (!statusNode) return;
+      statusNode.classList.remove("error");
+      if (type === "error") statusNode.classList.add("error");
+      statusNode.textContent = String(text || "");
+    }
+
+    function formatDate(iso) {
+      const date = new Date(String(iso || ""));
+      if (!Number.isFinite(date.getTime())) return "-";
+      return date.toLocaleString("de-DE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function renderCorrection(item) {
+      if (!item || !wrapNode) return;
+      wrapNode.classList.remove("hidden");
+      scoreNode.textContent = item.score_total == null ? "-" : `${String(item.score_total)}/20`;
+      levelNode.textContent = String(item.niveau_einschaetzung || "-");
+      topicNode.textContent = String(item.topic || "-");
+      feedbackNode.textContent = String(item.teacher_feedback_de || "-");
+      textNode.textContent = String(item.corrected_letter || "-");
+    }
+
+    function bindSelect() {
+      if (!selectNode) return;
+      selectNode.innerHTML = "";
+      if (!corrections.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Keine Korrekturen";
+        selectNode.appendChild(opt);
+        if (wrapNode) wrapNode.classList.add("hidden");
+        return;
+      }
+      corrections.forEach((item, idx) => {
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        opt.textContent = `${String(item.topic || "Ohne Thema")} · ${formatDate(item.created_at)}`;
+        if (idx === 0) opt.selected = true;
+        selectNode.appendChild(opt);
+      });
+      renderCorrection(corrections[0]);
+      selectNode.addEventListener("change", () => {
+        const idx = Number(selectNode.value);
+        const item = Number.isInteger(idx) ? corrections[idx] : null;
+        if (item) renderCorrection(item);
+      });
+    }
+
+    async function loadCorrections() {
+      setStatus("", "Wird geladen...");
+      try {
+        const response = await fetch("./api/member_portal.php", { method: "GET", cache: "no-store" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(String(payload?.error || `Fehler: ${response.status}`));
+        }
+        corrections = Array.isArray(payload.corrections) ? payload.corrections : [];
+        bindSelect();
+        setStatus("", corrections.length ? `${corrections.length} Korrekturen geladen.` : "Noch keine freigegebenen Korrekturen.");
+      } catch (error) {
+        setStatus("error", `Korrekturen konnten nicht geladen werden: ${String(error?.message || error)}`);
+      }
+    }
+
+    loadCorrections();
+  </script>
+</body>
+</html>
