@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="dtz-build" content="2026-03-20-12">
-  <title>DTZ Schreiben Korrektur</title>
+  <title>DTZ-LiD.de | Admin Edition</title>
   <style>
     @font-face {
       font-family: "Comfortaa";
@@ -31,16 +31,16 @@
     }
 
     :root {
-      --bg-1: #f8efe7;
-      --bg-2: #fdf6ef;
+      --bg-1: #eef6ff;
+      --bg-2: #f6fbff;
       --bg-3: #ffffff;
       --paper: #ffffff;
       --paper-2: #fbfbfc;
       --ink: #4b3f38;
       --muted: #8c7567;
       --line: rgba(231, 205, 189, 0.72);
-      --accent: #ff5f87;
-      --accent-2: #ff8f66;
+      --accent: #177adf;
+      --accent-2: #2db9a6;
       --danger: #8a3026;
       --danger-soft: #f9e7e4;
       --ok-soft: #e5f4ec;
@@ -3293,7 +3293,7 @@
     <section id="internArea" class="hero">
       <div class="hero-top">
         <div id="heroHomeContent">
-          <h1>Herzlich willkommen bei DTZ-LiD edu</h1>
+          <h1>Willkommen bei DTZ-LiD.de</h1>
         </div>
       </div>
       </section>
@@ -10277,6 +10277,7 @@
     }
 
     function ensureUsableMainView() {
+      const singleAdminOnly = document.body.classList.contains("single-admin-only");
       const importantIds = [
         "studentAuthCard",
         "portalCard",
@@ -10295,23 +10296,34 @@
         return !!(el && !el.classList.contains("hidden"));
       });
       if (!hasVisible) {
-        showStudentLogin();
+        if (singleAdminOnly) {
+          navigateToSection("home");
+        } else {
+          showStudentLogin();
+        }
       }
     }
 
-    const QUICK_ACTIONS = [
-      { key: "portal", label: "Portal öffnen", hint: "Hausaufgaben, Schreiben, Korrekturen", keywords: "portal hausaufgaben korrekturen", action: () => navigateToSection("portal") },
-      { key: "write", label: "Schreiben öffnen", hint: "Mail schreiben und prüfen", keywords: "schreiben brief mail korrektur", action: () => navigateToSection("write") },
-      { key: "niveau", label: "Niveau öffnen", hint: "A1, A2, B1, B2", keywords: "niveau a1 a2 b1 b2", action: () => navigateToSection("niveau") },
-      { key: "dtz", label: "DTZ öffnen", hint: "Hören, Lesen, Sprechen", keywords: "dtz hoeren lesen sprechen", action: () => navigateToSection("dtz") },
-      { key: "modelltest", label: "DTZ Modelltest", hint: "Komplett starten", keywords: "dtz modelltest mock komplett pruefung", action: () => openDtzModelltestView() },
-      { key: "speaking", label: "Sprechen öffnen", hint: "Sprechen Teil 1-3", keywords: "sprechen muendlich", action: () => navigateToSection("speaking") },
-      { key: "lid", label: "LiD öffnen", hint: "Leben in Deutschland", keywords: "lid leben in deutschland", action: () => navigateToSection("lid") },
-      { key: "hoeren", label: "DTZ Hören öffnen", hint: "Hören Training", keywords: "dtz hoeren b1", action: () => navigateToSection("dtz-hoeren") },
-      { key: "lesen", label: "DTZ Lesen öffnen", hint: "Lesen Training", keywords: "dtz lesen b1", action: () => navigateToSection("dtz-lesen") },
-      { key: "home", label: "Startseite öffnen", hint: "Zum Hauptbereich", keywords: "start home", action: () => navigateToSection("home") },
-      { key: "admin", label: "Admin-Panel öffnen", hint: "Haupt-Admin", keywords: "admin hauptadmin panel", action: () => { window.location.href = "./admin.html"; } }
-    ];
+    const QUICK_ACTIONS = (() => {
+      const singleAdminOnly = document.body.classList.contains("single-admin-only");
+      const defaults = [
+        { key: "home", label: "Startseite öffnen", hint: "Zum Hauptbereich", keywords: "start home", action: () => navigateToSection("home") },
+        { key: "admin", label: "Admin-Panel öffnen", hint: "Haupt-Admin", keywords: "admin hauptadmin panel", action: () => { window.location.href = "./admin.html"; } }
+      ];
+      if (singleAdminOnly) return defaults;
+      return [
+        { key: "portal", label: "Portal öffnen", hint: "Hausaufgaben, Schreiben, Korrekturen", keywords: "portal hausaufgaben korrekturen", action: () => navigateToSection("portal") },
+        { key: "write", label: "Schreiben öffnen", hint: "Mail schreiben und prüfen", keywords: "schreiben brief mail korrektur", action: () => navigateToSection("write") },
+        { key: "niveau", label: "Niveau öffnen", hint: "A1, A2, B1, B2", keywords: "niveau a1 a2 b1 b2", action: () => navigateToSection("niveau") },
+        { key: "dtz", label: "DTZ öffnen", hint: "Hören, Lesen, Sprechen", keywords: "dtz hoeren lesen sprechen", action: () => navigateToSection("dtz") },
+        { key: "modelltest", label: "DTZ Modelltest", hint: "Komplett starten", keywords: "dtz modelltest mock komplett pruefung", action: () => openDtzModelltestView() },
+        { key: "speaking", label: "Sprechen öffnen", hint: "Sprechen Teil 1-3", keywords: "sprechen muendlich", action: () => navigateToSection("speaking") },
+        { key: "lid", label: "LiD öffnen", hint: "Leben in Deutschland", keywords: "lid leben in deutschland", action: () => navigateToSection("lid") },
+        { key: "hoeren", label: "DTZ Hören öffnen", hint: "Hören Training", keywords: "dtz hoeren b1", action: () => navigateToSection("dtz-hoeren") },
+        { key: "lesen", label: "DTZ Lesen öffnen", hint: "Lesen Training", keywords: "dtz lesen b1", action: () => navigateToSection("dtz-lesen") },
+        ...defaults
+      ];
+    })();
 
     let paletteSelectionIndex = 0;
 

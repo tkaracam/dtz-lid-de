@@ -68,6 +68,13 @@ if ($username === '') {
     $username = $ownerUsername;
 }
 
+if ($username !== $ownerUsername) {
+    register_rate_limit_failure('admin-login');
+    http_response_code(401);
+    echo json_encode(['error' => 'Ungültiger Benutzername oder Passwort.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if (!hash_equals($adminPassword, $password)) {
     register_rate_limit_failure('admin-login');
     http_response_code(401);

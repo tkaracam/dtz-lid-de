@@ -3004,7 +3004,7 @@
 <body>
   <div class="container">
     <section class="hero">
-      <h1>Adminbereich</h1>
+      <h1>DTZ-LiD.de Adminbereich</h1>
       <div class="hero-status-line">
         <div>Bereich: <span id="activePaneLabel">Anmeldung</span></div>
         <div id="adminIdentityLine" class="admin-identity-line">Nicht angemeldet</div>
@@ -3015,6 +3015,7 @@
       <div class="admin-topbar-right">
         <button id="adminMenuToggleBtn" type="button" class="admin-menu-trigger" disabled>Menü</button>
         <div id="adminMenuDropdown" class="admin-menu-dropdown hidden">
+          <button id="jumpSystemBtn" class="admin-menu-item" type="button">Systemstatus</button>
           <button id="jumpHomeworkBtn" class="admin-menu-item" type="button">Hausaufgaben</button>
           <button id="jumpTeacherNotesBtn" class="admin-menu-item" type="button">Notiz senden</button>
           <button id="jumpAttendanceBtn" class="admin-menu-item archived-module hidden" type="button">Anwesenheit</button>
@@ -3047,12 +3048,8 @@
     <div class="layout">
       <section id="loginCard" class="card">
         <h2 class="section-title">Anmeldung</h2>
-        <p class="section-subtitle">Nur für autorisierte Lehrkraft.</p>
-        <div class="grid">
-          <div>
-            <label for="adminUsername">Benutzername</label>
-            <input id="adminUsername" type="text" placeholder="z. B. admin">
-          </div>
+        <p class="section-subtitle">Nur Haupt-Admin. Benutzername wird automatisch verwendet.</p>
+        <div class="grid" style="grid-template-columns: 1fr;">
           <div>
             <label for="adminPassword">Passwort</label>
             <input id="adminPassword" type="password" placeholder="Admin-Passwort">
@@ -3079,6 +3076,7 @@
         <div class="admin-fastlane">
           <p class="admin-fastlane-head">Schnellzugriff</p>
           <div class="admin-fastlane-actions">
+            <button id="fastSystemBtn" type="button" class="admin-fastlane-btn">Systemstatus</button>
             <button id="fastHomeworksBtn" type="button" class="admin-fastlane-btn">Hausaufgaben</button>
             <button id="fastTeacherNotesBtn" type="button" class="admin-fastlane-btn">Notiz senden</button>
             <button id="fastAttendanceBtn" type="button" class="admin-fastlane-btn">Anwesenheit</button>
@@ -3095,6 +3093,18 @@
           </div>
           <div style="margin-top:8px;">
             <button id="fastSelectedCourseWorkspaceBtn" type="button" class="admin-fastlane-btn hidden">Kursbereich öffnen</button>
+          </div>
+        </div>
+
+        <div id="paneSystem" class="admin-pane">
+          <div class="bulk-wrap">
+            <h2 class="section-title" style="margin-top: 18px;">Systemstatus</h2>
+            <p class="section-subtitle">Schneller Live-Check für Domain, Sitzung und API.</p>
+            <div class="actions">
+              <button id="refreshSystemStatusBtn" type="button">Status aktualisieren</button>
+            </div>
+            <div id="systemStatusBox" class="hidden"></div>
+            <div id="systemStatusWrap" style="margin-top:10px;"></div>
           </div>
         </div>
 
@@ -4157,6 +4167,7 @@
     })();
 
     const adminPaneMap = {
+      system: "paneSystem",
       coursebuilder: "paneCourseBuilder",
       accounts: "paneAccounts",
       teachers: "paneTeachers",
@@ -4172,6 +4183,7 @@
     };
 
     const adminPaneLabels = {
+      system: "Systemstatus",
       coursebuilder: "Kurs erstellen",
       accounts: "Schülerzugänge",
       teachers: "Lehrkräfte",
@@ -4777,9 +4789,74 @@
         node.textContent = "Nicht angemeldet";
         return;
       }
-      const roleLabel = isOwnerAdmin() ? "Haupt-Admin" : "Dozent";
+      const roleLabel = "Haupt-Admin";
       const name = String(adminContext.display_name || adminContext.username || "-");
       node.textContent = `${roleLabel}: ${name}`;
+    }
+
+    async function loadSystemStatus(silent = false) {
+      if (!silent) clearBox("systemStatusBox");
+      const wrap = document.getElementById("systemStatusWrap");
+      if (!wrap) return;
+      wrap.innerHTML = "<p>Systemstatus wird geladen...</p>";
+
+      const checks = [
+        { key: "Public", url: "./index.html" },
+        { key: "Session", url: adminApiUrl("./api/admin_session.php") },
+        { key: "Courses", url: adminApiUrl("./api/course_list.php") }
+      ];
+
+      const runCheck = async (item) => {
+        const started = performance.now();
+        try {
+          const response = await fetch(item.url, { method: "GET" });
+          const elapsed = Math.max(1, Math.round(performance.now() - started));
+          return { key: item.key, ok: response.ok, status: response.status, elapsed };
+        } catch (err) {
+          const elapsed = Math.max(1, Math.round(performance.now() - started));
+          return {
+            key: item.key,
+            ok: false,
+            status: "ERR",
+            elapsed,
+            message: String(err && err.message ? err.message : err || "Netzwerkfehler")
+          };
+        }
+      };
+
+      const results = await Promise.all(checks.map(runCheck));
+      const allOk = results.every(row => row.ok);
+      const host = String(window.location.host || "-");
+      const origin = String(window.location.origin || "-");
+      const nowIso = new Date().toISOString();
+      const adminName = String(adminContext.username || adminContext.display_name || "admin");
+
+      const checksHtml = results.map(row => {
+        const tone = row.ok ? "#0f8f74" : "#b42318";
+        const badge = row.ok ? "OK" : "Fehler";
+        const note = row.message ? ` · ${escapeHtml(row.message)}` : "";
+        return `<li><strong>${escapeHtml(row.key)}:</strong> <span style="color:${tone};font-weight:700;">${badge}</span> (HTTP ${escapeHtml(String(row.status))}, ${row.elapsed} ms)${note}</li>`;
+      }).join("");
+
+      wrap.innerHTML = `
+        <div class="start-checklist">
+          <h3>Live Snapshot</h3>
+          <ol>
+            <li><strong>Host:</strong> ${escapeHtml(host)}</li>
+            <li><strong>Origin:</strong> ${escapeHtml(origin)}</li>
+            <li><strong>Admin:</strong> ${escapeHtml(adminName)}</li>
+            <li><strong>Zeit (UTC):</strong> ${escapeHtml(nowIso)}</li>
+          </ol>
+        </div>
+        <div class="recent-tasks">
+          <h4>Endpoint Checks</h4>
+          <ul>${checksHtml}</ul>
+        </div>
+      `;
+
+      if (!silent) {
+        setBox("systemStatusBox", allOk ? "ok" : "error", allOk ? "Systemstatus ist stabil." : "Mindestens ein Check ist fehlgeschlagen.");
+      }
     }
 
     function updateOwnerOnlyHint() {
@@ -4978,15 +5055,6 @@
           permissions: (sessionPayload.permissions && typeof sessionPayload.permissions === "object") ? sessionPayload.permissions : {}
         };
       }
-      const roleNow = String(adminContext.role || "");
-      if (!FORCED_ADMIN_MODE && roleNow === "docent") {
-        window.location.replace("./docent_admin.html");
-        return;
-      }
-      if (FORCED_ADMIN_MODE === "docent" && roleNow === "owner") {
-        window.location.replace("./admin.html");
-        return;
-      }
       applyAdminRoleUi();
       updateAdminIdentityLine();
       updateOwnerOnlyHint();
@@ -5015,6 +5083,7 @@
       populateKursHomeworkTemplates();
       updateKursHomeworkTemplatePreview();
       setAdminPane(activeAdminPane || "accounts");
+      void loadSystemStatus(true);
       renderRecentRoomTasks();
       if (document.getElementById("attendanceDate")) {
         document.getElementById("attendanceDate").value = new Date().toISOString().slice(0, 10);
@@ -5095,13 +5164,11 @@
     function switchAdminAccount() {
       closeAdminMenu();
       showLogin();
-      const userInput = document.getElementById("adminUsername");
       const passInput = document.getElementById("adminPassword");
-      if (userInput) userInput.value = "";
       if (passInput) passInput.value = "";
       clearBox("loginStatus");
-      setBox("loginStatus", "ok", "Neuen Account eingeben und anmelden.");
-      if (userInput) userInput.focus();
+      setBox("loginStatus", "ok", "Passwort eingeben und anmelden.");
+      if (passInput) passInput.focus();
     }
 
     async function login() {
@@ -5110,7 +5177,7 @@
       btn.disabled = true;
       btn.textContent = "Wird angemeldet...";
       try {
-        const username = document.getElementById("adminUsername").value.trim().toLowerCase();
+        const username = "";
         const password = document.getElementById("adminPassword").value;
         if (!password.trim()) {
           setBox("loginStatus", "error", "Bitte Passwort eingeben.");
@@ -5124,14 +5191,6 @@
         const payload = await parseJsonResponse(response);
         if (!response.ok) throw new Error(payload.error || `Fehler: ${response.status}`);
         setBox("loginStatus", "ok", "Anmeldung erfolgreich.");
-        if (String(payload.role || "") === "docent" && !FORCED_ADMIN_MODE) {
-          window.location.replace("./docent_admin.html");
-          return;
-        }
-        if (String(payload.role || "") === "owner" && FORCED_ADMIN_MODE === "docent") {
-          window.location.replace("./admin.html");
-          return;
-        }
         showPanel(payload);
       } catch (err) {
         setBox("loginStatus", "error", `Anmeldung fehlgeschlagen: ${err.message}`);
@@ -13255,6 +13314,14 @@
       closeAdminMenu();
       openAdminPane("coursebuilder");
     });
+    const jumpSystemBtn = document.getElementById("jumpSystemBtn");
+    if (jumpSystemBtn) {
+      jumpSystemBtn.addEventListener("click", () => {
+        closeAdminMenu();
+        openAdminPane("system");
+        void loadSystemStatus(false);
+      });
+    }
     document.getElementById("jumpTeachersBtn").addEventListener("click", () => {
       closeAdminMenu();
       openAdminPane("teachers");
@@ -13322,6 +13389,13 @@
     const fastAccountsBtn = document.getElementById("fastAccountsBtn");
     if (fastAccountsBtn) {
       fastAccountsBtn.addEventListener("click", () => openAdminPane("accounts"));
+    }
+    const fastSystemBtn = document.getElementById("fastSystemBtn");
+    if (fastSystemBtn) {
+      fastSystemBtn.addEventListener("click", () => {
+        openAdminPane("system");
+        void loadSystemStatus(false);
+      });
     }
     const fastCourseBuilderBtn = document.getElementById("fastCourseBuilderBtn");
     if (fastCourseBuilderBtn) {
@@ -13421,6 +13495,10 @@
       fastMod6Btn.addEventListener("click", () => openAdminPane("mod6"));
     }
     document.getElementById("loadMod6Btn").addEventListener("click", () => loadMod6Submissions(false));
+    const refreshSystemStatusBtn = document.getElementById("refreshSystemStatusBtn");
+    if (refreshSystemStatusBtn) {
+      refreshSystemStatusBtn.addEventListener("click", () => { void loadSystemStatus(false); });
+    }
     document.getElementById("mod6SearchQuery").addEventListener("input", () => renderMod6Submissions(mod6Records));
     document.getElementById("openOpsChecklistBtn").addEventListener("click", () => {
       closeAdminMenu();
@@ -13472,9 +13550,6 @@
       }
     });
     document.getElementById("adminPassword").addEventListener("keydown", event => {
-      if (event.key === "Enter") login();
-    });
-    document.getElementById("adminUsername").addEventListener("keydown", event => {
       if (event.key === "Enter") login();
     });
     ensureResponsiveTableObserver();
