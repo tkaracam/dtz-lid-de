@@ -581,6 +581,7 @@
 
       const payload = {
         student_name: "",
+        task_title: String(activeTopic.title || "").trim(),
         task_prompt: `${activeTopic.title}\n${activeTopic.prompt}`,
         required_points: Array.isArray(activeTopic.bullets) ? activeTopic.bullets : [],
         letter_text: text,
@@ -630,6 +631,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             letter_text: text,
+            task_title: String(activeTopic.title || "").trim(),
             task_prompt: `${activeTopic.title}\n${activeTopic.prompt}`,
             required_points: Array.isArray(activeTopic.bullets) ? activeTopic.bullets : []
           })

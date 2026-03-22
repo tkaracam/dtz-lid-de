@@ -30,6 +30,7 @@ if (!is_array($body)) {
 }
 
 $studentName = trim((string)($body['student_name'] ?? ''));
+$taskTitle = trim((string)($body['task_title'] ?? ''));
 $taskPrompt = trim((string)($body['task_prompt'] ?? ''));
 $letterText = trim((string)($body['letter_text'] ?? ''));
 $requiredPoints = $body['required_points'] ?? [];
@@ -46,6 +47,11 @@ if ($taskPrompt === '') {
     http_response_code(400);
     echo json_encode(['error' => 'Bitte ein Thema auswählen.'], JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+if ($taskTitle === '' && $taskPrompt !== '') {
+    $parts = preg_split('/\R/u', $taskPrompt) ?: [];
+    $taskTitle = trim((string)($parts[0] ?? ''));
 }
 
 if (mb_strlen($letterText) > 12000) {
@@ -105,6 +111,7 @@ $record = [
     'student_name' => $studentName !== '' ? $studentName : ((string)($member['display_name'] ?? '') !== '' ? (string)$member['display_name'] : (string)$member['username']),
     'student_username' => (string)$member['username'],
     'teacher_username' => '',
+    'task_title' => $taskTitle,
     'task_prompt' => $taskPrompt,
     'assignment_id' => '',
     'required_points' => $requiredPoints,

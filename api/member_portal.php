@@ -78,7 +78,7 @@ foreach (member_portal_read_jsonl_records($storageDir . '/letters-*.jsonl') as $
     }
     $recordWithMeta = array_merge($result, [
         'created_at' => (string)($review['reviewed_at'] ?? $row['created_at'] ?? ''),
-        'topic' => trim((string)($row['task_prompt'] ?? '')),
+        'topic' => trim((string)($row['task_title'] ?? '')) !== '' ? trim((string)($row['task_title'] ?? '')) : trim((string)($row['task_prompt'] ?? '')),
         'upload_id' => $uploadId,
     ]);
     $approvedLetterCorrections[] = $recordWithMeta;

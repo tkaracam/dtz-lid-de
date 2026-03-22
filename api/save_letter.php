@@ -30,6 +30,7 @@ if (!is_array($body)) {
 }
 
 $studentName = trim((string)($body['student_name'] ?? ''));
+$taskTitle = trim((string)($body['task_title'] ?? ''));
 $taskPrompt = trim((string)($body['task_prompt'] ?? ''));
 $letterText = trim((string)($body['letter_text'] ?? ''));
 $writingDurationSeconds = (int)($body['writing_duration_seconds'] ?? 0);
@@ -49,6 +50,11 @@ if (mb_strlen($letterText) > 12000) {
     http_response_code(413);
     echo json_encode(['error' => 'Der Brieftext ist zu lang.'], JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+if ($taskTitle === '' && $taskPrompt !== '') {
+    $parts = preg_split('/\R/u', $taskPrompt) ?: [];
+    $taskTitle = trim((string)($parts[0] ?? ''));
 }
 
 if (!is_array($requiredPoints)) {
@@ -215,6 +221,7 @@ $record = [
     'student_name' => $studentName !== '' ? $studentName : ($studentSession['display_name'] !== '' ? $studentSession['display_name'] : $studentSession['username']),
     'student_username' => $studentSession['username'],
     'teacher_username' => (string)($studentSession['teacher_username'] ?? ''),
+    'task_title' => $taskTitle,
     'task_prompt' => $taskPrompt,
     'assignment_id' => $assignmentId,
     'required_points' => $requiredPoints,

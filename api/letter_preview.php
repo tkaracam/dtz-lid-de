@@ -76,6 +76,7 @@ if (($admin['role'] ?? '') === 'docent' && !admin_can_access_student_username($l
 
 $letterText = trim((string)($letter['letter_text'] ?? ''));
 $taskPrompt = trim((string)($letter['task_prompt'] ?? ''));
+$taskTitle = trim((string)($letter['task_title'] ?? ''));
 $requiredPoints = is_array($letter['required_points'] ?? null) ? $letter['required_points'] : [];
 $writingDurationSeconds = (int)($letter['writing_duration_seconds'] ?? 0);
 $writingStartedAt = (string)($letter['writing_started_at'] ?? '');
@@ -100,6 +101,7 @@ echo json_encode([
     'student_name' => (string)($letter['student_name'] ?? ''),
     'student_username' => (string)($letter['student_username'] ?? ''),
     'created_at' => (string)($letter['created_at'] ?? ''),
+    'task_title' => $taskTitle,
     'task_prompt' => $taskPrompt,
     'required_points' => $requiredPoints,
     'letter_text' => $letterText,

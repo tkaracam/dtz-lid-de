@@ -12258,9 +12258,9 @@
         const mistakes = Array.isArray(result.mistakes) ? result.mistakes : [];
         const mistakeHtml = mistakes.length
           ? `<strong>Markierte Korrekturen:</strong><ul>${mistakes.slice(0, 80).map(item => {
-            const category = escapeHtml(String(item && item.category ? item.category : "Fehler"));
+            const category = escapeHtml(String(item && (item.category || item.type) ? (item.category || item.type) : "Fehler"));
             const fromText = escapeHtml(String(item && item.original ? item.original : ""));
-            const toText = escapeHtml(String(item && item.corrected ? item.corrected : ""));
+            const toText = escapeHtml(String(item && (item.corrected || item.correction) ? (item.corrected || item.correction) : ""));
             const line = item && item.line ? ` (Zeile ${escapeHtml(String(item.line))})` : "";
             return `<li><strong>${category}</strong>: ${fromText} → ${toText}${line}</li>`;
           }).join("")}</ul>`

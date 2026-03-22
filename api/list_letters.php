@@ -173,6 +173,7 @@ foreach ($files as $file) {
         $studentName = (string)($record['student_name'] ?? '');
         $studentUsername = mb_strtolower(trim((string)($record['student_username'] ?? '')));
         $recordTeacher = mb_strtolower(trim((string)($record['teacher_username'] ?? '')));
+        $taskTitle = trim((string)($record['task_title'] ?? ''));
         $taskPrompt = (string)($record['task_prompt'] ?? '');
         $letterText = (string)($record['letter_text'] ?? '');
         $writingDurationSeconds = (int)($record['writing_duration_seconds'] ?? 0);
@@ -211,6 +212,7 @@ foreach ($files as $file) {
             'created_at' => $createdAt,
             'student_name' => $studentName,
             'student_username' => (string)($record['student_username'] ?? ''),
+            'task_title' => $taskTitle,
             'task_prompt' => $taskPrompt,
             'required_points' => is_array($record['required_points'] ?? null) ? $record['required_points'] : [],
             'homework_checklist' => is_array($record['homework_checklist'] ?? null) ? $record['homework_checklist'] : null,
