@@ -57,6 +57,12 @@ if (!preg_match('/[A-ZÄÖÜ]/u', $password)) {
     exit;
 }
 
+if ($displayName === '') {
+    http_response_code(400);
+    echo json_encode(['error' => 'Vorname und Nachname sind erforderlich.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if ($email === '') {
     http_response_code(400);
     echo json_encode(['error' => 'E-Mail-Adresse ist erforderlich.'], JSON_UNESCAPED_UNICODE);

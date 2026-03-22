@@ -3386,35 +3386,35 @@
           <div class="grid">
             <div>
               <label for="memberRegisterUsername">Benutzername</label>
-              <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen">
+              <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen" required>
             </div>
             <div>
               <label for="memberRegisterPassword">Passwort</label>
-              <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe">
+              <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe" required>
             </div>
           </div>
           <div class="grid">
             <div>
               <label for="memberRegisterPasswordRepeat">Passwort wiederholen</label>
-              <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben">
+              <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben" required>
             </div>
             <div>
               <label for="memberRegisterFirstName">Vorname</label>
-              <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname">
+              <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname" required>
             </div>
           </div>
           <div class="grid">
             <div>
               <label for="memberRegisterLastName">Nachname</label>
-              <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname">
+              <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname" required>
             </div>
             <div>
               <label for="memberRegisterEmail">E-Mail</label>
-              <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com">
+              <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
             </div>
             <div>
               <label for="memberRegisterEmailRepeat">E-Mail wiederholen</label>
-              <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben">
+              <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben" required>
             </div>
           </div>
           <div class="admin-entry-actions">
@@ -10483,13 +10483,8 @@
       const display_name = `${firstName} ${lastName}`.trim();
       const email = String((emailInput && emailInput.value) || "").trim();
       const emailRepeat = String((emailRepeatInput && emailRepeatInput.value) || "").trim();
-      if (!username || !password) {
-        setMemberRegisterStatus("error", "Für die Registrierung sind Benutzername und Passwort erforderlich.");
-        return;
-      }
-      if (!email || !emailRepeat) {
-        setMemberRegisterStatus("error", "E-Mail und E-Mail-Wiederholung sind erforderlich.");
-        if (emailInput) emailInput.focus();
+      if (!username || !password || !passwordRepeat || !firstName || !lastName || !email || !emailRepeat) {
+        setMemberRegisterStatus("error", "Bitte alle Pflichtfelder ausfüllen.");
         return;
       }
       if (password !== passwordRepeat) {
