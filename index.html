@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="dtz-build" content="2026-03-20-12">
   <title>DTZ-LiD.de | Admin Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <style>
     @font-face {
       font-family: "Comfortaa";
@@ -3427,6 +3430,219 @@
       color: #ffffff;
       border-color: #e8898e;
       filter: brightness(1.02);
+    }
+
+    /* Orakelia-like interface theme */
+    :root {
+      --ora-bg: #f6fbff;
+      --ora-surface: #ffffff;
+      --ora-surface-soft: #f8fcff;
+      --ora-text: #1f3142;
+      --ora-muted: #587089;
+      --ora-stroke: #d8e7f5;
+      --ora-accent-a: #ff8a57;
+      --ora-accent-b: #ff5f7f;
+      --ora-accent-c: #36d5ff;
+      --ora-shadow: 0 16px 36px rgba(35, 71, 108, 0.12);
+      --ora-menu-text: #2b445b;
+    }
+
+    body {
+      color: var(--ora-text);
+      font-family: "Sora", sans-serif;
+      background:
+        radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),
+        radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),
+        var(--ora-bg);
+    }
+
+    h1, h2, h3, .section-title {
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .container {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
+    }
+
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      max-width: none;
+      z-index: 1004;
+      border-top: 1px solid var(--ora-stroke);
+      border-bottom: 1px solid var(--ora-stroke);
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+      padding: calc(env(safe-area-inset-top, 0px) + 14px) clamp(22px, 3.2vw, 38px) 14px clamp(10px, 1.4vw, 18px);
+      background: #ffffff;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    .nav-brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 1.08rem;
+      letter-spacing: 0.01em;
+      color: #1f3347;
+      text-align: left;
+      justify-content: flex-start;
+    }
+
+    .nav-brand .brand-main {
+      color: #1f3347;
+      -webkit-text-fill-color: #1f3347;
+    }
+
+    .nav-toggle {
+      display: block;
+      background: transparent;
+      border: 0;
+      color: #2e4760;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 8px 0;
+      min-width: auto;
+      height: auto;
+      border-radius: 0;
+    }
+
+    .nav-toggle::after {
+      content: "";
+      display: block;
+      margin-top: 3px;
+      height: 2px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--ora-accent-a), var(--ora-accent-c));
+    }
+
+    .nav-quick {
+      margin-left: auto;
+      gap: 8px;
+    }
+
+    .quick-btn,
+    .quick-btn:hover {
+      text-decoration: none;
+      color: var(--ora-menu-text);
+      border: 1px solid var(--ora-stroke);
+      background: var(--ora-surface-soft);
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .quick-btn-primary,
+    .quick-btn-primary:hover {
+      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
+      color: #210f1a;
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .nav-links {
+      position: fixed;
+      top: 0;
+      right: -100vw;
+      height: 100vh;
+      max-height: 100dvh;
+      width: min(360px, 88vw);
+      padding: 92px 24px 24px;
+      background: #ffffff;
+      border-left: 1px solid rgba(146, 181, 220, 0.2);
+      box-shadow: -22px 0 48px rgba(0, 0, 0, 0.25);
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      overflow-y: auto;
+      transition: right 0.28s ease;
+    }
+
+    .top-nav.open .nav-links {
+      right: 0;
+      display: flex;
+    }
+
+    .nav-link {
+      width: 100%;
+      text-align: left;
+      display: block;
+      text-decoration: none;
+      color: var(--ora-menu-text);
+      border: 1px solid var(--ora-stroke);
+      background: var(--ora-surface-soft);
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      box-shadow: none;
+      margin-bottom: 8px;
+    }
+
+    .nav-link:hover {
+      color: var(--ora-menu-text);
+      border-color: #c8def1;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .card {
+      background: linear-gradient(160deg, #ffffff, #f5faff);
+      border: 1px solid var(--ora-stroke);
+      box-shadow: var(--ora-shadow);
+    }
+
+    .site-footer {
+      margin-top: 26px;
+      border-top: 1px solid var(--ora-stroke);
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      background: transparent;
+      box-shadow: none;
+      padding-top: 18px;
+      color: var(--ora-muted);
+    }
+
+    .footer-links .footer-link {
+      color: #35506a;
+      border: 1px solid #cfe2f2;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      background: #ffffff;
+      box-shadow: none;
+    }
+
+    .footer-links .footer-link:hover {
+      border-color: #b8d5ec;
+      color: #1f3449;
+      transform: none;
+      box-shadow: none;
+    }
+
+    @media (max-width: 980px) {
+      .top-nav {
+        padding: calc(env(safe-area-inset-top, 0px) + 12px) 20px 12px 10px;
+      }
+
+      .nav-links {
+        box-shadow: -22px 0 48px rgba(0, 0, 0, 0.4);
+      }
     }
   </style>
 </head>
