@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Runtime storage outputs
+api/storage/audit_log.jsonl
+api/storage/letters-*.jsonl
+api/storage/member_users.json
+api/storage/ratelimit-*.json

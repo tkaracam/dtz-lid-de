@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A2-Themen | Grammatik | Interaktive Übungen</title>
+  <style>
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("./assets/fonts/Comfortaa-Light.ttf") format("truetype");
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("./assets/fonts/Comfortaa-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("./assets/fonts/Comfortaa-Bold.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --panel: #ffffff;
+      --line: #ecd7c9;
+      --text: #3f2f31;
+      --muted: #7b6862;
+      --accent-1: #f45a87;
+      --accent-2: #f79a63;
+      --ok: #2b8a5b;
+      --err: #b65252;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Comfortaa", "Trebuchet MS", sans-serif;
+      background: linear-gradient(180deg, #fffdf9 0%, #fff6ef 100%);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .container {
+      width: min(1180px, calc(100% - 1rem));
+      max-width: 100%;
+      margin: 22px auto 30px;
+    }
+    .top-nav {
+      position: sticky;
+      top: 10px;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid #ecd7c9;
+      background: rgba(255, 252, 248, 0.94);
+      box-shadow: 0 10px 24px rgba(95, 73, 61, 0.1);
+      backdrop-filter: blur(8px);
+      max-width: 100%;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0;
+      font-weight: 900;
+      font-size: 0.81rem;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      min-width: 0;
+      text-decoration: none;
+      margin-left: 0;
+      text-align: center;
+    }
+    .nav-brand .brand-main {
+      display: inline-block;
+      line-height: 1;
+      background: linear-gradient(120deg, #ff5f87, #ff8f66);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 0.56px #2f2a33;
+    }
+    .nav-brand .brand-edu {
+      display: inline-block;
+      font-size: 0.5em;
+      font-weight: 800;
+      line-height: 1;
+      margin-left: 2px;
+      vertical-align: baseline;
+      color: #8b1e2d;
+      -webkit-text-stroke: 0;
+    }
+    .nav-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      min-width: 0;
+      position: relative;
+    }
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 45;
+      align-items: stretch;
+      gap: 8px;
+      flex-direction: column;
+      min-width: 210px;
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid #ecd7c9;
+      background: rgba(255, 250, 246, 0.99);
+      box-shadow: 0 12px 24px rgba(95, 73, 61, 0.14);
+      order: 1;
+    }
+    .top-nav.open .nav-links {
+      display: flex;
+    }
+    .nav-link {
+      width: 100%;
+      min-width: 0;
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid #efcdbf;
+      background: #fff4ed;
+      color: #6d4a3c;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 0.9rem;
+      box-shadow: none;
+      text-decoration: none;
+      text-align: center;
+      font-weight: 700;
+    }
+    .nav-link:hover {
+      color: #e85c87;
+      border-color: #f5b091;
+    }
+    .nav-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #efcdbf;
+      background: #fff4ed;
+      color: #6d4a3c;
+      box-shadow: none;
+      padding: 0;
+      font-size: 1.1rem;
+      line-height: 1;
+      min-height: auto;
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    .hero {
+      border-radius: 20px;
+      border: 1px solid #efcfbf;
+      background:
+        radial-gradient(520px 240px at 86% 0%, rgba(255, 224, 206, 0.7), rgba(255, 224, 206, 0)),
+        linear-gradient(135deg, #fff7f1 0%, #ffefdf 52%, #ffe3d2 100%);
+      color: #4b342d;
+      padding: 22px;
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.35rem, 3vw, 1.95rem);
+    }
+    .hero p {
+      margin: 0;
+      color: #7a5d52;
+      font-size: .95rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .card {
+      grid-column: span 12;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+      color: #5c3f35;
+    }
+    .grammar-item {
+      border: 1px solid #eeddd1;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #fffdfa;
+    }
+    .grammar-item strong { color: #5d4037; }
+    .subhead {
+      margin: 14px 0 8px;
+      font-size: .95rem;
+      color: #7d5648;
+      font-weight: 700;
+    }
+    .topic-explain {
+      display: grid;
+      gap: 8px;
+    }
+    .topic-block {
+      border: 1px solid #eeded2;
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .topic-block summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 10px 12px;
+      background: #fff7f1;
+      border-bottom: 1px solid #eeded2;
+      font-weight: 700;
+      color: #6d4a3c;
+      position: relative;
+      padding-right: 36px;
+    }
+    .topic-block summary::-webkit-details-marker { display: none; }
+    .topic-block summary::after {
+      content: "▾";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #c1765a;
+      font-size: 1.02rem;
+    }
+    .topic-block[open] summary::after {
+      content: "▴";
+    }
+    .topic-body {
+      padding: 10px 12px 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .topic-line {
+      margin: 0;
+      color: #6d4f44;
+      font-size: .92rem;
+    }
+    .topic-line strong {
+      color: #58382e;
+    }
+    .topic-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #6e5248;
+      font-size: 1.02rem;
+    }
+    .topic-list li { margin: 2px 0; }
+    .mini-example {
+      border: 1px dashed #eccfbf;
+      border-radius: 10px;
+      padding: 8px;
+      background: #fff8f3;
+      color: #725447;
+      font-size: 1.02rem;
+    }
+    .topic-grid {
+      display: grid;
+      gap: 8px;
+    }
+    .topic-button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .topic-level-btn {
+      border-radius: 16px;
+      border: 1px solid #efc3b3;
+      background: linear-gradient(130deg, var(--accent-1) 0%, var(--accent-2) 100%);
+      color: #fff;
+      padding: 14px 12px;
+      text-align: center;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-size: 0.96rem;
+      box-shadow: 0 10px 22px rgba(191, 103, 74, 0.24);
+      transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 116px;
+      text-decoration: none;
+    }
+    .topic-level-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 24px rgba(191, 103, 74, 0.3);
+      filter: brightness(1.02);
+    }
+    .topic-level-btn small {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      color: rgba(255, 243, 237, 0.94);
+    }
+    .flow-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .flow-chip {
+      border: 1px solid #efdbc9;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: .98rem;
+      color: #6d4f44;
+      background: #fff8f3;
+      font-weight: 700;
+    }
+    .flow-arrow {
+      color: #c9876d;
+      font-size: 1.02rem;
+      font-weight: 700;
+    }
+    .topic-svg {
+      width: 100%;
+      border: 1px solid #eeded2;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 4px;
+    }
+    .tip-box {
+      border: 1px solid #f0dccc;
+      background: #fff8f3;
+      border-radius: 10px;
+      padding: 8px;
+      color: #7d5a4c;
+      font-size: .98rem;
+    }
+
+    .perfekt-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .98rem;
+      color: #6d4f44;
+    }
+    .perfekt-table th,
+    .perfekt-table td {
+      border: 1px solid #eeded2;
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .perfekt-table th {
+      background: #fff8f3;
+      color: #6d4a3c;
+      font-weight: 700;
+    }
+    .perfekt-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: .76rem;
+      font-weight: 700;
+      border: 1px solid #efdcca;
+      background: #fff8f3;
+      color: #6f4f43;
+    }
+    .perfekt-tag.sein {
+      border-color: #f2ccb7;
+      background: #fff2ea;
+      color: #8c5847;
+    }
+    .decision-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #6d4f44;
+      font-size: 1.02rem;
+    }
+    .decision-list li { margin: 4px 0; }
+    .decision-list strong { color: #5b3d33; }
+    .muted {
+      color: #8f7061;
+      font-size: .83rem;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .toolbar label,
+    .label {
+      display: block;
+      font-weight: 700;
+      color: #6b4a3f;
+      margin-bottom: 4px;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      border: 1px solid #efd8c8;
+      border-radius: 10px;
+      padding: 10px;
+      font: inherit;
+      color: var(--text);
+      background: #fff;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(130deg, var(--accent-1) 0%, var(--accent-2) 100%);
+    }
+    button.secondary {
+      color: #6a4a3e;
+      background: #fff4ec;
+      border: 1px solid #efcfbf;
+    }
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .task-box {
+      border: 1px solid #eeded2;
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+    .task-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #efdcca;
+      background: #fff8f3;
+      color: #6c4d41;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: .98rem;
+      font-weight: 700;
+    }
+    .prompt {
+      margin: 0 0 10px;
+      font-weight: 700;
+      color: #5b3f35;
+      white-space: pre-wrap;
+    }
+
+    .choice-wrap {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .choice-item {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid #eeded2;
+      border-radius: 10px;
+      padding: 8px;
+      background: #fffdfa;
+    }
+
+    .text-wrap {
+      margin-bottom: 8px;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .result {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #eeded2;
+      background: #fffaf5;
+      color: var(--muted);
+      min-height: 44px;
+      white-space: pre-wrap;
+    }
+    .questions-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .question-card {
+      border: 1px solid #eeded2;
+      border-radius: 12px;
+      padding: 10px;
+      background: #fffdfa;
+    }
+    .question-card.is-correct {
+      border-color: #b8dfc9;
+      background: #f5fff9;
+    }
+    .question-card.is-wrong {
+      border-color: #f1c9c9;
+      background: #fff8f8;
+    }
+    .question-result {
+      margin-top: 8px;
+      padding: 8px;
+      border: 1px solid #eeded2;
+      border-radius: 10px;
+      background: #fffaf5;
+      min-height: 34px;
+      white-space: pre-wrap;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    .exam-actions {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .ok { color: var(--ok); font-weight: 700; }
+    .err { color: var(--err); font-weight: 700; }
+
+    .stats {
+      border: 1px dashed #efcfbf;
+      border-radius: 10px;
+      padding: 8px;
+      margin-top: 10px;
+      color: #715347;
+      font-size: .92rem;
+      white-space: pre-wrap;
+    }
+
+    .note {
+      font-size: .85rem;
+      color: #87695a;
+      margin-top: 10px;
+      border-top: 1px dashed #efd8c8;
+      padding-top: 8px;
+    }
+    .site-footer {
+      margin: 20px auto 0;
+      padding: 18px 16px;
+      border-radius: 16px;
+      border: 1px solid #ecd7c9;
+      background: rgba(255, 251, 247, 0.94);
+      box-shadow: 0 10px 24px rgba(95, 73, 61, 0.08);
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .footer-link {
+      border-radius: 999px;
+      border: 1px solid #efcfbf;
+      padding: 8px 18px;
+      font-size: 0.88rem;
+      letter-spacing: 0.03em;
+      color: #7a5a4c;
+      text-decoration: none;
+      background: #fff4ec;
+      font-weight: 700;
+    }
+    .footer-link:hover {
+      border-color: #f5b091;
+      color: #e85c87;
+    }
+    .footer-socials {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .social-link {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid #efcfbf;
+      background: #fff4ec;
+      color: #7a5a4c;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+    .social-link:hover {
+      border-color: #f5b091;
+      color: #e85c87;
+    }
+    .social-link svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    @media (min-width: 860px) {
+      .toolbar {
+        grid-template-columns: 1fr auto;
+        align-items: end;
+      }
+      .action-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .exam-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 600px) {
+      .container {
+        width: calc(100% - 0.75rem);
+        margin-top: 10px;
+        margin-bottom: 20px;
+      }
+      .top-nav {
+        padding: 8px 9px;
+      }
+      .wrap {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav id="topNav" class="top-nav">
+      <a id="navLogoBtn" class="nav-brand" href="./index.html?route=portal" aria-label="Zur Startseite"><span class="brand-main">DTZ-LiD</span><span class="brand-edu">edu</span></a>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a class="nav-link" href="./index.html?route=portal">Start</a>
+          <a class="nav-link" href="./index.html?route=portal">Portal</a>
+          <a class="nav-link" href="./docent_admin.html">Lehrer-Panel</a>
+          <a class="nav-link" href="./agb.html">AGB</a>
+        </div>
+      </div>
+      <button id="navToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">☰</button>
+    </nav>
+
+    <main class="wrap">
+      <section class="hero">
+        <h1>A2-Themen, Grammatik und interaktive Übungen</h1>
+      </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Test starten</h2>
+        <div class="toolbar">
+          <div>
+            <label for="topicSelect">Thema</label>
+            <select id="topicSelect">
+              <option value="Perfekt">Perfekt</option>
+              <option value="Nebensatz">Nebensätze</option>
+              <option value="Modalverben">Modalverben</option>
+              <option value="Präpositionen">Präpositionen</option>
+              <option value="Trennbare Verben">Trennbare Verben</option>
+              <option value="Kasus">Kasus</option>
+              <option value="Gemischt">Gemischter Test</option>
+            </select>
+          </div>
+          <button type="button" id="startTestBtn">50-Fragen-Test starten</button>
+        </div>
+
+        <div class="task-box">
+          <div class="task-header">
+            <span class="badge" id="badgeTopic">Thema: -</span>
+            <span class="badge" id="badgeType">Modus: A/B/C</span>
+            <span class="badge" id="badgeProgress">Gelöst: 0/50</span>
+          </div>
+
+          <p class="prompt" id="questionPrompt">Bitte Test starten. Danach sehen Sie alle 50 Fragen als A/B/C-Aufgaben.</p>
+          <div id="questionsList" class="questions-list"></div>
+          <div id="examActions" class="exam-actions" hidden>
+            <button type="button" id="checkAllBtn">Prüfen</button>
+            <button type="button" class="secondary" id="showAllSolutionsBtn">Lösungen zeigen</button>
+          </div>
+          <div class="stats" id="statsBox">Kein Test aktiv.</div>
+
+        </div>
+      </article>
+    </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-links">
+        <a class="footer-link" href="agb.html">AGB</a>
+      </div>
+      <div class="footer-socials">
+        <a class="social-link" href="https://instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5ZM12 7.3A4.7 4.7 0 1 1 7.3 12 4.7 4.7 0 0 1 12 7.3Zm0 1.8A2.9 2.9 0 1 0 14.9 12 2.9 2.9 0 0 0 12 9.1Zm5.15-2.55a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z"/>
+          </svg>
+        </a>
+        <a class="social-link" href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M17.98 3H21l-6.56 7.5L22.2 21h-6.1l-4.78-6.27L5.8 21H2.78l7-8L2 3h6.25l4.32 5.72L17.98 3Zm-1.07 16.2h1.68L7.32 4.72H5.5L16.91 19.2Z"/>
+          </svg>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function closeNavOnMobile() {
+      const nav = document.getElementById("topNav");
+      if (!nav) return;
+      nav.classList.remove("open");
+    }
+
+    const navToggleBtn = document.getElementById("navToggleBtn");
+    if (navToggleBtn) {
+      navToggleBtn.addEventListener("click", event => {
+        event.preventDefault();
+        const nav = document.getElementById("topNav");
+        if (!nav) return;
+        nav.classList.toggle("open");
+      });
+    }
+
+    document.addEventListener("click", event => {
+      const nav = document.getElementById("topNav");
+      if (!nav || !nav.classList.contains("open")) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (!nav.contains(target)) {
+        closeNavOnMobile();
+      }
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        closeNavOnMobile();
+      }
+    });
+
+    document.querySelectorAll(".nav-links .nav-link").forEach(link => {
+      link.addEventListener("click", () => closeNavOnMobile());
+    });
+
+    const topicSelect = document.getElementById("topicSelect");
+    const startTestBtn = document.getElementById("startTestBtn");
+    const badgeTopic = document.getElementById("badgeTopic");
+    const badgeType = document.getElementById("badgeType");
+    const badgeProgress = document.getElementById("badgeProgress");
+    const questionPrompt = document.getElementById("questionPrompt");
+    const questionsList = document.getElementById("questionsList");
+    const examActions = document.getElementById("examActions");
+    const checkAllBtn = document.getElementById("checkAllBtn");
+    const showAllSolutionsBtn = document.getElementById("showAllSolutionsBtn");
+    const statsBox = document.getElementById("statsBox");
+    const toolbarNode = document.querySelector(".toolbar");
+
+    const state = {
+      topic: "Perfekt",
+      questions: [],
+      score: 0,
+      started: false
+    };
+
+    const subjects = [
+      { p: "ich", haben: "habe", sein: "bin" },
+      { p: "du", haben: "hast", sein: "bist" },
+      { p: "er", haben: "hat", sein: "ist" },
+      { p: "sie", haben: "hat", sein: "ist" },
+      { p: "wir", haben: "haben", sein: "sind" },
+      { p: "ihr", haben: "habt", sein: "seid" },
+      { p: "sie", haben: "haben", sein: "sind" }
+    ];
+
+    const perfektVerbs = [
+      { pp: "gelernt", aux: "haben", obj: "für die Prüfung" },
+      { pp: "gearbeitet", aux: "haben", obj: "im Büro" },
+      { pp: "eingekauft", aux: "haben", obj: "im Supermarkt" },
+      { pp: "gegessen", aux: "haben", obj: "zu Hause" },
+      { pp: "geschrieben", aux: "haben", obj: "eine E-Mail" },
+      { pp: "aufgeräumt", aux: "haben", obj: "die Wohnung" },
+      { pp: "telefoniert", aux: "haben", obj: "mit der Lehrerin" },
+      { pp: "gegangen", aux: "sein", obj: "in den Kurs" },
+      { pp: "gefahren", aux: "sein", obj: "mit dem Bus zur Arbeit" },
+      { pp: "gekommen", aux: "sein", obj: "pünktlich zum Termin" },
+      { pp: "aufgestanden", aux: "sein", obj: "um sechs Uhr" },
+      { pp: "umgezogen", aux: "sein", obj: "nach Berlin" }
+    ];
+
+    const reasonPairs = [
+      { main: "Ich komme heute nicht in den Kurs", reason: "ich habe einen Arzttermin" },
+      { main: "Wir lernen zu Hause", reason: "der Unterricht online ist" },
+      { main: "Sie ruft später an", reason: "sie jetzt arbeitet" },
+      { main: "Ich gehe früher", reason: "ich ein wichtiges Gespräch habe" },
+      { main: "Er nimmt den Bus", reason: "es stark regnet" },
+      { main: "Wir bleiben heute daheim", reason: "das Kind krank ist" }
+    ];
+
+    const modalSentences = [
+      { prompt: "Notwendigkeit", text: "Ich ___ morgen zum Amt gehen.", ans: "muss", sol: "Ich muss morgen zum Amt gehen." },
+      { prompt: "Erlaubnis", text: "Du ___ heute früher gehen.", ans: "darfst", sol: "Du darfst heute früher gehen." },
+      { prompt: "Fähigkeit", text: "Wir ___ den Text gut verstehen.", ans: "können", sol: "Wir können den Text gut verstehen." },
+      { prompt: "Absicht", text: "Ich ___ am Wochenende mehr üben.", ans: "will", sol: "Ich will am Wochenende mehr üben." },
+      { prompt: "Höfliche Bitte", text: "___ Sie bitte langsamer sprechen?", ans: "können", sol: "Können Sie bitte langsamer sprechen?" }
+    ];
+
+    const prepTime = [
+      { prompt: "Der Termin ist ___ Montag ___ 9 Uhr.", ans: ["am um"], sol: "Der Termin ist am Montag um 9 Uhr." },
+      { prompt: "Der Kurs beginnt ___ Oktober.", ans: ["im"], sol: "Der Kurs beginnt im Oktober." },
+      { prompt: "Ich fahre ___ Berlin und gehe dann ___ Arzt.", ans: ["nach zum"], sol: "Ich fahre nach Berlin und gehe dann zum Arzt." },
+      { prompt: "Ich komme ___ der Türkei und wohne ___ meinen Eltern.", ans: ["aus bei"], sol: "Ich komme aus der Türkei und wohne bei meinen Eltern." }
+    ];
+
+    const separable = [
+      { words: "ich / jeden Tag / um 6 Uhr / aufstehen", sol: "Ich stehe jeden Tag um 6 Uhr auf.", fill: "Ich ___ jeden Tag um 6 Uhr ___.", ans: "stehe auf" },
+      { words: "wir / morgen / die Lehrerin / anrufen", sol: "Wir rufen morgen die Lehrerin an.", fill: "Wir ___ morgen die Lehrerin ___.", ans: "rufen an" },
+      { words: "er / am Abend / den Tisch / abräumen", sol: "Er räumt am Abend den Tisch ab.", fill: "Er ___ am Abend den Tisch ___.", ans: "räumt ab" },
+      { words: "ihr / am Samstag / im Supermarkt / einkaufen", sol: "Ihr kauft am Samstag im Supermarkt ein.", fill: "Ihr ___ am Samstag im Supermarkt ___.", ans: "kauft ein" }
+    ];
+
+    const kasusData = [
+      { prompt: "Ich sehe ___ (du).", ans: ["dich"], sol: "Ich sehe dich." },
+      { prompt: "Ich helfe ___ (du).", ans: ["dir"], sol: "Ich helfe dir." },
+      { prompt: "Wir besuchen ___ Lehrer.", ans: ["den"], sol: "Wir besuchen den Lehrer." },
+      { prompt: "Ich spreche mit ___ Lehrerin.", ans: ["der"], sol: "Ich spreche mit der Lehrerin." },
+      { prompt: "Er gibt ___ Frau einen Brief.", ans: ["der"], sol: "Er gibt der Frau einen Brief." }
+    ];
+
+    const topicKeys = ["Perfekt", "Nebensatz", "Modalverben", "Präpositionen", "Trennbare Verben", "Kasus"];
+    const topicAliases = {
+      "perfekt": "Perfekt",
+      "nebensatz": "Nebensatz",
+      "nebensaetze": "Nebensatz",
+      "modalverben": "Modalverben",
+      "modalverb": "Modalverben",
+      "praepositionen": "Präpositionen",
+      "präpositionen": "Präpositionen",
+      "wechselpraepositionen": "Präpositionen",
+      "wechselpräpositionen": "Präpositionen",
+      "trennbare-verben": "Trennbare Verben",
+      "trennbareverben": "Trennbare Verben",
+      "kasus": "Kasus",
+      "relativsaetze": "Nebensatz",
+      "relativsätze": "Nebensatz",
+      "gemischt": "Gemischt"
+    };
+
+    function cap(text) {
+      const t = String(text || "");
+      return t.charAt(0).toUpperCase() + t.slice(1);
+    }
+
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function shuffle(arr) {
+      const list = arr.slice();
+      for (let i = list.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = list[i];
+        list[i] = list[j];
+        list[j] = tmp;
+      }
+      return list;
+    }
+
+    function norm(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[ä]/g, "ae")
+        .replace(/[ö]/g, "oe")
+        .replace(/[ü]/g, "ue")
+        .replace(/[ß]/g, "ss")
+        .replace(/[.,!?;:]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function fixSeparableParticiple(value) {
+      return String(value || "")
+        .replace(/\b(an|auf|ab|mit|ein|aus|um|vor|zurueck|zurück)\s+ge([a-zäöüß]+)/gi, "$1ge$2")
+        .replace(/\s+([.,!?;:])/g, "$1")
+        .trim();
+    }
+
+    function makeMcq(topic, typeLabel, prompt, options, correctIndex, hint, solution) {
+      return {
+        topic,
+        type: "mcq",
+        typeLabel,
+        prompt: fixSeparableParticiple(prompt),
+        options,
+        correctIndex,
+        hint,
+        solution: fixSeparableParticiple(solution),
+        scored: false
+      };
+    }
+
+    function makeText(topic, typeLabel, prompt, answers, hint, solution) {
+      return {
+        topic,
+        type: "text",
+        typeLabel,
+        prompt: fixSeparableParticiple(prompt),
+        answers: answers.map(norm),
+        hint,
+        solution: fixSeparableParticiple(solution),
+        scored: false
+      };
+    }
+
+    function genPerfekt() {
+      const mode = Math.floor(Math.random() * 7);
+      const s = pick(subjects);
+      const v = pick(perfektVerbs);
+      const aux = v.aux === "haben" ? s.haben : s.sein;
+      const wrongAux = v.aux === "haben" ? s.sein : s.haben;
+      const base = `${cap(s.p)} ${aux} gestern ${v.obj} ${v.pp}.`;
+
+      if (mode === 0) {
+        return makeText(
+          "Perfekt",
+          "Lückentext",
+          `Ergänzen Sie das Hilfsverb:\n${cap(s.p)} ___ gestern ${v.obj} ${v.pp}.`,
+          [aux],
+          "Achten Sie auf haben/sein.",
+          base
+        );
+      }
+      if (mode === 1) {
+        return makeText(
+          "Perfekt",
+          "Lückentext",
+          `Ergänzen Sie das Partizip II:\n${cap(s.p)} ${aux} gestern ${v.obj} ___.`,
+          [v.pp],
+          "Partizip II am Satzende.",
+          base
+        );
+      }
+      if (mode === 2) {
+        const options = shuffle([
+          base,
+          `${cap(s.p)} ${wrongAux} gestern ${v.obj} ${v.pp}.`,
+          `${cap(s.p)} ${v.pp} gestern ${v.obj} ${aux}.`
+        ]);
+        return makeMcq(
+          "Perfekt",
+          "Multiple Choice",
+          "Welche Perfekt-Form ist korrekt?",
+          options,
+          options.indexOf(base),
+          "Im Perfekt: Hilfsverb + Partizip II.",
+          base
+        );
+      }
+      if (mode === 3) {
+        const sent = `Ich habe gestern im Supermarkt eingekauft.`;
+        const words = shuffle(["Ich", "habe", "gestern", "im", "Supermarkt", "eingekauft"]);
+        return makeText(
+          "Perfekt",
+          "Satzbau",
+          `Ordnen Sie die Wörter zu einem korrekten Satz:\n${words.join(" / ")}`,
+          ["ich habe gestern im supermarkt eingekauft", "gestern habe ich im supermarkt eingekauft"],
+          "Verbposition 2, Partizip am Ende.",
+          sent
+        );
+      }
+      if (mode === 4) {
+        return makeText(
+          "Perfekt",
+          "haben oder sein",
+          `Welches Hilfsverb passt?\n___ + ${v.pp}`,
+          [v.aux],
+          "Bewegung/Zustandswechsel -> sein, sonst meistens haben.",
+          `${v.aux} + ${v.pp}`
+        );
+      }
+      if (mode === 5) {
+        const verbSet = shuffle(perfektVerbs).slice(0, 3);
+        const seinVerb = verbSet.find(x => x.aux === "sein") || pick(perfektVerbs.filter(x => x.aux === "sein"));
+        const habenVerb = verbSet.find(x => x.aux === "haben") || pick(perfektVerbs.filter(x => x.aux === "haben"));
+        const anotherHabenVerb = pick(perfektVerbs.filter(x => x.aux === "haben" && x.pp !== habenVerb.pp));
+        const correct = `sein: ${seinVerb.pp}`;
+        const options = shuffle([
+          correct,
+          `sein: ${habenVerb.pp}`,
+          `haben: ${anotherHabenVerb.pp}`
+        ]);
+        return makeMcq(
+          "Perfekt",
+          "haben oder sein",
+          "Welche Kombination ist korrekt?",
+          options,
+          options.indexOf(correct),
+          "Achten Sie auf Bewegung/Ortswechsel.",
+          correct
+        );
+      }
+      return makeText(
+        "Perfekt",
+        "Umformung",
+        "Formen Sie um (Präsens -> Perfekt):\nIch lerne jeden Abend Deutsch.",
+        ["ich habe jeden abend deutsch gelernt"],
+        "haben + gelernt",
+        "Ich habe jeden Abend Deutsch gelernt."
+      );
+    }
+
+    function genNebensatz() {
+      const mode = Math.floor(Math.random() * 5);
+      const p = pick(reasonPairs);
+      if (mode === 0) {
+        return makeText(
+          "Nebensatz",
+          "Lückentext",
+          `Ergänzen Sie die Konjunktion:\n${p.main}, ___ ${p.reason}.`,
+          ["weil"],
+          "Grund = weil.",
+          `${p.main}, weil ${p.reason}.`
+        );
+      }
+      if (mode === 1) {
+        const correct = `${p.main}, weil ${p.reason}.`;
+        const options = shuffle([
+          correct,
+          `${p.main}, weil ${p.reason.split(" ").slice(0, -1).join(" ")} ist.`,
+          `${p.main}, weil habe ich einen Termin.`
+        ]);
+        return makeMcq(
+          "Nebensatz",
+          "Zuordnung",
+          "Welche Variante ist grammatisch korrekt?",
+          options,
+          options.indexOf(correct),
+          "Im Nebensatz steht das Verb am Ende.",
+          correct
+        );
+      }
+      if (mode === 2) {
+        return makeText(
+          "Nebensatz",
+          "Lückentext",
+          "Setzen Sie ein:\nIch weiß, ___ der Kurs heute ausfällt.",
+          ["dass"],
+          "Inhaltssatz mit dass.",
+          "Ich weiß, dass der Kurs heute ausfällt."
+        );
+      }
+      if (mode === 3) {
+        const words = shuffle(["Wenn", "ich", "Zeit", "habe", "besuche", "ich", "meine", "Freundin"]);
+        return makeText(
+          "Nebensatz",
+          "Satzbau",
+          `Ordnen Sie die Wörter:\n${words.join(" / ")}`,
+          ["wenn ich zeit habe besuche ich meine freundin"],
+          "Nebensatz zuerst, Verb am Ende im Nebensatz.",
+          "Wenn ich Zeit habe, besuche ich meine Freundin."
+        );
+      }
+      return makeText(
+        "Nebensatz",
+        "Umformung",
+        "Verbinden Sie mit " + '"weil"' + ":\nIch bleibe zu Hause. Ich bin krank.",
+        ["ich bleibe zu hause weil ich krank bin"],
+        "Verb am Ende im weil-Satz.",
+        "Ich bleibe zu Hause, weil ich krank bin."
+      );
+    }
+
+    function genModal() {
+      const mode = Math.floor(Math.random() * 5);
+      const m = pick(modalSentences);
+      if (mode === 0) {
+        return makeText(
+          "Modalverben",
+          "Lückentext",
+          `${m.prompt}:\n${m.text}`,
+          [m.ans],
+          "Modalverb steht im finiten Teil, Vollverb im Infinitiv.",
+          m.sol
+        );
+      }
+      if (mode === 1) {
+        const correct = "Ich muss heute früher gehen.";
+        const options = shuffle([
+          correct,
+          "Ich muss heute früher zu gehen.",
+          "Ich gehen muss heute früher."
+        ]);
+        return makeMcq(
+          "Modalverben",
+          "Multiple Choice",
+          "Welche Form ist korrekt?",
+          options,
+          options.indexOf(correct),
+          "Nach Modalverb folgt der Infinitiv ohne 'zu'.",
+          correct
+        );
+      }
+      if (mode === 2) {
+        return makeText(
+          "Modalverben",
+          "Umformung",
+          "Formen Sie um:\nIch gehe heute zum Amt. (müssen)",
+          ["ich muss heute zum amt gehen"],
+          "Modalverb + Infinitiv am Satzende.",
+          "Ich muss heute zum Amt gehen."
+        );
+      }
+      if (mode === 3) {
+        const correct = "Du darfst heute früher gehen.";
+        const options = shuffle([
+          correct,
+          "Du musst heute früher gehen.",
+          "Du kannst heute früher gehen müssen."
+        ]);
+        return makeMcq(
+          "Modalverben",
+          "Zuordnung",
+          "Wählen Sie den Satz mit Erlaubnis.",
+          options,
+          options.indexOf(correct),
+          "Erlaubnis -> dürfen.",
+          correct
+        );
+      }
+      return makeText(
+        "Modalverben",
+        "Satzbau",
+        "Ordnen Sie die Wörter:\nich / den Termin / morgen / kann / wahrnehmen",
+        ["ich kann morgen den termin wahrnehmen", "ich kann den termin morgen wahrnehmen"],
+        "Modalverb auf Position 2.",
+        "Ich kann morgen den Termin wahrnehmen."
+      );
+    }
+
+    function genPrep() {
+      const mode = Math.floor(Math.random() * 5);
+      const p = pick(prepTime);
+      if (mode === 0) {
+        return makeText(
+          "Präpositionen",
+          "Lückentext",
+          p.prompt,
+          p.ans,
+          "Zeit- und Ortspräpositionen genau wählen.",
+          p.sol
+        );
+      }
+      if (mode === 1) {
+        const correct = "Ich fahre nach Berlin und gehe danach zum Arzt.";
+        const options = shuffle([
+          correct,
+          "Ich fahre zu Berlin und gehe danach zum Arzt.",
+          "Ich fahre nach Berlin und gehe danach zu der Arzt."
+        ]);
+        return makeMcq(
+          "Präpositionen",
+          "Multiple Choice",
+          "Welche Präpositionen sind korrekt?",
+          options,
+          options.indexOf(correct),
+          "Stadt: nach; Person/Institution: zu/zum.",
+          correct
+        );
+      }
+      if (mode === 2) {
+        return makeText(
+          "Präpositionen",
+          "Zuordnung",
+          "Ergänzen Sie:\nDer Unterricht beginnt ___ 18:00 Uhr und endet ___ 20:15 Uhr.",
+          ["um um"],
+          "Bei Uhrzeit verwendet man 'um'.",
+          "Der Unterricht beginnt um 18:00 Uhr und endet um 20:15 Uhr."
+        );
+      }
+      if (mode === 3) {
+        return makeText(
+          "Präpositionen",
+          "Umformung",
+          "Formen Sie um:\nIch komme aus Syrien. Ich wohne bei meiner Schwester.",
+          ["ich komme aus syrien und wohne bei meiner schwester"],
+          "Herkunft mit aus, Person mit bei.",
+          "Ich komme aus Syrien und wohne bei meiner Schwester."
+        );
+      }
+      return makeText(
+        "Präpositionen",
+        "Satzbau",
+        "Ordnen Sie:\nam / Termin / ist / Freitag / um 10 Uhr / Der",
+        ["der termin ist am freitag um 10 uhr"],
+        "Tag mit 'am', Uhrzeit mit 'um'.",
+        "Der Termin ist am Freitag um 10 Uhr."
+      );
+    }
+
+    function genSeparable() {
+      const mode = Math.floor(Math.random() * 5);
+      const s = pick(separable);
+      if (mode === 0) {
+        return makeText(
+          "Trennbare Verben",
+          "Lückentext",
+          s.fill,
+          [s.ans],
+          "Trennbare Vorsilbe steht im Hauptsatz am Ende.",
+          s.sol
+        );
+      }
+      if (mode === 1) {
+        return makeText(
+          "Trennbare Verben",
+          "Satzbau",
+          `Ordnen Sie die Wörter:\n${s.words}`,
+          [norm(s.sol)],
+          "Beachten Sie die Verbklammer.",
+          s.sol
+        );
+      }
+      if (mode === 2) {
+        const correct = "Ich kaufe am Samstag im Supermarkt ein.";
+        const options = shuffle([
+          correct,
+          "Ich einkaufe am Samstag im Supermarkt.",
+          "Ich kaufe ein am Samstag im Supermarkt."
+        ]);
+        return makeMcq(
+          "Trennbare Verben",
+          "Multiple Choice",
+          "Welche Form ist richtig?",
+          options,
+          options.indexOf(correct),
+          "Stammverb auf Position 2, Vorsilbe am Ende.",
+          correct
+        );
+      }
+      if (mode === 3) {
+        return makeText(
+          "Trennbare Verben",
+          "Umformung",
+          "Formen Sie um:\nIch stehe um 6 Uhr auf. (wir)",
+          ["wir stehen um 6 uhr auf"],
+          "Subjekt wechseln und Verb anpassen.",
+          "Wir stehen um 6 Uhr auf."
+        );
+      }
+      return makeText(
+        "Trennbare Verben",
+        "Zuordnung",
+        "Ergänzen Sie richtig:\nMorgen ___ ich meine Lehrerin ___ (anrufen).",
+        ["rufe an"],
+        "ich -> rufe ... an",
+        "Morgen rufe ich meine Lehrerin an."
+      );
+    }
+
+    function genKasus() {
+      const mode = Math.floor(Math.random() * 5);
+      const k = pick(kasusData);
+      if (mode === 0) {
+        return makeText(
+          "Kasus",
+          "Lückentext",
+          k.prompt,
+          k.ans,
+          "Achten Sie auf Akkusativ/Dativ.",
+          k.sol
+        );
+      }
+      if (mode === 1) {
+        const correct = "Ich gebe dem Mann den Schlüssel.";
+        const options = shuffle([
+          correct,
+          "Ich gebe den Mann dem Schlüssel.",
+          "Ich gebe der Mann den Schlüssel."
+        ]);
+        return makeMcq(
+          "Kasus",
+          "Multiple Choice",
+          "Welche Kasusform ist korrekt?",
+          options,
+          options.indexOf(correct),
+          "Dativobjekt + Akkusativobjekt.",
+          correct
+        );
+      }
+      if (mode === 2) {
+        return makeText(
+          "Kasus",
+          "Umformung",
+          "Ersetzen Sie das Nomen durch ein Pronomen:\nIch sehe den Lehrer.",
+          ["ich sehe ihn"],
+          "Akkusativ Pronomen von 'der Lehrer' = ihn.",
+          "Ich sehe ihn."
+        );
+      }
+      if (mode === 3) {
+        return makeText(
+          "Kasus",
+          "Zuordnung",
+          "Ergänzen Sie:\nIch spreche mit ___ Nachbarin.",
+          ["der"],
+          "Nach 'mit' folgt Dativ.",
+          "Ich spreche mit der Nachbarin."
+        );
+      }
+      return makeText(
+        "Kasus",
+        "Satzbau",
+        "Ordnen Sie:\nich / helfe / heute / dir",
+        ["ich helfe dir heute", "ich helfe heute dir"],
+        "'helfen' verlangt Dativ.",
+        "Ich helfe dir heute."
+      );
+    }
+
+    const generators = {
+      "Perfekt": genPerfekt,
+      "Nebensatz": genNebensatz,
+      "Modalverben": genModal,
+      "Präpositionen": genPrep,
+      "Trennbare Verben": genSeparable,
+      "Kasus": genKasus
+    };
+
+    function normalizeTopicFromQuery(value) {
+      const raw = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[ä]/g, "ae")
+        .replace(/[ö]/g, "oe")
+        .replace(/[ü]/g, "ue")
+        .replace(/[ß]/g, "ss")
+        .replace(/\s+/g, "-");
+      return topicAliases[raw] || null;
+    }
+
+    function parseHomeworkTopicPreset() {
+      const params = new URLSearchParams(window.location.search);
+      const rawTopics = String(params.get("topics") || "").trim();
+      if (!rawTopics) return [];
+      const parsed = rawTopics
+        .split(",")
+        .map(part => normalizeTopicFromQuery(part))
+        .filter(Boolean);
+      return parsed.filter((value, index, arr) => arr.indexOf(value) === index);
+    }
+
+    function parseHomeworkQuestionCount() {
+      const params = new URLSearchParams(window.location.search);
+      const raw = Number.parseInt(String(params.get("count") || "50"), 10);
+      if (!Number.isFinite(raw)) return 50;
+      return Math.max(10, Math.min(100, raw));
+    }
+
+    function isHomeworkMode() {
+      const params = new URLSearchParams(window.location.search);
+      const value = String(params.get("hw") || "").trim();
+      return value === "1" || value.toLowerCase() === "true";
+    }
+
+    function generateQuestions(topic, total, forcedTopics = null) {
+      const list = [];
+      const topicPool = Array.isArray(forcedTopics) && forcedTopics.length
+        ? forcedTopics.filter(item => topicKeys.includes(item))
+        : topicKeys;
+      for (let i = 0; i < total; i += 1) {
+        const currentTopic = topic === "Gemischt" ? pick(topicPool) : topic;
+        const q = generators[currentTopic]();
+        q.topic = currentTopic;
+        list.push(q);
+      }
+      const solutionPool = list
+        .map(q => String(q.solution || "").trim())
+        .filter(Boolean);
+      return list.map(q => {
+        const sameTopicPool = list
+          .filter(item => String(item.topic || "") === String(q.topic || ""))
+          .map(item => String(item.solution || "").trim())
+          .filter(Boolean);
+        return forceAbcMcq(q, sameTopicPool, solutionPool);
+      });
+    }
+
+    function uniqueByNorm(values) {
+      const seen = new Set();
+      const out = [];
+      values.forEach(value => {
+        const text = String(value || "").trim();
+        if (!text) return;
+        const key = norm(text);
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        out.push(text);
+      });
+      return out;
+    }
+
+    function replacementPoolByToken(token, topic) {
+      const t = norm(token);
+      const groups = [
+        ["am", "um", "im", "nach", "zu", "zum", "bei", "mit", "aus", "von"],
+        ["weil", "dass", "wenn", "denn"],
+        ["muss", "kann", "darf", "will", "soll", "möchte"],
+        ["habe", "hast", "hat", "haben", "habt", "bin", "bist", "ist", "sind", "seid"],
+        ["der", "die", "das", "den", "dem", "des"],
+        ["ein", "eine", "einen", "einem", "einer"]
+      ];
+      for (const group of groups) {
+        if (group.includes(t)) return group.filter(x => x !== t);
+      }
+      if (topic === "Perfekt" && /^ge.+(t|en)$/.test(t)) {
+        return [t.replace(/^ge/, ""), t.replace(/(t|en)$/, "")];
+      }
+      return [];
+    }
+
+    function buildShortDistractors(correct, topic) {
+      const safe = String(correct || "").trim();
+      const tokens = safe.split(/\s+/).filter(Boolean);
+      const out = [];
+      for (let i = 0; i < tokens.length && out.length < 2; i += 1) {
+        const pool = replacementPoolByToken(tokens[i], topic);
+        if (!pool.length) continue;
+        for (let j = 0; j < pool.length && out.length < 2; j += 1) {
+          const copy = tokens.slice();
+          copy[i] = pool[j];
+          out.push(copy.join(" "));
+        }
+      }
+      if (out.length < 2 && tokens.length >= 2) {
+        const swapped = tokens.slice();
+        const temp = swapped[0];
+        swapped[0] = swapped[1];
+        swapped[1] = temp;
+        out.push(swapped.join(" "));
+      }
+      while (out.length < 2) {
+        out.push(`${safe} !`);
+      }
+      return uniqueByNorm(out).filter(item => norm(item) !== norm(safe)).slice(0, 2);
+    }
+
+    function buildSentenceDistractors(correct, topic) {
+      const safe = String(correct || "").trim();
+      const out = [];
+
+      const add = value => {
+        const text = String(value || "").trim();
+        if (!text) return;
+        if (norm(text) === norm(safe)) return;
+        out.push(text);
+      };
+
+      if (topic === "Perfekt") {
+        add(safe.replace(/\b(habe|hast|hat|haben|habt)\b/i, "bin"));
+        add(safe.replace(/\b(bin|bist|ist|sind|seid)\b/i, "habe"));
+      }
+      if (topic === "Nebensatz") {
+        add(safe.replace(/,\s*(weil|dass|wenn)\s+(.+)\s+([a-zäöüß]+)\.?$/i, ", $1 $3 $2."));
+        add(safe.replace(/\b(weil|dass|wenn)\b/i, "denn"));
+      }
+      if (topic === "Modalverben") {
+        add(safe.replace(/\b(muss|kann|darf|will|soll|möchte|moechte)\s+([a-zäöüß]+)\b/i, "$1 zu $2"));
+        add(safe.replace(/\b(muss|kann|darf|will|soll|möchte|moechte)\b/i, "gehen"));
+      }
+      if (topic === "Präpositionen") {
+        add(safe.replace(/\b(am|um|im|nach|zu|zum|bei|mit|aus|von)\b/i, "zu"));
+        add(safe.replace(/\b(am|um|im|nach|zu|zum|bei|mit|aus|von)\b/i, "im"));
+      }
+      if (topic === "Trennbare Verben") {
+        add(safe.replace(/\b([a-zäöüß]+)\s+([a-zäöüß]+)\.$/i, "$2$1."));
+        add(safe.replace(/\b(an|auf|ab|mit|ein|aus)\s*$/i, ""));
+      }
+      if (topic === "Kasus") {
+        add(safe.replace(/\b(dem|den|der|die|das)\b/i, "den"));
+        add(safe.replace(/\b(dem|den|der|die|das)\b/i, "der"));
+      }
+
+      add(safe.replace(/,\s+/g, " "));
+      const words = safe.split(/\s+/).filter(Boolean);
+      if (words.length >= 4) {
+        const swapped = words.slice();
+        const i = words.length - 2;
+        const tmp = swapped[i];
+        swapped[i] = swapped[i - 1];
+        swapped[i - 1] = tmp;
+        add(swapped.join(" "));
+      }
+
+      const cleaned = uniqueByNorm(out).filter(item => norm(item) !== norm(safe));
+      while (cleaned.length < 2) {
+        cleaned.push(`${safe} (falsch)`);
+      }
+      return cleaned.slice(0, 2);
+    }
+
+    function makeRelatedDistractors(question, correct, topicPool, globalPool) {
+      const safe = String(correct || "").trim();
+      if (question.type === "mcq" && Array.isArray(question.options)) {
+        const ownWrong = question.options
+          .filter((_, idx) => idx !== question.correctIndex)
+          .map(opt => String(opt || "").trim());
+        const cleanOwnWrong = uniqueByNorm(ownWrong).filter(item => norm(item) !== norm(safe));
+        if (cleanOwnWrong.length >= 2) {
+          return cleanOwnWrong.slice(0, 2);
+        }
+      }
+      const isShort = safe.split(/\s+/).filter(Boolean).length <= 3 && !/[.!?]/.test(safe);
+      const topic = String(question.topic || "");
+      let localWrong = isShort
+        ? buildShortDistractors(safe, topic)
+        : buildSentenceDistractors(safe, topic);
+      localWrong = uniqueByNorm(localWrong).filter(item => norm(item) !== norm(safe));
+
+      const merged = localWrong.slice();
+      let fillTry = 1;
+      while (merged.length < 2 && fillTry < 8) {
+        const candidate = createGuaranteedWrongOption(safe, fillTry);
+        if (candidate && norm(candidate) !== norm(safe)) {
+          merged.push(candidate);
+        }
+        fillTry += 1;
+      }
+      while (merged.length < 2) {
+        merged.push(`${safe} (falsch ${merged.length + 1})`);
+      }
+      return uniqueByNorm(merged).filter(item => norm(item) !== norm(safe)).slice(0, 2);
+    }
+
+    function getValidNormSet(question, safeCorrect) {
+      const set = new Set();
+      set.add(norm(safeCorrect));
+      if (question.type === "text" && Array.isArray(question.answers)) {
+        question.answers.forEach(ans => {
+          const key = norm(ans);
+          if (key) set.add(key);
+        });
+      }
+      if (question.type === "mcq" && Array.isArray(question.options)) {
+        const correctOption = String(question.options[question.correctIndex] || "").trim();
+        const key = norm(correctOption);
+        if (key) set.add(key);
+      }
+      return set;
+    }
+
+    function createGuaranteedWrongOption(correct, index) {
+      const safe = String(correct || "").trim();
+      const words = safe.split(/\s+/).filter(Boolean);
+      if (words.length >= 4) {
+        if (index === 1) {
+          return `${words.slice(1).join(" ")} ${words[0]}`;
+        }
+        if (index === 2) {
+          return words.filter((_, idx) => idx !== 1).join(" ");
+        }
+      }
+      return `${safe} (falsch ${index})`;
+    }
+
+    function forceAbcMcq(question, topicPool, globalPool) {
+      const correct = question.type === "mcq"
+        ? String(question.options[question.correctIndex] || question.solution || "").trim()
+        : String(question.solution || "").trim();
+      const safeCorrect = correct || "Keine korrekte Lösung verfügbar.";
+      const distractorPair = makeRelatedDistractors(
+        question,
+        safeCorrect,
+        Array.isArray(topicPool) ? topicPool : [],
+        Array.isArray(globalPool) ? globalPool : []
+      );
+      const validNorms = getValidNormSet(question, safeCorrect);
+      let rawWrong = [distractorPair[0], distractorPair[1]]
+        .map(item => String(item || "").trim())
+        .filter(Boolean)
+        .filter(item => !validNorms.has(norm(item)));
+
+      let fillTry = 1;
+      while (rawWrong.length < 2 && fillTry < 8) {
+        const candidate = createGuaranteedWrongOption(safeCorrect, fillTry);
+        if (candidate && !validNorms.has(norm(candidate))) {
+          rawWrong.push(candidate);
+        }
+        fillTry += 1;
+      }
+
+      let options = uniqueByNorm([safeCorrect, rawWrong[0], rawWrong[1]]);
+      while (options.length < 3) {
+        options.push(`Nicht korrekt (${options.length + 1})`);
+      }
+      options = shuffle(options.slice(0, 3));
+      let correctIndex = options.findIndex(opt => norm(opt) === norm(safeCorrect));
+      if (correctIndex < 0) {
+        options[0] = safeCorrect;
+        correctIndex = 0;
+      }
+
+      return {
+        topic: question.topic,
+        type: "mcq",
+        typeLabel: "Multiple Choice",
+        prompt: question.prompt,
+        options,
+        correctIndex,
+        hint: question.hint,
+        solution: safeCorrect,
+        scored: false
+      };
+    }
+
+    function getSolvedCount() {
+      return state.questions.filter(q => q.scored).length;
+    }
+
+    function getCheckedCount() {
+      return state.questions.filter(q => q.checked).length;
+    }
+
+    function getCorrectCount() {
+      return state.questions.filter(q => q.correct).length;
+    }
+
+    function renderStats() {
+      if (!state.started) {
+        statsBox.textContent = "Kein Test aktiv.";
+        badgeProgress.textContent = "Gelöst: 0/50";
+        return;
+      }
+      const solved = getSolvedCount();
+      const checked = getCheckedCount();
+      const correct = getCorrectCount();
+      badgeProgress.textContent = `Gelöst: ${solved}/50`;
+      statsBox.textContent = `Punkte: ${state.score} / 100\nKorrekt beantwortet: ${correct} von 50\nGeprüft: ${checked} von 50`;
+    }
+
+    function buildQuestionCard(q, index) {
+      const card = document.createElement("div");
+      card.className = "question-card";
+      card.id = `question-card-${index}`;
+      card.dataset.index = String(index);
+
+      const head = document.createElement("div");
+      head.className = "task-header";
+      head.innerHTML = `
+        <span class="badge">Frage ${index + 1}/50</span>
+        <span class="badge">${q.topic}</span>
+      `;
+      card.appendChild(head);
+
+      const prompt = document.createElement("p");
+      prompt.className = "prompt";
+      prompt.textContent = q.prompt;
+      card.appendChild(prompt);
+
+      const letters = ["A", "B", "C", "D"];
+      const wrap = document.createElement("div");
+      wrap.className = "choice-wrap";
+      q.options.forEach((opt, optIndex) => {
+        const row = document.createElement("label");
+        row.className = "choice-item";
+        row.innerHTML = `<input type="radio" name="a2opt-${index}" value="${optIndex}"><span><strong>${letters[optIndex]})</strong> ${opt}</span>`;
+        wrap.appendChild(row);
+      });
+      card.appendChild(wrap);
+
+      const result = document.createElement("div");
+      result.className = "question-result";
+      result.id = `question-result-${index}`;
+      card.appendChild(result);
+
+      return card;
+    }
+
+    function markCard(index, mode) {
+      const card = document.getElementById(`question-card-${index}`);
+      if (!card) return;
+      card.classList.remove("is-correct", "is-wrong");
+      if (mode === "ok") card.classList.add("is-correct");
+      if (mode === "err") card.classList.add("is-wrong");
+    }
+
+    function setQuestionResult(index, html) {
+      const box = document.getElementById(`question-result-${index}`);
+      if (!box) return;
+      box.innerHTML = html;
+    }
+
+    function evaluateQuestion(index, skipRender = false) {
+      const q = state.questions[index];
+      if (!q) return { answered: false, correct: false };
+
+      let ok = false;
+      const selected = document.querySelector(`input[name="a2opt-${index}"]:checked`);
+      if (!selected) {
+        setQuestionResult(index, '<span class="err">Bitte zuerst A, B oder C auswählen.</span>');
+        return { answered: false, correct: false };
+      }
+      ok = Number(selected.value) === q.correctIndex;
+
+      q.checked = true;
+      q.correct = ok;
+      if (ok && !q.scored && !q.revealed) {
+        q.scored = true;
+        state.score += 2;
+      }
+
+      if (ok) {
+        markCard(index, "ok");
+        setQuestionResult(index, `<span class="ok">Richtig.</span> ${q.hint || ""}`);
+      } else {
+        markCard(index, "err");
+        setQuestionResult(index, `<span class="err">Nicht korrekt.</span> Tipp: ${q.hint || "Bitte erneut prüfen."}`);
+      }
+      if (!skipRender) renderStats();
+      return { answered: true, correct: ok };
+    }
+
+    function showQuestionSolution(index, skipRender = false) {
+      const q = state.questions[index];
+      if (!q) return;
+      q.revealed = true;
+      markCard(index, "err");
+      setQuestionResult(index, `<span class="err">Lösung:</span> ${q.solution}`);
+      if (!skipRender) renderStats();
+    }
+
+    function evaluateAllQuestions() {
+      let missing = 0;
+      state.questions.forEach((_, index) => {
+        const result = evaluateQuestion(index, true);
+        if (!result.answered) missing += 1;
+      });
+      if (missing > 0) {
+        questionPrompt.textContent = `Test ausgewertet. ${missing} Frage(n) sind noch leer.`;
+      } else {
+        questionPrompt.textContent = "Test ausgewertet. Alle Fragen wurden geprüft.";
+      }
+      renderStats();
+    }
+
+    function showAllSolutions() {
+      state.questions.forEach((_, index) => {
+        showQuestionSolution(index, true);
+      });
+      questionPrompt.textContent = "Alle Lösungen wurden eingeblendet.";
+      renderStats();
+    }
+
+    function renderAllQuestions() {
+      questionsList.innerHTML = "";
+      state.questions.forEach((q, index) => {
+        questionsList.appendChild(buildQuestionCard(q, index));
+      });
+    }
+
+    function startTest(options = {}) {
+      const forcedTopics = Array.isArray(options.topics) ? options.topics.filter(topic => topicKeys.includes(topic)) : [];
+      const questionCount = Math.max(10, Math.min(100, Number(options.count) || 50));
+      if (forcedTopics.length === 1) {
+        state.topic = forcedTopics[0];
+        topicSelect.value = forcedTopics[0];
+      } else if (forcedTopics.length > 1) {
+        state.topic = "Gemischt";
+        topicSelect.value = "Gemischt";
+      } else {
+        state.topic = String(topicSelect.value || "Perfekt");
+      }
+      state.questions = generateQuestions(state.topic, questionCount, forcedTopics).map(q => ({
+        ...q,
+        checked: false,
+        correct: false,
+        revealed: false
+      }));
+      state.score = 0;
+      state.started = true;
+      badgeTopic.textContent = `Thema: ${state.topic}`;
+      badgeType.textContent = "Modus: A/B/C";
+      questionPrompt.textContent = options.homeworkMode
+        ? "Hausaufgabe aktiv: Bitte alle Fragen lösen und danach auswerten."
+        : "Jede richtige Antwort gibt 2 Punkte. Pro Frage gibt es genau eine richtige Lösung.";
+      renderAllQuestions();
+      examActions.hidden = false;
+      renderStats();
+    }
+
+    const homeworkMode = isHomeworkMode();
+
+    if (!homeworkMode) {
+      startTestBtn.addEventListener("click", startTest);
+    }
+    checkAllBtn.addEventListener("click", evaluateAllQuestions);
+    showAllSolutionsBtn.addEventListener("click", showAllSolutions);
+
+    const presetTopics = parseHomeworkTopicPreset();
+    const presetCount = parseHomeworkQuestionCount();
+    if (homeworkMode) {
+      if (toolbarNode) toolbarNode.style.display = "none";
+      startTest({
+        topics: presetTopics,
+        count: presetCount,
+        homeworkMode: true
+      });
+    } else if (presetTopics.length) {
+      startTest({
+        topics: presetTopics,
+        count: presetCount,
+        homeworkMode: false
+      });
+    }
+  </script>
+</body>
+</html>
