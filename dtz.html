@@ -335,12 +335,7 @@
             }
           });
 
-          const hint = document.createElement("span");
-          hint.className = "audio-hint";
-          hint.textContent = "AI Audio (OpenAI TTS)";
-
           audioRow.appendChild(audioBtn);
-          audioRow.appendChild(hint);
           wrap.appendChild(audioRow);
         }
 
@@ -354,11 +349,11 @@
         list.appendChild(wrap);
       });
 
-      setStatus(`${questions.length} görev yüklendi.`, false);
+      setStatus("", false);
     }
 
     async function loadHoerenTeil1() {
-      setStatus("Yükleniyor...", false);
+      setStatus("", false);
       try {
         const response = await fetch("./api/dtz_hoeren_teil1_public.php", { method: "GET" });
         const payload = await response.json().catch(() => ({}));
