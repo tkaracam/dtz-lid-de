@@ -245,6 +245,27 @@
       grid-template-columns: 1fr;
     }
 
+    .inline-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      text-decoration: none;
+      color: var(--ora-menu-text);
+      border: 1px solid var(--ora-stroke);
+      background: var(--ora-surface-soft);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .inline-link:hover {
+      border-color: #c8def1;
+      color: var(--ora-menu-text);
+    }
+
     label {
       display: block;
       font-size: 0.84rem;
@@ -700,14 +721,14 @@
       <a class="nav-brand" href="./index.html">DTZ-LiD</a>
       <div class="nav-right">
         <div class="nav-quick">
-          <a class="quick-btn" href="./member.html">Anmelden</a>
+          <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
           <a class="quick-btn quick-btn-primary" href="./member.html?mode=register">Registrieren</a>
         </div>
         <div class="nav-links">
-          <a class="nav-link" href="./member.html">Anmelden</a>
+          <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
           <a class="nav-link menu-cta" href="./member.html?mode=register">Registrieren</a>
           <a class="nav-link" href="./index.html">Start</a>
-          <a class="nav-link" href="./member.html">Mitgliederbereich</a>
+          <a class="nav-link" href="./member.html?mode=login">Mitgliederbereich</a>
           <a class="nav-link" href="./admin.html">Admin-Panel</a>
         </div>
       </div>
@@ -736,6 +757,7 @@
             <input id="memberLoginPassword" type="password" autocomplete="current-password" placeholder="Ihr Passwort" required>
           </div>
         </div>
+        <a class="inline-link" href="./forgot-password.html">Passwort vergessen</a>
         <div class="actions">
           <button id="memberEntryLoginBtn" class="btn-green" type="button">Anmelden</button>
           <button id="memberEntryLogoutBtn" class="btn-red" type="button">Abmelden</button>
