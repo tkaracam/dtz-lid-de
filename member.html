@@ -830,6 +830,26 @@
       filter: brightness(1.04);
     }
 
+    .register-link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      text-decoration: none;
+      font: inherit;
+      font-weight: 700;
+      border-radius: 10px;
+      border: 1px solid #cfe2f2;
+      background: #eef6ff;
+      color: #35506a;
+      padding: 11px;
+    }
+
+    .register-link-btn:hover {
+      border-color: #b8d5ec;
+      color: #1f3449;
+    }
+
     .inline-link {
       display: inline-block;
       text-decoration: none;
@@ -937,6 +957,7 @@
         </label>
         <a class="inline-link full" href="./forgot-password.html">Passwort vergessen</a>
         <button id="memberEntryLoginBtn" type="submit">Anmelden</button>
+        <a class="register-link-btn full" href="./register.html">Registrieren</a>
       </form>
       <div id="memberLoginStatus" class="status hidden"></div>
     </section>
