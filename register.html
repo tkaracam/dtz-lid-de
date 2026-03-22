@@ -5,27 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DTZ-LiD.de | Registrieren</title>
   <style>
-    html { background: #f6fbff; visibility: hidden; }
-    html.page-ready { visibility: visible; }
-  </style>
-  <script>
-    (() => {
-      const show = () => requestAnimationFrame(() => document.documentElement.classList.add("page-ready"));
-      const hide = () => document.documentElement.classList.remove("page-ready");
-      if (document.readyState === "loading") {
-        window.addEventListener("load", show, { once: true });
-      } else {
-        show();
-      }
-      window.addEventListener("pageshow", show);
-      window.addEventListener("pagehide", hide);
-      window.addEventListener("beforeunload", hide);
-    })();
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  <style>
     :root {
       --ora-bg: #f6fbff;
       --ora-surface-soft: #f8fcff;
@@ -48,7 +27,6 @@
         radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),
         #f6fbff;
     }
-    h1, h2 { font-family: "Space Grotesk", sans-serif; }
     .page-shell {
       width: min(1120px, 92vw);
       margin: 0 auto;
@@ -132,12 +110,6 @@
       box-shadow: none;
       margin-bottom: 8px;
     }
-    .nav-link:hover {
-      color: var(--ora-menu-text);
-      border-color: #c8def1;
-      transform: none;
-      box-shadow: none;
-    }
     .nav-links .menu-cta {
       background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
       color: #210f1a;
@@ -160,9 +132,6 @@
       cursor: pointer;
       padding: 8px 0;
       margin-right: 10px;
-      min-width: auto;
-      height: auto;
-      border-radius: 0;
     }
     .nav-toggle::after {
       content: "";
@@ -182,83 +151,32 @@
       font-size: 0.76rem;
       font-weight: 700;
       line-height: 1;
-      box-shadow: none;
-      transform: none;
     }
     .quick-btn-primary,
     .quick-btn-primary:hover {
       background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
       color: #210f1a;
       border-color: transparent;
-      box-shadow: none;
     }
-    .top-nav.open .nav-links {
-      right: 0;
-      display: flex;
-    }
-    .lang-switch {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 0;
-      width: 100%;
-    }
+    .top-nav.open .nav-links { right: 0; display: flex; }
+    .lang-switch { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .lang-toggle-btn {
-      text-align: left;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border: 1px solid #d5e6f6;
-      border-radius: 10px;
-      padding: 9px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #f8fcff;
-      color: var(--ora-menu-text);
-      width: 100%;
-      box-sizing: border-box;
-      cursor: pointer;
-      font-family: "Sora", sans-serif;
+      text-align: left; font-size: 0.9rem; font-weight: 700; border: 1px solid #d5e6f6;
+      border-radius: 10px; padding: 9px 12px; display: flex; align-items: center;
+      justify-content: space-between; background: #f8fcff; color: var(--ora-menu-text);
+      width: 100%; cursor: pointer; font-family: "Sora", sans-serif;
     }
-    .lang-toggle-btn::after {
-      content: "▾";
-      font-size: 0.92rem;
-      color: #537391;
-    }
-    .lang-switch-group.is-open .lang-toggle-btn::after {
-      content: "▴";
-    }
-    .lang-switch-list {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .lang-switch-group.is-open .lang-switch-list {
-      display: flex;
-    }
+    .lang-toggle-btn::after { content: "▾"; font-size: 0.92rem; color: #537391; }
+    .lang-switch-group.is-open .lang-toggle-btn::after { content: "▴"; }
+    .lang-switch-list { display: none; flex-direction: column; gap: 10px; }
+    .lang-switch-group.is-open .lang-switch-list { display: flex; }
     .lang-switch-list a {
-      text-align: left;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border: 1px solid #d5e6f6;
-      border-radius: 10px;
-      padding: 9px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      background: #f8fcff;
-      color: var(--ora-menu-text);
-      text-decoration: none;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .container {
-      width: min(1120px, 92vw);
-      margin: 0 auto;
-      padding: 0 0 0;
+      text-align: left; font-size: 0.9rem; font-weight: 700; border: 1px solid #d5e6f6;
+      border-radius: 10px; padding: 9px 12px; display: flex; align-items: center;
+      background: #f8fcff; color: var(--ora-menu-text); text-decoration: none;
     }
     .card {
-      margin-top: 18px;
+      margin-top: 20px;
       border-radius: 16px;
       padding: 22px;
       background: linear-gradient(160deg, #ffffff, #f5faff);
@@ -266,110 +184,100 @@
       box-shadow: var(--ora-shadow);
       max-width: 660px;
     }
+    h1 { margin-top: 0; font-family: "Space Grotesk", sans-serif; }
     p { color: var(--ora-muted); margin-top: 0; }
     label { display: block; margin-bottom: 6px; font-size: 0.88rem; color: #48657f; }
     input {
-      width: 100%;
-      border: 1px solid var(--ora-stroke);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font: inherit;
-      margin-bottom: 12px;
-      background: #ffffff;
-      color: var(--ora-text);
+      width: 100%; border: 1px solid var(--ora-stroke); border-radius: 10px; padding: 10px 12px;
+      font: inherit; margin-bottom: 12px; background: #ffffff; color: var(--ora-text);
     }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    button, .link-btn {
-      min-height: 38px;
-      border-radius: 10px;
-      border: 1px solid var(--ora-stroke);
-      padding: 8px 14px;
-      font: inherit;
-      font-weight: 700;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--ora-menu-text);
-      background: var(--ora-surface-soft);
-      cursor: pointer;
+    button {
+      min-height: 38px; border-radius: 10px; border: 1px solid var(--ora-stroke);
+      padding: 8px 14px; font: inherit; font-weight: 700; color: var(--ora-menu-text);
+      background: var(--ora-surface-soft); cursor: pointer;
     }
-    .primary-btn {
-      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
-      color: #210f1a;
-      border-color: transparent;
-    }
+    .primary-btn { background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b)); color: #210f1a; border-color: transparent; }
     .status { margin-top: 10px; padding: 9px 10px; border-radius: 10px; border: 1px solid transparent; display: none; }
     .status.ok { display:block; color:#104934; background:#e9f8f0; border-color:#b8e3cb; }
     .status.error { display:block; color:#7a1f24; background:#fdecee; border-color:#f3c1c6; }
-    @media (max-width: 980px) {
-      .top-nav {
-        padding: calc(env(safe-area-inset-top, 0px) + 12px) 20px 12px 10px;
-      }
-      .nav-links {
-        box-shadow: -22px 0 48px rgba(0, 0, 0, 0.4);
-      }
-      .nav-quick {
-        display: inline-flex;
-        gap: 6px;
-      }
+    .site-footer {
+      margin-top: 26px;
+      border-top: 1px solid var(--ora-stroke);
+      background: transparent;
+      padding-top: 18px;
+      color: var(--ora-muted);
+      text-align: center;
+    }
+    .footer-links { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .footer-link {
+      color: #35506a; border: 1px solid #cfe2f2; border-radius: 999px; padding: 6px 10px;
+      font-size: 0.82rem; background: #ffffff; text-decoration: none;
     }
   </style>
 </head>
 <body>
   <div class="page-shell">
-  <nav id="registerTopNav" class="top-nav">
-    <a class="nav-brand" href="./member.html?mode=login">DTZ-LiD</a>
-    <div class="nav-right">
-      <div class="nav-quick">
-        <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
-        <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
-      </div>
-      <div class="nav-links">
-        <a class="nav-link" href="./index.html">Kaffee</a>
-        <a class="nav-link" href="./index.html">Katina</a>
-        <a class="nav-link" href="./index.html">Tarot</a>
-        <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
-        <a class="nav-link menu-cta" href="./register.html">Registrieren</a>
-        <div class="lang-switch lang-switch-group" id="registerLangGroup">
-          <button type="button" class="lang-toggle-btn" id="registerLangToggleBtn" aria-expanded="false">🌐 Sprachen</button>
-          <div class="lang-switch-list" id="registerLangList" hidden>
-            <a href="./register.html?lang=tr">🇹🇷 Türkisch</a>
-            <a href="./register.html?lang=en">🇬🇧 Englisch</a>
-            <a href="./register.html?lang=de">🇩🇪 Deutsch</a>
+    <nav id="memberTopNav" class="top-nav">
+      <a class="nav-brand" href="./member.html?mode=login">DTZ-LiD</a>
+      <div class="nav-right">
+        <div class="nav-quick">
+          <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
+          <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
+        </div>
+        <div class="nav-links">
+          <a class="nav-link" href="./index.html">Kaffee</a>
+          <a class="nav-link" href="./index.html">Katina</a>
+          <a class="nav-link" href="./index.html">Tarot</a>
+          <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
+          <a class="nav-link menu-cta" href="./register.html">Registrieren</a>
+          <div class="lang-switch lang-switch-group" id="memberLangGroup">
+            <button type="button" class="lang-toggle-btn" id="memberLangToggleBtn" aria-expanded="false">🌐 Sprachen</button>
+            <div class="lang-switch-list" id="memberLangList" hidden>
+              <a href="./register.html?lang=tr">🇹🇷 Türkisch</a>
+              <a href="./register.html?lang=en">🇬🇧 Englisch</a>
+              <a href="./register.html?lang=de">🇩🇪 Deutsch</a>
+            </div>
           </div>
         </div>
       </div>
-      <button id="registerNavToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">Menu</button>
-    </div>
-  </nav>
-  <main class="container">
-    <section class="card">
-      <h1>Registrieren</h1>
-      <p>Neues Mitgliedskonto erstellen.</p>
-      <form id="registerForm">
-        <label for="memberRegisterUsername">Benutzername</label>
-        <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen" required>
-        <label for="memberRegisterPassword">Passwort</label>
-        <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe" required>
-        <label for="memberRegisterPasswordRepeat">Passwort wiederholen</label>
-        <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben" required>
-        <label for="memberRegisterFirstName">Vorname</label>
-        <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname" required>
-        <label for="memberRegisterLastName">Nachname</label>
-        <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname" required>
-        <label for="memberRegisterEmail">E-Mail</label>
-        <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
-        <label for="memberRegisterEmailRepeat">E-Mail wiederholen</label>
-        <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben" required>
-        <div class="actions">
-          <button id="memberEntryCreateBtn" class="primary-btn" type="submit">Registrieren</button>
-        </div>
-      </form>
-      <div id="memberRegisterStatus" class="status"></div>
-    </section>
-  </main>
+      <button id="memberNavToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">Menu</button>
+    </nav>
+
+    <main>
+      <section class="card">
+        <h1>Registrieren</h1>
+        <p>Neues Mitgliedskonto erstellen.</p>
+        <form id="registerForm">
+          <label for="memberRegisterUsername">Benutzername</label>
+          <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen" required>
+          <label for="memberRegisterPassword">Passwort</label>
+          <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe" required>
+          <label for="memberRegisterPasswordRepeat">Passwort wiederholen</label>
+          <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben" required>
+          <label for="memberRegisterFirstName">Vorname</label>
+          <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname" required>
+          <label for="memberRegisterLastName">Nachname</label>
+          <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname" required>
+          <label for="memberRegisterEmail">E-Mail</label>
+          <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
+          <label for="memberRegisterEmailRepeat">E-Mail wiederholen</label>
+          <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben" required>
+          <div class="actions">
+            <button id="memberEntryCreateBtn" class="primary-btn" type="submit">Registrieren</button>
+          </div>
+        </form>
+        <div id="memberRegisterStatus" class="status"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-links">
+        <a class="footer-link" href="./agb.html">AGB</a>
+      </div>
+    </footer>
   </div>
+
   <script>
     function setStatus(type, message) {
       const box = document.getElementById("memberRegisterStatus");
@@ -428,47 +336,33 @@
     const registerForm = document.getElementById("registerForm");
     if (registerForm) registerForm.addEventListener("submit", event => { event.preventDefault(); void registerMember(); });
 
-    const registerNavToggleBtn = document.getElementById("registerNavToggleBtn");
-    if (registerNavToggleBtn) {
-      registerNavToggleBtn.addEventListener("click", () => {
-        const nav = document.getElementById("registerTopNav");
+    const memberNavToggleBtn = document.getElementById("memberNavToggleBtn");
+    if (memberNavToggleBtn) {
+      memberNavToggleBtn.addEventListener("click", () => {
+        const nav = document.getElementById("memberTopNav");
         if (!nav) return;
         nav.classList.toggle("open");
       });
     }
-
-    const registerLangToggleBtn = document.getElementById("registerLangToggleBtn");
-    const registerLangGroup = document.getElementById("registerLangGroup");
-    const registerLangList = document.getElementById("registerLangList");
-    if (registerLangToggleBtn && registerLangGroup && registerLangList) {
-      registerLangToggleBtn.addEventListener("click", () => {
-        const nextOpen = !registerLangGroup.classList.contains("is-open");
-        registerLangGroup.classList.toggle("is-open", nextOpen);
-        registerLangList.hidden = !nextOpen;
-        registerLangToggleBtn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+    const memberLangToggleBtn = document.getElementById("memberLangToggleBtn");
+    const memberLangGroup = document.getElementById("memberLangGroup");
+    const memberLangList = document.getElementById("memberLangList");
+    if (memberLangToggleBtn && memberLangGroup && memberLangList) {
+      memberLangToggleBtn.addEventListener("click", () => {
+        const nextOpen = !memberLangGroup.classList.contains("is-open");
+        memberLangGroup.classList.toggle("is-open", nextOpen);
+        memberLangList.hidden = !nextOpen;
+        memberLangToggleBtn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
       });
     }
-
     document.addEventListener("click", event => {
-      const nav = document.getElementById("registerTopNav");
+      const nav = document.getElementById("memberTopNav");
       if (!nav || !nav.classList.contains("open")) return;
       const target = event.target;
       if (!(target instanceof Node)) return;
       if (!nav.contains(target)) {
         nav.classList.remove("open");
-        if (registerLangGroup && registerLangList && registerLangToggleBtn) {
-          registerLangGroup.classList.remove("is-open");
-          registerLangList.hidden = true;
-          registerLangToggleBtn.setAttribute("aria-expanded", "false");
-        }
       }
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key !== "Escape") return;
-      const nav = document.getElementById("registerTopNav");
-      if (!nav) return;
-      nav.classList.remove("open");
     });
   </script>
 </body>
