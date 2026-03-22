@@ -3409,11 +3409,11 @@
               <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname">
             </div>
             <div>
-              <label for="memberRegisterEmail">E-Mail (optional)</label>
+              <label for="memberRegisterEmail">E-Mail</label>
               <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com">
             </div>
             <div>
-              <label for="memberRegisterEmailRepeat">E-Mail wiederholen (optional)</label>
+              <label for="memberRegisterEmailRepeat">E-Mail wiederholen</label>
               <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben">
             </div>
           </div>
@@ -10485,6 +10485,11 @@
       const emailRepeat = String((emailRepeatInput && emailRepeatInput.value) || "").trim();
       if (!username || !password) {
         setMemberRegisterStatus("error", "Für die Registrierung sind Benutzername und Passwort erforderlich.");
+        return;
+      }
+      if (!email || !emailRepeat) {
+        setMemberRegisterStatus("error", "E-Mail und E-Mail-Wiederholung sind erforderlich.");
+        if (emailInput) emailInput.focus();
         return;
       }
       if (password !== passwordRepeat) {

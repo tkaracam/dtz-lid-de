@@ -57,7 +57,13 @@ if (!preg_match('/[A-ZÄÖÜ]/u', $password)) {
     exit;
 }
 
-if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+if ($email === '') {
+    http_response_code(400);
+    echo json_encode(['error' => 'E-Mail-Adresse ist erforderlich.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
     http_response_code(400);
     echo json_encode(['error' => 'E-Mail-Adresse ist ungültig.'], JSON_UNESCAPED_UNICODE);
     exit;
