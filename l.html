@@ -154,6 +154,24 @@
       font-size: 0.9rem;
       font-weight: 700;
     }
+    .dtz-cloze-text {
+      margin: 0;
+      color: #244668;
+      font-size: 1rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+    .dtz-cloze-gap-inline {
+      display: inline-block;
+      margin: 0 2px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      border: 1px dashed #b8cbe3;
+      background: #f6f9ff;
+      color: #17395d;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
     .dtz-wegweiser-board {
       border: 1px solid #c9d9ee;
       border-radius: 12px;
@@ -370,18 +388,37 @@
   </div>
 
   <script>
+    function normalizeDtzGermanText(value) {
+      if (typeof value !== "string" || !value) return String(value || "");
+      let text = String(value);
+      text = text
+        .replace(/AE/g, "Ä")
+        .replace(/OE/g, "Ö")
+        .replace(/Ae/g, "Ä")
+        .replace(/Oe/g, "Ö")
+        .replace(/ae/g, "ä")
+        .replace(/oe/g, "ö");
+      const vowels = "aeiouyäöüAEIOUYÄÖÜ";
+      text = text.replace(/UE|Ue|ue/g, (match, offset, source) => {
+        const prev = offset > 0 ? source[offset - 1] : "";
+        if (prev === "q" || prev === "Q" || vowels.includes(prev)) return match;
+        return match === "UE" ? "Ü" : "ü";
+      });
+      return text;
+    }
+
     function setStatus(boxId, message, isError) {
       const box = document.getElementById(boxId);
       if (!box) return;
       box.style.display = message ? "block" : "none";
-      box.textContent = message || "";
+      box.textContent = normalizeDtzGermanText(message || "");
       box.style.borderColor = isError ? "#f3c1c6" : "#b8d5ec";
       box.style.background = isError ? "#fdecee" : "#f3f9ff";
       box.style.color = isError ? "#7a1f24" : "#2e4c67";
     }
 
     function addText(list, value) {
-      const text = String(value || "").trim();
+      const text = normalizeDtzGermanText(String(value || "")).trim();
       if (!text) return;
       const p = document.createElement("div");
       p.className = "task-text";
@@ -394,7 +431,7 @@
       Object.keys(map).forEach(key => {
         const row = document.createElement("div");
         row.className = "task-option";
-        row.textContent = `${key}) ${String(map[key] || "")}`;
+        row.textContent = `${key}) ${normalizeDtzGermanText(String(map[key] || ""))}`;
         list.appendChild(row);
       });
     }
@@ -545,7 +582,7 @@
           card.innerHTML = `
             <div class="dtz-ad-top">
               <span class="dtz-ad-label">${label}</span>
-              <p class="dtz-ad-headline">${headline}</p>
+              <p class="dtz-ad-headline">${normalizeDtzGermanText(headline)}</p>
             </div>
           `;
           if (lines.length) {
@@ -554,7 +591,7 @@
             lines.forEach((line) => {
               const li = document.createElement("li");
               li.className = "dtz-ad-line";
-              li.textContent = line;
+              li.textContent = normalizeDtzGermanText(line);
               ul.appendChild(li);
             });
             card.appendChild(ul);
@@ -573,9 +610,9 @@
         task.className = "task";
         const t = document.createElement("p");
         t.className = "task-title";
-        t.textContent = `Situation ${String(s.no || idx + 1)}`;
+        t.textContent = normalizeDtzGermanText(`Situation ${String(s.no || idx + 1)}`);
         task.appendChild(t);
-        addText(task, String(s.prompt || ""));
+        addText(task, normalizeDtzGermanText(String(s.prompt || "")));
         const select = document.createElement("select");
         select.className = "task-select";
         const defaultOption = document.createElement("option");
@@ -601,14 +638,14 @@
         task.className = "task";
         const t = document.createElement("p");
         t.className = "task-title";
-        t.textContent = `${String(b.title || `Text ${idx + 1}`)}`;
+        t.textContent = normalizeDtzGermanText(`${String(b.title || `Text ${idx + 1}`)}`);
         task.appendChild(t);
-        addText(task, b.text || "");
+        addText(task, normalizeDtzGermanText(b.text || ""));
         if (b.true_false) {
           const tfWrap = document.createElement("div");
           tfWrap.className = "dtz-dialog-task";
           tfWrap.innerHTML = `<h5>${String((b.true_false && b.true_false.no) || "")}</h5>`;
-          addText(tfWrap, String(b.true_false.statement || ""));
+          addText(tfWrap, normalizeDtzGermanText(String(b.true_false.statement || "")));
           addOptions(tfWrap, { A: "richtig", B: "falsch" });
           task.appendChild(tfWrap);
         }
@@ -616,7 +653,7 @@
           const mcWrap = document.createElement("div");
           mcWrap.className = "dtz-dialog-task";
           mcWrap.innerHTML = `<h5>${String((b.mc && b.mc.no) || "")}</h5>`;
-          addText(mcWrap, String(b.mc.question || "Welche Antwort passt?"));
+          addText(mcWrap, normalizeDtzGermanText(String(b.mc.question || "Welche Antwort passt?")));
           addOptions(mcWrap, b.mc.options || {});
           task.appendChild(mcWrap);
         }
@@ -642,7 +679,16 @@
 
     function renderTeil5(list, item) {
       addText(list, item.instructions || "");
-      addText(list, item.text_template || "");
+      const template = normalizeDtzGermanText(String(item.text_template || ""));
+      if (template) {
+        const textHtml = template
+          .replace(/\r?\n/g, "<br>")
+          .replace(/\[(0|4[0-5])\]/g, (_m, no) => `<span class="dtz-cloze-gap-inline">${String(no)} ____</span>`);
+        const box = document.createElement("div");
+        box.className = "task task-text";
+        box.innerHTML = `<p class="dtz-cloze-text">${textHtml}</p>`;
+        list.appendChild(box);
+      }
       if (item.example && item.example.options) {
         const ex = document.createElement("section");
         ex.className = "task";
