@@ -4,6 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DTZ-LiD.de | Registrieren</title>
+  <style>
+    html { background: #f6fbff; visibility: hidden; }
+    html.page-ready { visibility: visible; }
+  </style>
+  <script>
+    (() => {
+      const show = () => requestAnimationFrame(() => document.documentElement.classList.add("page-ready"));
+      const hide = () => document.documentElement.classList.remove("page-ready");
+      if (document.readyState === "loading") {
+        window.addEventListener("load", show, { once: true });
+      } else {
+        show();
+      }
+      window.addEventListener("pageshow", show);
+      window.addEventListener("pagehide", hide);
+      window.addEventListener("beforeunload", hide);
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">

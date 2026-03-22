@@ -10,13 +10,16 @@
   </style>
   <script>
     (() => {
-      const show = () => document.documentElement.classList.add("page-ready");
+      const show = () => requestAnimationFrame(() => document.documentElement.classList.add("page-ready"));
+      const hide = () => document.documentElement.classList.remove("page-ready");
       if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", show, { once: true });
         window.addEventListener("load", show, { once: true });
       } else {
         show();
       }
+      window.addEventListener("pageshow", show);
+      window.addEventListener("pagehide", hide);
+      window.addEventListener("beforeunload", hide);
     })();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
