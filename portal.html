@@ -92,6 +92,89 @@
       color: #385a77;
     }
     .status.error { color: #b1324f; }
+    .stats-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .stats-card {
+      border: 1px solid #d6e4f3;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .stats-title {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #1f3f60;
+      font-weight: 700;
+    }
+    .pie-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pie {
+      --p-correct: 0;
+      --p-wrong: 0;
+      --p-unanswered: 0;
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      background:
+        conic-gradient(
+          #16a34a 0 calc(var(--p-correct) * 1%),
+          #ef4444 calc(var(--p-correct) * 1%) calc((var(--p-correct) + var(--p-wrong)) * 1%),
+          #cbd5e1 calc((var(--p-correct) + var(--p-wrong)) * 1%) 100%
+        );
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .pie::after {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #d6e4f3;
+    }
+    .pie-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #1f3f60;
+      z-index: 1;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .stats-lines {
+      display: grid;
+      gap: 4px;
+      font-size: 0.84rem;
+      color: #35506a;
+    }
+    .stats-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px dashed #e5edf7;
+      padding-bottom: 2px;
+    }
+    .stats-line:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+    .stats-empty {
+      margin-top: 10px;
+      color: #5b768f;
+      font-size: 0.88rem;
+    }
     @media (max-width: 760px) {
       .kpi-row { grid-template-columns: 1fr; }
     }
@@ -101,6 +184,13 @@
 <body>
   <div class="page-shell">
     <main>
+      <section class="card">
+        <h1 class="section-title">Test-Statistik nach Teil</h1>
+        <p class="section-subtitle">Richtig/Falsch pro Teil als animiertes Kreisdiagramm.</p>
+        <div id="portalStatsWrap" class="stats-grid"></div>
+        <div id="portalStatsEmpty" class="stats-empty hidden">Noch keine gelösten Teil-Tests vorhanden.</div>
+      </section>
+
       <section class="card">
         <h1 class="section-title">Korrigierte Briefe</h1>
         <p class="section-subtitle">Auswahl und Detailansicht Ihrer freigegebenen Korrekturen.</p>
@@ -147,7 +237,10 @@
     const topicNode = document.getElementById("portalCorrectionTopic");
     const feedbackNode = document.getElementById("portalCorrectionFeedback");
     const textNode = document.getElementById("portalCorrectionText");
+    const statsWrapNode = document.getElementById("portalStatsWrap");
+    const statsEmptyNode = document.getElementById("portalStatsEmpty");
     let corrections = [];
+    let teilStats = [];
 
     function setStatus(type, text) {
       if (!statusNode) return;
@@ -198,7 +291,62 @@
       });
     }
 
-    async function loadCorrections() {
+    function animatePie(pieNode, pCorrect, pWrong, pUnanswered) {
+      if (!pieNode) return;
+      const duration = 820;
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const ease = 1 - Math.pow(1 - t, 3);
+        pieNode.style.setProperty("--p-correct", String((pCorrect * ease).toFixed(2)));
+        pieNode.style.setProperty("--p-wrong", String((pWrong * ease).toFixed(2)));
+        pieNode.style.setProperty("--p-unanswered", String((pUnanswered * ease).toFixed(2)));
+        if (t < 1) window.requestAnimationFrame(step);
+      }
+      window.requestAnimationFrame(step);
+    }
+
+    function renderTeilStats() {
+      if (!statsWrapNode) return;
+      statsWrapNode.innerHTML = "";
+      if (!Array.isArray(teilStats) || !teilStats.length) {
+        if (statsEmptyNode) statsEmptyNode.classList.remove("hidden");
+        return;
+      }
+      if (statsEmptyNode) statsEmptyNode.classList.add("hidden");
+      teilStats.forEach((row) => {
+        const total = Math.max(0, Number(row.total || 0));
+        const correct = Math.max(0, Number(row.correct || 0));
+        const wrong = Math.max(0, Number(row.wrong || 0));
+        const unanswered = Math.max(0, Number(row.unanswered || Math.max(0, total - correct - wrong)));
+        const pCorrect = total > 0 ? (correct / total) * 100 : 0;
+        const pWrong = total > 0 ? (wrong / total) * 100 : 0;
+        const pUnanswered = Math.max(0, 100 - pCorrect - pWrong);
+        const title = `${String(row.module_label || row.module || "Teil")} Teil ${String(row.teil || "-")}`;
+
+        const card = document.createElement("article");
+        card.className = "stats-card";
+        card.innerHTML = `
+          <h3 class="stats-title">${title}</h3>
+          <div class="pie-wrap">
+            <div class="pie">
+              <div class="pie-center">${Math.round(pCorrect)}%<br>Richtig</div>
+            </div>
+            <div class="stats-lines">
+              <div class="stats-line"><span>Doğru</span><strong>${correct}</strong></div>
+              <div class="stats-line"><span>Yanlış</span><strong>${wrong}</strong></div>
+              <div class="stats-line"><span>Boş</span><strong>${unanswered}</strong></div>
+              <div class="stats-line"><span>Toplam</span><strong>${total}</strong></div>
+            </div>
+          </div>
+        `;
+        statsWrapNode.appendChild(card);
+        const pie = card.querySelector(".pie");
+        animatePie(pie, pCorrect, pWrong, pUnanswered);
+      });
+    }
+
+    async function loadPortalData() {
       setStatus("", "Wird geladen...");
       try {
         const response = await fetch("./api/member_portal.php", { method: "GET", cache: "no-store" });
@@ -206,6 +354,8 @@
         if (!response.ok) {
           throw new Error(String(payload?.error || `Fehler: ${response.status}`));
         }
+        teilStats = Array.isArray(payload.teil_stats) ? payload.teil_stats : [];
+        renderTeilStats();
         corrections = Array.isArray(payload.corrections) ? payload.corrections : [];
         bindSelect();
         setStatus("", corrections.length ? `${corrections.length} Korrekturen geladen.` : "Noch keine freigegebenen Korrekturen.");
@@ -214,7 +364,7 @@
       }
     }
 
-    loadCorrections();
+    loadPortalData();
   </script>
 </body>
 </html>
