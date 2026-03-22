@@ -78,6 +78,82 @@
       background: #fbfdff;
       color: #2b445b;
     }
+    .dtz-ads-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .dtz-ad-card {
+      border: 1px solid #d4e3f4;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 8px 9px;
+      display: grid;
+      gap: 6px;
+    }
+    .dtz-ad-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+    }
+    .dtz-ad-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: #eef5ff;
+      border: 1px solid #c8daef;
+      color: #1f4670;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+    .dtz-ad-headline {
+      margin: 0;
+      color: #1c416b;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .dtz-ad-lines {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 3px;
+    }
+    .dtz-ad-line {
+      color: #36597b;
+      font-size: 0.79rem;
+      line-height: 1.3;
+    }
+    .task-select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid #c8daef;
+      border-radius: 9px;
+      background: #ffffff;
+      color: #24486f;
+      font: inherit;
+      font-weight: 700;
+      padding: 7px 10px;
+    }
+    .dtz-dialog-task {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #dce8f6;
+      border-radius: 10px;
+      background: #fafdff;
+    }
+    .dtz-dialog-task h5 {
+      margin: 0 0 8px;
+      color: #1f3f63;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
     .dtz-wegweiser-board {
       border: 1px solid #c9d9ee;
       border-radius: 12px;
@@ -230,6 +306,9 @@
       .dtz-wegweiser-row {
         grid-template-columns: 1fr;
         gap: 6px;
+      }
+      .dtz-ads-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -445,25 +524,71 @@
     function renderTeil2(list, item) {
       addText(list, item.instructions || "");
       const ads = item && typeof item.ads === "object" ? item.ads : {};
-      if (Object.keys(ads).length) {
+      const adLabels = Object.keys(ads).sort();
+      if (adLabels.length) {
         const adBlock = document.createElement("section");
         adBlock.className = "task";
         const adTitle = document.createElement("p");
         adTitle.className = "task-title";
         adTitle.textContent = "Anzeigen";
         adBlock.appendChild(adTitle);
-        addOptions(adBlock, ads);
+
+        const grid = document.createElement("div");
+        grid.className = "dtz-ads-grid";
+        adLabels.forEach((label) => {
+          const raw = String(ads[label] || "");
+          const parts = raw.split("|").map((p) => p.trim()).filter(Boolean);
+          const headline = parts.length ? parts[0] : raw;
+          const lines = parts.length > 1 ? parts.slice(1) : [];
+          const card = document.createElement("article");
+          card.className = "dtz-ad-card";
+          card.innerHTML = `
+            <div class="dtz-ad-top">
+              <span class="dtz-ad-label">${label}</span>
+              <p class="dtz-ad-headline">${headline}</p>
+            </div>
+          `;
+          if (lines.length) {
+            const ul = document.createElement("ul");
+            ul.className = "dtz-ad-lines";
+            lines.forEach((line) => {
+              const li = document.createElement("li");
+              li.className = "dtz-ad-line";
+              li.textContent = line;
+              ul.appendChild(li);
+            });
+            card.appendChild(ul);
+          }
+          grid.appendChild(card);
+        });
+        adBlock.appendChild(grid);
+        addText(adBlock, "Wählen Sie A-H. Wenn nichts passt, wählen Sie X.");
         list.appendChild(adBlock);
       }
+
+      const selectLabels = [...adLabels, "X"];
       const situations = Array.isArray(item.situations) ? item.situations : [];
       situations.forEach((s, idx) => {
         const task = document.createElement("section");
         task.className = "task";
         const t = document.createElement("p");
         t.className = "task-title";
-        t.textContent = `${idx + 1}. ${String(s.prompt || "")}`;
+        t.textContent = `Situation ${String(s.no || idx + 1)}`;
         task.appendChild(t);
-        addText(task, "Antworten Sie mit A-H oder X.");
+        addText(task, String(s.prompt || ""));
+        const select = document.createElement("select");
+        select.className = "task-select";
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "Bitte auswählen…";
+        select.appendChild(defaultOption);
+        selectLabels.forEach((label) => {
+          const opt = document.createElement("option");
+          opt.value = label;
+          opt.textContent = label;
+          select.appendChild(opt);
+        });
+        task.appendChild(select);
         list.appendChild(task);
       });
     }
@@ -476,16 +601,24 @@
         task.className = "task";
         const t = document.createElement("p");
         t.className = "task-title";
-        t.textContent = `${idx + 1}. ${String(b.title || "Text")}`;
+        t.textContent = `${String(b.title || `Text ${idx + 1}`)}`;
         task.appendChild(t);
         addText(task, b.text || "");
         if (b.true_false) {
-          addText(task, `${String(b.true_false.statement || "")}`);
-          addOptions(task, { A: "Richtig", B: "Falsch" });
+          const tfWrap = document.createElement("div");
+          tfWrap.className = "dtz-dialog-task";
+          tfWrap.innerHTML = `<h5>${String((b.true_false && b.true_false.no) || "")}</h5>`;
+          addText(tfWrap, String(b.true_false.statement || ""));
+          addOptions(tfWrap, { A: "richtig", B: "falsch" });
+          task.appendChild(tfWrap);
         }
         if (b.mc) {
-          addText(task, String(b.mc.question || ""));
-          addOptions(task, b.mc.options || {});
+          const mcWrap = document.createElement("div");
+          mcWrap.className = "dtz-dialog-task";
+          mcWrap.innerHTML = `<h5>${String((b.mc && b.mc.no) || "")}</h5>`;
+          addText(mcWrap, String(b.mc.question || "Welche Antwort passt?"));
+          addOptions(mcWrap, b.mc.options || {});
+          task.appendChild(mcWrap);
         }
         list.appendChild(task);
       });
