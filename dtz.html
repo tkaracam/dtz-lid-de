@@ -139,6 +139,8 @@
       font-weight: 700;
       padding: 6px 10px;
       cursor: pointer;
+      width: 100%;
+      display: block;
     }
     .audio-btn.playing {
       border-color: #ffb69b;
@@ -165,6 +167,8 @@
       background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
       color: #210f1a;
       cursor: pointer;
+      width: 100%;
+      display: block;
     }
     .site-footer {
       margin-top: 26px;
@@ -199,10 +203,13 @@
       <section class="card">
         <h1>Hören Teil 1</h1>
         <div class="actions">
-          <button id="reloadBtn" class="primary-btn" type="button">Neue Aufgaben laden</button>
+          <button class="primary-btn js-reload-btn" type="button">Neue Aufgaben laden</button>
         </div>
         <div id="statusBox" class="status"></div>
         <div id="taskList"></div>
+        <div class="actions">
+          <button class="primary-btn js-reload-btn" type="button">Neue Aufgaben laden</button>
+        </div>
       </section>
     </main>
 
@@ -366,8 +373,9 @@
       }
     }
 
-    const reloadBtn = document.getElementById("reloadBtn");
-    if (reloadBtn) reloadBtn.addEventListener("click", () => { void loadHoerenTeil1(); });
+    document.querySelectorAll(".js-reload-btn").forEach(btn => {
+      btn.addEventListener("click", () => { void loadHoerenTeil1(); });
+    });
     void loadHoerenTeil1();
   </script>
 </body>
