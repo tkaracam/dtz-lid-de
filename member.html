@@ -51,9 +51,69 @@
       line-height: 1.45;
     }
 
+    .page-shell {
+      width: min(1180px, calc(100% - 1rem));
+      margin: 20px auto 34px;
+    }
+
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid #e7d6de;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 10px 24px rgba(59, 52, 66, 0.1);
+    }
+
+    .nav-brand {
+      display: inline-flex;
+      align-items: baseline;
+      font-weight: 900;
+      font-size: 0.92rem;
+      letter-spacing: 0.02em;
+      color: #000000;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav-link {
+      min-height: 36px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid #e6cfda;
+      background: #fff7fa;
+      color: #6f4f5f;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.86rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+    }
+
+    .nav-link:hover {
+      transform: translateY(-1px);
+      color: #f2849e;
+      border-color: #f2b7c9;
+      box-shadow: 0 8px 16px rgba(167, 94, 121, 0.16);
+    }
+
     .container {
       width: min(820px, calc(100% - 1.2rem));
-      margin: 24px auto 40px;
+      margin: 0 auto 14px;
     }
 
     .card {
@@ -218,14 +278,109 @@
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
+
+    .site-footer {
+      margin-top: 18px;
+      border: 1px solid #e8e9ed;
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 12px 14px;
+      color: #6f6c77;
+      font-size: 0.86rem;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid #e6cfda;
+      background: #fff7fa;
+      color: #6f4f5f;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 8px 16px rgba(167, 94, 121, 0.1);
+      transition: transform 0.14s ease, box-shadow 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+    }
+
+    .footer-link:hover {
+      transform: translateY(-1px);
+      color: #f2849e;
+      border-color: #f2b7c9;
+      box-shadow: 0 10px 20px rgba(167, 94, 121, 0.18);
+    }
+
+    .footer-socials {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .social-link {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #e6cfda;
+      color: #7a5563;
+      background: linear-gradient(145deg, #fff7fa, #f9eef3);
+      transition: transform 0.14s ease, box-shadow 0.14s ease, color 0.14s ease;
+      text-decoration: none;
+    }
+
+    .social-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(167, 94, 121, 0.16);
+      color: #f2849e;
+    }
+
+    .social-link svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      display: block;
+    }
+
+    @media (max-width: 760px) {
+      .top-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .nav-links {
+        justify-content: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
-  <main class="container">
-    <div class="top-links">
-      <a class="link-btn btn-blue" href="./index.html">Zur Startseite</a>
-      <a class="link-btn btn-red" href="./admin.html">Admin-Panel</a>
-    </div>
+  <div class="page-shell">
+    <nav class="top-nav">
+      <a class="nav-brand" href="./index.html">DTZ-LiD</a>
+      <div class="nav-links">
+        <a class="nav-link" href="./index.html">Start</a>
+        <a class="nav-link" href="./member.html">Mitgliederbereich</a>
+        <a class="nav-link" href="./admin.html">Admin-Panel</a>
+      </div>
+    </nav>
+
+    <main class="container">
 
     <section class="card">
       <h1>Mitgliederbereich</h1>
@@ -297,7 +452,26 @@
         <div id="memberRegisterStatus" class="status hidden"></div>
       </div>
     </section>
-  </main>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-links">
+        <a class="footer-link" href="agb.html">AGB</a>
+      </div>
+      <div class="footer-socials">
+        <a class="social-link" href="https://instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5ZM12 7.3A4.7 4.7 0 1 1 7.3 12 4.7 4.7 0 0 1 12 7.3Zm0 1.8A2.9 2.9 0 1 0 14.9 12 2.9 2.9 0 0 0 12 9.1Zm5.15-2.55a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z"/>
+          </svg>
+        </a>
+        <a class="social-link" href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M17.98 3H21l-6.56 7.5L22.2 21h-6.1l-4.78-6.27L5.8 21H2.78l7-8L2 3h6.25l4.32 5.72L17.98 3Zm-1.07 16.2h1.68L7.32 4.72H5.5L16.91 19.2Z"/>
+          </svg>
+        </a>
+      </div>
+    </footer>
+  </div>
 
   <script>
     function setStatus(id, type, message) {
