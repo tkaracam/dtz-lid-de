@@ -49,66 +49,128 @@
         #f6fbff;
     }
     h1, h2 { font-family: "Space Grotesk", sans-serif; }
-    .navbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: calc(env(safe-area-inset-top, 0px) + 14px) clamp(22px, 3.2vw, 38px) 14px clamp(10px, 1.4vw, 18px);
-      border-top: 1px solid var(--ora-stroke);
-      border-bottom: 1px solid var(--ora-stroke);
-      background: #ffffff;
+    .page-shell {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
+    }
+    .top-nav {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       width: 100%;
+      max-width: none;
       z-index: 1004;
+      border-top: 1px solid var(--ora-stroke);
+      border-bottom: 1px solid var(--ora-stroke);
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+      padding: calc(env(safe-area-inset-top, 0px) + 14px) clamp(22px, 3.2vw, 38px) 14px clamp(10px, 1.4vw, 18px);
+      background: #ffffff;
+      box-shadow: none;
+      backdrop-filter: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
-    .brand {
+    .nav-brand {
       font-family: "Space Grotesk", sans-serif;
       font-weight: 700;
+      font-size: 1.08rem;
+      letter-spacing: 0.01em;
       color: #1f3347;
       text-decoration: none;
-      font-size: 1.08rem;
+      white-space: nowrap;
     }
     .nav-right {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       margin-left: auto;
       position: relative;
     }
-    .nav-actions { display: inline-flex; gap: 8px; }
-    .nav-links {
+    .nav-quick {
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      margin-left: auto;
+    }
+    .nav-links {
+      position: fixed;
+      top: 0;
+      right: -100vw;
+      height: 100vh;
+      max-height: 100dvh;
+      width: min(360px, 88vw);
+      padding: 92px 24px 24px;
+      background: #ffffff;
+      border-left: 1px solid rgba(146, 181, 220, 0.2);
+      box-shadow: -22px 0 48px rgba(0, 0, 0, 0.25);
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      overflow-y: auto;
+      transition: right 0.28s ease;
     }
     .nav-link {
       text-decoration: none;
       color: var(--ora-menu-text);
       border: 1px solid var(--ora-stroke);
       background: var(--ora-surface-soft);
-      padding: 6px 10px;
+      padding: 9px 12px;
       border-radius: 10px;
-      font-size: 0.76rem;
+      font-size: 0.9rem;
       font-weight: 700;
-      line-height: 1;
+      line-height: 1.2;
+      width: 100%;
+      text-align: left;
+      display: block;
+      box-shadow: none;
+      margin-bottom: 8px;
+    }
+    .nav-link:hover {
+      color: var(--ora-menu-text);
+      border-color: #c8def1;
+      transform: none;
+      box-shadow: none;
+    }
+    .nav-links .menu-cta {
+      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
+      color: #210f1a;
+      border-color: transparent;
+      font-weight: 700;
     }
     .nav-toggle {
-      display: none;
-      min-height: 34px;
-      border-radius: 10px;
-      border: 1px solid var(--ora-stroke);
-      background: var(--ora-surface-soft);
-      color: var(--ora-menu-text);
-      padding: 6px 10px;
-      font: inherit;
-      font-size: 0.76rem;
+      display: block;
+      position: relative;
+      z-index: 1002;
+      pointer-events: auto;
+      background: transparent;
+      color: #2e4760;
+      border: 0;
+      font-family: "Space Grotesk", sans-serif;
       font-weight: 700;
-      line-height: 1;
+      font-size: 0.95rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       cursor: pointer;
+      padding: 8px 0;
+      margin-right: 10px;
+      min-width: auto;
+      height: auto;
+      border-radius: 0;
+    }
+    .nav-toggle::after {
+      content: "";
+      display: block;
+      margin-top: 3px;
+      height: 2px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--ora-accent-a), #36d5ff);
     }
     .quick-btn {
       text-decoration: none;
@@ -120,16 +182,80 @@
       font-size: 0.76rem;
       font-weight: 700;
       line-height: 1;
+      box-shadow: none;
+      transform: none;
     }
-    .quick-btn-primary {
+    .quick-btn-primary,
+    .quick-btn-primary:hover {
       background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
       color: #210f1a;
       border-color: transparent;
+      box-shadow: none;
+    }
+    .top-nav.open .nav-links {
+      right: 0;
+      display: flex;
+    }
+    .lang-switch {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 0;
+      width: 100%;
+    }
+    .lang-toggle-btn {
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1px solid #d5e6f6;
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fcff;
+      color: var(--ora-menu-text);
+      width: 100%;
+      box-sizing: border-box;
+      cursor: pointer;
+      font-family: "Sora", sans-serif;
+    }
+    .lang-toggle-btn::after {
+      content: "▾";
+      font-size: 0.92rem;
+      color: #537391;
+    }
+    .lang-switch-group.is-open .lang-toggle-btn::after {
+      content: "▴";
+    }
+    .lang-switch-list {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .lang-switch-group.is-open .lang-switch-list {
+      display: flex;
+    }
+    .lang-switch-list a {
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1px solid #d5e6f6;
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      background: #f8fcff;
+      color: var(--ora-menu-text);
+      text-decoration: none;
+      width: 100%;
+      box-sizing: border-box;
     }
     .container {
       width: min(1120px, 92vw);
       margin: 0 auto;
-      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
+      padding: 0 0 0;
     }
     .card {
       margin-top: 18px;
@@ -177,32 +303,25 @@
     .status.ok { display:block; color:#104934; background:#e9f8f0; border-color:#b8e3cb; }
     .status.error { display:block; color:#7a1f24; background:#fdecee; border-color:#f3c1c6; }
     @media (max-width: 980px) {
-      .nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
-      .nav-links {
-        display: none;
-        position: absolute;
-        top: calc(100% + 10px);
-        right: 0;
-        flex-direction: column;
-        align-items: stretch;
-        min-width: 180px;
-        background: #ffffff;
-        border: 1px solid var(--ora-stroke);
-        border-radius: 12px;
-        padding: 8px;
-        box-shadow: 0 14px 28px rgba(35, 71, 108, 0.16);
-        z-index: 20;
+      .top-nav {
+        padding: calc(env(safe-area-inset-top, 0px) + 12px) 20px 12px 10px;
       }
-      .navbar.open .nav-links { display: flex; }
-      .nav-link { text-align: center; }
+      .nav-links {
+        box-shadow: -22px 0 48px rgba(0, 0, 0, 0.4);
+      }
+      .nav-quick {
+        display: inline-flex;
+        gap: 6px;
+      }
     }
   </style>
 </head>
 <body>
-  <header id="registerTopNav" class="navbar">
-    <a class="brand" href="./member.html?mode=login">DTZ-LiD</a>
+  <div class="page-shell">
+  <nav id="registerTopNav" class="top-nav">
+    <a class="nav-brand" href="./member.html?mode=login">DTZ-LiD</a>
     <div class="nav-right">
-      <div class="nav-actions">
+      <div class="nav-quick">
         <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
         <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
       </div>
@@ -211,11 +330,19 @@
         <a class="nav-link" href="./index.html">Katina</a>
         <a class="nav-link" href="./index.html">Tarot</a>
         <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
-        <a class="nav-link" href="./register.html">Registrieren</a>
+        <a class="nav-link menu-cta" href="./register.html">Registrieren</a>
+        <div class="lang-switch lang-switch-group" id="registerLangGroup">
+          <button type="button" class="lang-toggle-btn" id="registerLangToggleBtn" aria-expanded="false">🌐 Sprachen</button>
+          <div class="lang-switch-list" id="registerLangList" hidden>
+            <a href="./register.html?lang=tr">🇹🇷 Türkisch</a>
+            <a href="./register.html?lang=en">🇬🇧 Englisch</a>
+            <a href="./register.html?lang=de">🇩🇪 Deutsch</a>
+          </div>
+        </div>
       </div>
       <button id="registerNavToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">Menu</button>
     </div>
-  </header>
+  </nav>
   <main class="container">
     <section class="card">
       <h1>Registrieren</h1>
@@ -242,6 +369,7 @@
       <div id="memberRegisterStatus" class="status"></div>
     </section>
   </main>
+  </div>
   <script>
     function setStatus(type, message) {
       const box = document.getElementById("memberRegisterStatus");
@@ -301,15 +429,47 @@
     if (registerForm) registerForm.addEventListener("submit", event => { event.preventDefault(); void registerMember(); });
 
     const registerNavToggleBtn = document.getElementById("registerNavToggleBtn");
-    const registerTopNav = document.getElementById("registerTopNav");
-    if (registerNavToggleBtn && registerTopNav) {
+    if (registerNavToggleBtn) {
       registerNavToggleBtn.addEventListener("click", () => {
-        registerTopNav.classList.toggle("open");
-      });
-      registerTopNav.querySelectorAll(".nav-links a").forEach(link => {
-        link.addEventListener("click", () => registerTopNav.classList.remove("open"));
+        const nav = document.getElementById("registerTopNav");
+        if (!nav) return;
+        nav.classList.toggle("open");
       });
     }
+
+    const registerLangToggleBtn = document.getElementById("registerLangToggleBtn");
+    const registerLangGroup = document.getElementById("registerLangGroup");
+    const registerLangList = document.getElementById("registerLangList");
+    if (registerLangToggleBtn && registerLangGroup && registerLangList) {
+      registerLangToggleBtn.addEventListener("click", () => {
+        const nextOpen = !registerLangGroup.classList.contains("is-open");
+        registerLangGroup.classList.toggle("is-open", nextOpen);
+        registerLangList.hidden = !nextOpen;
+        registerLangToggleBtn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      });
+    }
+
+    document.addEventListener("click", event => {
+      const nav = document.getElementById("registerTopNav");
+      if (!nav || !nav.classList.contains("open")) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (!nav.contains(target)) {
+        nav.classList.remove("open");
+        if (registerLangGroup && registerLangList && registerLangToggleBtn) {
+          registerLangGroup.classList.remove("is-open");
+          registerLangList.hidden = true;
+          registerLangToggleBtn.setAttribute("aria-expanded", "false");
+        }
+      }
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      const nav = document.getElementById("registerTopNav");
+      if (!nav) return;
+      nav.classList.remove("open");
+    });
   </script>
 </body>
 </html>
