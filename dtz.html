@@ -232,23 +232,35 @@
     </nav>
 
     <main>
-      <section id="hoerenSection" class="card">
+      <section id="hoerenSection1" class="card">
         <button id="hoerenSectionToggle" class="section-trigger" type="button" aria-expanded="true">
           <h1>Hören Teil 1</h1>
         </button>
         <div class="section-panel">
           <div class="actions">
-            <button class="primary-btn js-reload-btn" type="button">Neue Aufgaben laden</button>
+            <button class="primary-btn js-reload-btn" data-section="1" type="button">Neue Aufgaben laden</button>
           </div>
-          <div id="statusBox" class="status"></div>
-          <div id="taskList"></div>
+          <div id="statusBox1" class="status"></div>
+          <div id="taskList1"></div>
           <div class="actions">
-            <button class="primary-btn js-reload-btn" type="button">Neue Aufgaben laden</button>
+            <button class="primary-btn js-reload-btn" data-section="1" type="button">Neue Aufgaben laden</button>
           </div>
         </div>
       </section>
-      <section class="card">
-        <h1>Neue Sekme</h1>
+      <section id="hoerenSection2" class="card">
+        <button id="hoerenSectionToggle2" class="section-trigger" type="button" aria-expanded="true">
+          <h1>Hören Teil 2</h1>
+        </button>
+        <div class="section-panel">
+          <div class="actions">
+            <button class="primary-btn js-reload-btn" data-section="2" type="button">Neue Aufgaben laden</button>
+          </div>
+          <div id="statusBox2" class="status"></div>
+          <div id="taskList2"></div>
+          <div class="actions">
+            <button class="primary-btn js-reload-btn" data-section="2" type="button">Neue Aufgaben laden</button>
+          </div>
+        </div>
       </section>
     </main>
 
@@ -263,8 +275,8 @@
     let currentPlaybackToken = 0;
     const audioCache = new Map();
 
-    function setStatus(message, isError) {
-      const box = document.getElementById("statusBox");
+    function setStatus(boxId, message, isError) {
+      const box = document.getElementById(boxId);
       if (!box) return;
       box.style.display = message ? "block" : "none";
       box.textContent = message || "";
@@ -273,21 +285,21 @@
       box.style.color = isError ? "#7a1f24" : "#2e4c67";
     }
 
-    function renderTasks(payload) {
-      const list = document.getElementById("taskList");
+    function renderTasks(listId, statusId, payload, missingMessage) {
+      const list = document.getElementById(listId);
       if (!list) return;
       list.innerHTML = "";
       const set = payload && payload.set ? payload.set : {};
       const items = Array.isArray(set.items) ? set.items : [];
       if (!items.length) {
-        setStatus("Hören Teil 1 görevleri bulunamadı.", true);
+        setStatus(statusId, missingMessage, true);
         return;
       }
 
       const first = items[0] || {};
       const questions = Array.isArray(first.questions) ? first.questions : [];
       if (!questions.length) {
-        setStatus("Bu sette soru yok.", true);
+        setStatus(statusId, "Bu sette soru yok.", true);
         return;
       }
 
@@ -371,7 +383,7 @@
                 }
               }
             } catch (err) {
-              setStatus(`Audio yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+              setStatus(statusId, `Audio yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
             } finally {
               if (token === currentPlaybackToken && currentSpeechBtn === audioBtn) {
                 audioBtn.classList.remove("playing");
@@ -396,37 +408,62 @@
         list.appendChild(wrap);
       });
 
-      setStatus("", false);
+      setStatus(statusId, "", false);
     }
 
     async function loadHoerenTeil1() {
-      setStatus("", false);
+      setStatus("statusBox1", "", false);
       try {
         const response = await fetch("./api/dtz_hoeren_teil1_public.php", { method: "GET" });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok || !payload.ok) {
           throw new Error(String(payload.error || `Fehler: ${response.status}`));
         }
-        renderTasks(payload);
+        renderTasks("taskList1", "statusBox1", payload, "Hören Teil 1 görevleri bulunamadı.");
       } catch (err) {
-        setStatus(`Hören Teil 1 yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+        setStatus("statusBox1", `Hören Teil 1 yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+      }
+    }
+
+    async function loadHoerenTeil2() {
+      setStatus("statusBox2", "", false);
+      try {
+        const response = await fetch("./api/dtz_hoeren_teil2_public.php", { method: "GET" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.ok) {
+          throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        }
+        renderTasks("taskList2", "statusBox2", payload, "Hören Teil 2 görevleri bulunamadı.");
+      } catch (err) {
+        setStatus("statusBox2", `Hören Teil 2 yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
       }
     }
 
     document.querySelectorAll(".js-reload-btn").forEach(btn => {
-      btn.addEventListener("click", () => { void loadHoerenTeil1(); });
+      btn.addEventListener("click", () => {
+        if (String(btn.getAttribute("data-section") || "") === "2") {
+          void loadHoerenTeil2();
+          return;
+        }
+        void loadHoerenTeil1();
+      });
     });
 
-    const hoerenSection = document.getElementById("hoerenSection");
-    const hoerenSectionToggle = document.getElementById("hoerenSectionToggle");
-    if (hoerenSection && hoerenSectionToggle) {
-      hoerenSectionToggle.addEventListener("click", () => {
-        const collapsed = hoerenSection.classList.toggle("section-collapsed");
-        hoerenSectionToggle.setAttribute("aria-expanded", String(!collapsed));
+    function bindSectionToggle(sectionId, toggleId) {
+      const section = document.getElementById(sectionId);
+      const toggle = document.getElementById(toggleId);
+      if (!section || !toggle) return;
+      toggle.addEventListener("click", () => {
+        const collapsed = section.classList.toggle("section-collapsed");
+        toggle.setAttribute("aria-expanded", String(!collapsed));
       });
     }
 
+    bindSectionToggle("hoerenSection1", "hoerenSectionToggle");
+    bindSectionToggle("hoerenSection2", "hoerenSectionToggle2");
+
     void loadHoerenTeil1();
+    void loadHoerenTeil2();
   </script>
 </body>
 </html>
