@@ -3381,12 +3381,22 @@
           </div>
           <div class="grid">
             <div>
+              <label for="memberRegisterPasswordRepeat">Passwort wiederholen</label>
+              <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben">
+            </div>
+            <div>
               <label for="memberRegisterDisplayName">Anzeigename</label>
               <input id="memberRegisterDisplayName" type="text" autocomplete="name" placeholder="Vorname Nachname">
             </div>
+          </div>
+          <div class="grid">
             <div>
               <label for="memberRegisterEmail">E-Mail (optional)</label>
               <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com">
+            </div>
+            <div>
+              <label for="memberRegisterEmailRepeat">E-Mail wiederholen (optional)</label>
+              <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben">
             </div>
           </div>
           <div class="admin-entry-actions">
@@ -10439,17 +10449,31 @@
       setMemberRegisterStatus("", "");
       const usernameInput = document.getElementById("memberRegisterUsername");
       const passwordInput = document.getElementById("memberRegisterPassword");
+      const passwordRepeatInput = document.getElementById("memberRegisterPasswordRepeat");
       const displayNameInput = document.getElementById("memberRegisterDisplayName");
       const emailInput = document.getElementById("memberRegisterEmail");
+      const emailRepeatInput = document.getElementById("memberRegisterEmailRepeat");
       const button = document.getElementById("memberEntryCreateBtn");
-      if (!usernameInput || !passwordInput || !button) return;
+      if (!usernameInput || !passwordInput || !passwordRepeatInput || !button) return;
 
       const username = String(usernameInput.value || "").trim().toLowerCase();
       const password = String(passwordInput.value || "");
+      const passwordRepeat = String(passwordRepeatInput.value || "");
       const display_name = String((displayNameInput && displayNameInput.value) || "").trim();
       const email = String((emailInput && emailInput.value) || "").trim();
+      const emailRepeat = String((emailRepeatInput && emailRepeatInput.value) || "").trim();
       if (!username || !password) {
         setMemberRegisterStatus("error", "Für die Registrierung sind Benutzername und Passwort erforderlich.");
+        return;
+      }
+      if (password !== passwordRepeat) {
+        setMemberRegisterStatus("error", "Passwort und Passwort-Wiederholung stimmen nicht überein.");
+        passwordRepeatInput.focus();
+        return;
+      }
+      if (email !== emailRepeat) {
+        setMemberRegisterStatus("error", "E-Mail und E-Mail-Wiederholung stimmen nicht überein.");
+        if (emailRepeatInput) emailRepeatInput.focus();
         return;
       }
 
@@ -10457,6 +10481,15 @@
       const oldLabel = button.textContent;
       button.textContent = "Registrierung läuft...";
       try {
+        const existsResponse = await fetch(`./api/member_username_exists.php?username=${encodeURIComponent(username)}`, { method: "GET" });
+        const existsPayload = await existsResponse.json().catch(() => ({}));
+        if (!existsResponse.ok) {
+          throw new Error(String(existsPayload.error || `Fehler: ${existsResponse.status}`));
+        }
+        if (existsPayload.exists) {
+          throw new Error("Benutzername ist bereits vergeben.");
+        }
+
         const response = await fetch("./api/member_register.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -14420,6 +14453,24 @@
     const memberRegisterPassword = document.getElementById("memberRegisterPassword");
     if (memberRegisterPassword) {
       memberRegisterPassword.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void registerMemberFromIndex();
+        }
+      });
+    }
+    const memberRegisterPasswordRepeat = document.getElementById("memberRegisterPasswordRepeat");
+    if (memberRegisterPasswordRepeat) {
+      memberRegisterPasswordRepeat.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void registerMemberFromIndex();
+        }
+      });
+    }
+    const memberRegisterEmailRepeat = document.getElementById("memberRegisterEmailRepeat");
+    if (memberRegisterEmailRepeat) {
+      memberRegisterEmailRepeat.addEventListener("keydown", event => {
         if (event.key === "Enter") {
           event.preventDefault();
           void registerMemberFromIndex();
