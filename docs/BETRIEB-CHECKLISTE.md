@@ -1,7 +1,7 @@
 # DTZ-LIB Betrieb-Checkliste
 
 ## Täglich (vor Unterricht)
-1. `https://www.dtz-lib.com/admin.html` öffnen und anmelden.
+1. `https://www.dtz-lid.de/admin.html` öffnen und anmelden.
 2. `Virtueller Saal` erstellen (Titel, Dauer, Aufgabe).
 3. Raumcode kopieren und an Lernende senden.
 
@@ -30,9 +30,9 @@
   - Hard refresh (`Cmd+Shift+R`)
   - Inkognito testen
 - Domainproblem:
-  - zuerst `https://www.dtz-lib.com` testen
+  - zuerst `https://www.dtz-lid.de` testen
 
 ## Referenz-URLs
-- Schüler: `https://www.dtz-lib.com/index.html`
-- Admin: `https://www.dtz-lib.com/admin.html`
+- Schüler: `https://www.dtz-lid.de/index.html`
+- Admin: `https://www.dtz-lid.de/admin.html`
 - Render Service: `https://dashboard.render.com`

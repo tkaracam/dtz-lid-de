@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_URL="${1:-https://dtz-lid.com}"
+BASE_URL="${1:-https://dtz-lid.de}"
 TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-20}"
 
 GREEN='\033[0;32m'

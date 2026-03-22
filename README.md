@@ -80,10 +80,10 @@ Her deploy sonrası kritik kontrolleri tek komutla çalıştır:
 
 ```bash
 chmod +x tools/healthcheck.sh
-./tools/healthcheck.sh https://dtz-lid.com
+./tools/healthcheck.sh https://dtz-lid.de
 ```
 
-İstersen base URL vermezsen script varsayılan olarak `https://dtz-lid.com` kullanır.
+İstersen base URL vermezsen script varsayılan olarak `https://dtz-lid.de` kullanır.
 
 ### Otomatik (GitHub Actions)
 
@@ -91,7 +91,7 @@ chmod +x tools/healthcheck.sh
 
 - Workflow: `Post-Deploy Healthcheck`
 - Dosya: `.github/workflows/post-deploy-healthcheck.yml`
-- Varsayılan hedef: `https://dtz-lid.com`
+- Varsayılan hedef: `https://dtz-lid.de`
 - Deploy ısınması için başlangıç beklemesi + retry mekanizması içerir.
 
 Manuel tetikleme için:
