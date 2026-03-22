@@ -122,6 +122,33 @@
       background: #fbfdff;
       color: #2b445b;
     }
+    .audio-row {
+      margin: 8px 0 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .audio-btn {
+      min-height: 34px;
+      border-radius: 9px;
+      border: 1px solid #cfe2f2;
+      background: #f8fcff;
+      color: #1f3347;
+      font: inherit;
+      font-weight: 700;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .audio-btn.playing {
+      border-color: #ffb69b;
+      background: #fff4ef;
+      color: #8e3a1d;
+    }
+    .audio-hint {
+      font-size: 0.82rem;
+      color: var(--ora-muted);
+    }
     .actions {
       display: flex;
       gap: 10px;
@@ -185,6 +212,8 @@
   </div>
 
   <script>
+    let currentSpeechBtn = null;
+
     function setStatus(message, isError) {
       const box = document.getElementById("statusBox");
       if (!box) return;
@@ -220,6 +249,65 @@
         title.className = "task-title";
         title.textContent = `${idx + 1}. ${String(q.question || "Soru")}`;
         wrap.appendChild(title);
+
+        const audioScript = String(q && q.audio_script ? q.audio_script : "").trim();
+        if (audioScript) {
+          const audioRow = document.createElement("div");
+          audioRow.className = "audio-row";
+
+          const audioBtn = document.createElement("button");
+          audioBtn.className = "audio-btn";
+          audioBtn.type = "button";
+          audioBtn.textContent = "Audio abspielen";
+          audioBtn.addEventListener("click", () => {
+            if (!("speechSynthesis" in window)) {
+              setStatus("Audio bu cihazda desteklenmiyor.", true);
+              return;
+            }
+
+            if (currentSpeechBtn === audioBtn) {
+              window.speechSynthesis.cancel();
+              audioBtn.classList.remove("playing");
+              audioBtn.textContent = "Audio abspielen";
+              currentSpeechBtn = null;
+              return;
+            }
+
+            window.speechSynthesis.cancel();
+            if (currentSpeechBtn) {
+              currentSpeechBtn.classList.remove("playing");
+              currentSpeechBtn.textContent = "Audio abspielen";
+            }
+
+            const utterance = new SpeechSynthesisUtterance(audioScript);
+            utterance.lang = "de-DE";
+            utterance.rate = 0.95;
+            utterance.onend = () => {
+              audioBtn.classList.remove("playing");
+              audioBtn.textContent = "Audio abspielen";
+              if (currentSpeechBtn === audioBtn) currentSpeechBtn = null;
+            };
+            utterance.onerror = () => {
+              audioBtn.classList.remove("playing");
+              audioBtn.textContent = "Audio abspielen";
+              if (currentSpeechBtn === audioBtn) currentSpeechBtn = null;
+              setStatus("Audio oynatılırken hata oluştu.", true);
+            };
+
+            audioBtn.classList.add("playing");
+            audioBtn.textContent = "Audio stoppen";
+            currentSpeechBtn = audioBtn;
+            window.speechSynthesis.speak(utterance);
+          });
+
+          const hint = document.createElement("span");
+          hint.className = "audio-hint";
+          hint.textContent = "Soru metni sesli okunur";
+
+          audioRow.appendChild(audioBtn);
+          audioRow.appendChild(hint);
+          wrap.appendChild(audioRow);
+        }
 
         const options = q && typeof q.options === "object" ? q.options : {};
         Object.keys(options).forEach(key => {
