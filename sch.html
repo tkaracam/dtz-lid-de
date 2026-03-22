@@ -75,6 +75,131 @@
       color: #35506a;
       font-size: 0.9rem;
     }
+    .field-label {
+      display: block;
+      margin-bottom: 6px;
+      color: #284763;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+    .topic-select {
+      width: 100%;
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid #c8daef;
+      background: #ffffff;
+      color: #234363;
+      font: inherit;
+      font-weight: 600;
+      padding: 7px 10px;
+    }
+    .mail-task-card {
+      margin-top: 10px;
+      border: 1px solid #d4e3f4;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .mail-task-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+    .mail-task-title {
+      margin: 0;
+      color: #1f3f60;
+      font-size: 1.02rem;
+      font-weight: 700;
+    }
+    .mail-task-state {
+      border-radius: 999px;
+      border: 1px solid #b9dff0;
+      background: #ecfaff;
+      color: #1e5d76;
+      padding: 3px 9px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .mail-task-text {
+      margin: 0;
+      color: #2d4f6e;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    .mail-task-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #2d4f6e;
+      line-height: 1.4;
+    }
+    .mail-task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      color: #355a7a;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .mail-started {
+      display: inline-flex;
+      width: fit-content;
+      border-radius: 8px;
+      border: 1px solid #cfe3a6;
+      background: #f4ffd9;
+      color: #4f6f13;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .mail-compose {
+      margin-top: 10px;
+      border: 1px solid #d4e3f4;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .mail-compose h4 {
+      margin: 0;
+      color: #1f3f60;
+      font-size: 1rem;
+    }
+    .mail-note {
+      margin: 0;
+      color: #5d738b;
+      font-size: 0.83rem;
+    }
+    .mail-textarea {
+      width: 100%;
+      min-height: 180px;
+      resize: vertical;
+      border: 1px solid #c8daef;
+      border-radius: 10px;
+      background: #fbfeff;
+      color: #223f5b;
+      font: inherit;
+      line-height: 1.45;
+      padding: 10px;
+    }
+    .upload-btn {
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font: inherit;
+      font-weight: 700;
+      color: #210f1a;
+      background: linear-gradient(95deg, #ff8a57, #ff5f7f);
+      cursor: pointer;
+      padding: 8px 14px;
+      width: 100%;
+    }
     .task-notify-badge {
       display: inline-flex;
       margin-left: 6px;
@@ -108,11 +233,162 @@
             <span class="card-accordion-icon">▾</span>
           </summary>
           <div class="card-accordion-body">
-            <div id="portalMailHomeworkWrap" class="portal-list">Keine Mail-Aufgaben vorhanden.</div>
+            <div id="portalMailHomeworkWrap" class="portal-list">
+              <label class="field-label" for="mailTopicSelect">Thema auswählen</label>
+              <select id="mailTopicSelect" class="topic-select"></select>
+
+              <section class="mail-task-card">
+                <div class="mail-task-head">
+                  <h4 id="mailTaskTitle" class="mail-task-title"></h4>
+                  <span class="mail-task-state">Läuft</span>
+                </div>
+                <p id="mailTaskPrompt" class="mail-task-text"></p>
+                <ul id="mailTaskBullets" class="mail-task-list"></ul>
+                <div class="mail-task-meta">
+                  <span id="mailTaskDuration">Dauer: 5 Std.</span>
+                  <span>Abgabetimer: <span id="mailTimer">299:41</span></span>
+                </div>
+                <span class="mail-started">BEREITS GESTARTET</span>
+              </section>
+
+              <section class="mail-compose">
+                <h4>Ihre Mail</h4>
+                <p class="mail-note">Kopieren, Einfügen und Ausschneiden sind gesperrt.</p>
+                <p class="mail-note">Empfehlung: 50-80 Wörter für B1-Ziel.</p>
+                <textarea id="mailBodyInput" class="mail-textarea" placeholder="Schreiben Sie hier Ihre Mail..."></textarea>
+                <button id="mailUploadBtn" class="upload-btn" type="button">BRIEF HOCHLADEN</button>
+              </section>
+            </div>
           </div>
         </details>
       </section>
     </main>
   </div>
+  <script>
+    const mailTopics = [
+      {
+        id: "krankmeldung-kurs",
+        title: "Krankmeldung im Kurs",
+        prompt: "Sie schreiben Ihrer Kursleiterin eine E-Mail. Sie können morgen nicht zum Deutschkurs kommen, weil Sie einen Arzttermin haben. Schreiben Sie eine E-Mail.",
+        bullets: [
+          "Entschuldigen Sie sich und nennen Sie den Grund.",
+          "Nennen Sie den Termin (z. B. morgen) und was passiert.",
+          "Bitten Sie um eine Information oder ein Ersatzmaterial."
+        ],
+        durationHours: 5,
+        startRemainingSec: 299 * 60 + 41
+      },
+      {
+        id: "termin-amt",
+        title: "Termin bei Behörde verschieben",
+        prompt: "Sie haben morgen einen Termin beim Amt, können aber nicht kommen. Schreiben Sie eine E-Mail.",
+        bullets: [
+          "Nennen Sie kurz den Grund.",
+          "Bitten Sie um einen neuen Termin.",
+          "Fragen Sie nach den nächsten freien Zeiten."
+        ],
+        durationHours: 5,
+        startRemainingSec: 299 * 60 + 41
+      },
+      {
+        id: "kindergarten-info",
+        title: "Nachricht an Kindergarten",
+        prompt: "Ihr Kind ist krank und kann morgen nicht in den Kindergarten. Schreiben Sie eine E-Mail.",
+        bullets: [
+          "Entschuldigen Sie Ihr Kind.",
+          "Schreiben Sie, wie lange es ungefähr fehlt.",
+          "Bitten Sie um die Aufgaben/Hinweise für zu Hause."
+        ],
+        durationHours: 5,
+        startRemainingSec: 299 * 60 + 41
+      }
+    ];
+
+    const topicSelect = document.getElementById("mailTopicSelect");
+    const taskTitle = document.getElementById("mailTaskTitle");
+    const taskPrompt = document.getElementById("mailTaskPrompt");
+    const taskBullets = document.getElementById("mailTaskBullets");
+    const taskDuration = document.getElementById("mailTaskDuration");
+    const timerNode = document.getElementById("mailTimer");
+    const bodyInput = document.getElementById("mailBodyInput");
+    const uploadBtn = document.getElementById("mailUploadBtn");
+
+    let currentRemainingSec = 299 * 60 + 41;
+    let timerId = null;
+
+    function formatTimer(totalSec) {
+      const safe = Math.max(0, Number(totalSec || 0));
+      const minutes = Math.floor(safe / 60);
+      const seconds = safe % 60;
+      return `${String(minutes)}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function stopTimer() {
+      if (timerId) {
+        window.clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function startTimer() {
+      stopTimer();
+      timerNode.textContent = formatTimer(currentRemainingSec);
+      timerId = window.setInterval(() => {
+        currentRemainingSec = Math.max(0, currentRemainingSec - 1);
+        timerNode.textContent = formatTimer(currentRemainingSec);
+        if (currentRemainingSec <= 0) stopTimer();
+      }, 1000);
+    }
+
+    function renderTopic(topic) {
+      if (!topic) return;
+      taskTitle.textContent = topic.title;
+      taskPrompt.textContent = topic.prompt;
+      taskBullets.innerHTML = "";
+      (topic.bullets || []).forEach((line) => {
+        const li = document.createElement("li");
+        li.textContent = line;
+        taskBullets.appendChild(li);
+      });
+      taskDuration.textContent = `Dauer: ${String(topic.durationHours || 5)} Std.`;
+      currentRemainingSec = Number(topic.startRemainingSec || (299 * 60 + 41));
+      startTimer();
+    }
+
+    function initTopics() {
+      if (!topicSelect) return;
+      mailTopics.forEach((topic, idx) => {
+        const opt = document.createElement("option");
+        opt.value = topic.id;
+        opt.textContent = topic.title;
+        if (idx === 0) opt.selected = true;
+        topicSelect.appendChild(opt);
+      });
+      topicSelect.addEventListener("change", () => {
+        const topic = mailTopics.find((t) => t.id === topicSelect.value) || mailTopics[0];
+        renderTopic(topic);
+      });
+      renderTopic(mailTopics[0]);
+    }
+
+    if (bodyInput) {
+      ["copy", "cut", "paste"].forEach((evt) => {
+        bodyInput.addEventListener(evt, (event) => event.preventDefault());
+      });
+    }
+
+    if (uploadBtn) {
+      uploadBtn.addEventListener("click", () => {
+        const text = String((bodyInput && bodyInput.value) || "").trim();
+        if (!text) {
+          window.alert("Bitte zuerst Ihre Mail schreiben.");
+          return;
+        }
+        window.alert("Brief hochgeladen.");
+      });
+    }
+
+    initTopics();
+  </script>
 </body>
 </html>
