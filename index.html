@@ -3313,24 +3313,35 @@
       </div>
       </section>
     <div class="shell">
-      <section id="adminEntryCard" class="card auth-card admin-entry-card">
-        <h2 class="section-title">Konto erstellen / Login</h2>
-        <p class="section-subtitle">DTZ-LiD.de sürümünde tek bir admin hesabı kullanılmaktadır.</p>
+      <section id="memberEntryCard" class="card auth-card admin-entry-card">
+        <h2 class="section-title">Kayıt Ol / Üye Girişi</h2>
+        <p class="section-subtitle">Yeni kullanıcı hesabı oluşturabilir veya mevcut üye hesabınla giriş yapabilirsin.</p>
         <div class="grid">
           <div>
-            <label for="adminEntryUsername">Benutzername</label>
-            <input id="adminEntryUsername" type="text" autocomplete="username" placeholder="admin">
+            <label for="memberEntryUsername">Benutzername</label>
+            <input id="memberEntryUsername" type="text" autocomplete="username" placeholder="ör. ahmet123">
           </div>
           <div>
-            <label for="adminEntryPassword">Passwort</label>
-            <input id="adminEntryPassword" type="password" autocomplete="current-password" placeholder="Admin-Passwort">
+            <label for="memberEntryPassword">Passwort</label>
+            <input id="memberEntryPassword" type="password" autocomplete="current-password" placeholder="Üye şifresi">
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <label for="memberEntryDisplayName">Name (Kayıt için)</label>
+            <input id="memberEntryDisplayName" type="text" autocomplete="name" placeholder="Ad Soyad">
+          </div>
+          <div>
+            <label for="memberEntryEmail">E-Mail (opsiyonel)</label>
+            <input id="memberEntryEmail" type="email" autocomplete="email" placeholder="ornek@mail.com">
           </div>
         </div>
         <div class="admin-entry-actions">
-          <button id="adminEntryLoginBtn" type="button">Login</button>
-          <button id="adminEntryCreateBtn" type="button" class="ghost-btn">Konto erstellen</button>
+          <button id="memberEntryLoginBtn" type="button">Üye Girişi</button>
+          <button id="memberEntryCreateBtn" type="button" class="ghost-btn">Kayıt Ol</button>
+          <button id="memberEntryLogoutBtn" type="button" class="ghost-btn">Çıkış</button>
         </div>
-        <div id="adminEntryStatus" class="hidden"></div>
+        <div id="memberEntryStatus" class="hidden"></div>
       </section>
 
       <section id="studentAuthCard" class="card auth-card">
@@ -10311,25 +10322,30 @@
       if (nav) nav.classList.remove("open");
     }
 
-    function setAdminEntryStatus(type, message) {
-      const box = document.getElementById("adminEntryStatus");
+    function setMemberEntryStatus(type, message) {
+      const box = document.getElementById("memberEntryStatus");
       if (!box) return;
       box.className = type ? type : "hidden";
       box.textContent = message || "";
       if (!type) box.classList.add("hidden");
     }
 
-    async function loginAdminFromIndex() {
-      setAdminEntryStatus("", "");
-      const usernameInput = document.getElementById("adminEntryUsername");
-      const passwordInput = document.getElementById("adminEntryPassword");
-      const button = document.getElementById("adminEntryLoginBtn");
+    async function loginMemberFromIndex() {
+      setMemberEntryStatus("", "");
+      const usernameInput = document.getElementById("memberEntryUsername");
+      const passwordInput = document.getElementById("memberEntryPassword");
+      const button = document.getElementById("memberEntryLoginBtn");
       if (!passwordInput || !button) return;
 
-      const username = String((usernameInput && usernameInput.value) || "").trim().toLowerCase() || "admin";
+      const username = String((usernameInput && usernameInput.value) || "").trim().toLowerCase();
       const password = String(passwordInput.value || "");
+      if (!username) {
+        setMemberEntryStatus("error", "Bitte Benutzername eingeben.");
+        if (usernameInput) usernameInput.focus();
+        return;
+      }
       if (!password.trim()) {
-        setAdminEntryStatus("error", "Bitte Admin-Passwort eingeben.");
+        setMemberEntryStatus("error", "Bitte Passwort eingeben.");
         passwordInput.focus();
         return;
       }
@@ -10338,7 +10354,7 @@
       const oldLabel = button.textContent;
       button.textContent = "Login läuft...";
       try {
-        const response = await fetch("./api/admin_login.php", {
+        const response = await fetch("./api/member_login.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password })
@@ -10347,19 +10363,79 @@
         if (!response.ok) {
           throw new Error(String(payload.error || `Fehler: ${response.status}`));
         }
-        setAdminEntryStatus("ok", "Login erfolgreich. Adminbereich wird geöffnet...");
-        window.location.href = "./admin.html";
+        const displayName = String(payload.display_name || payload.username || username);
+        setMemberEntryStatus("ok", `Üye girişi başarılı: ${displayName}`);
       } catch (err) {
         const msg = String(err && err.message ? err.message : err || "Login fehlgeschlagen.");
-        setAdminEntryStatus("error", msg);
+        setMemberEntryStatus("error", msg);
       } finally {
         button.disabled = false;
         button.textContent = oldLabel || "Login";
       }
     }
 
-    function showCreateAccountInfoOnIndex() {
-      setAdminEntryStatus("error", "Bu sürümde yeni hesap açma kapalıdır. Sadece ana admin girişi kullanılabilir.");
+    async function registerMemberFromIndex() {
+      setMemberEntryStatus("", "");
+      const usernameInput = document.getElementById("memberEntryUsername");
+      const passwordInput = document.getElementById("memberEntryPassword");
+      const displayNameInput = document.getElementById("memberEntryDisplayName");
+      const emailInput = document.getElementById("memberEntryEmail");
+      const button = document.getElementById("memberEntryCreateBtn");
+      if (!usernameInput || !passwordInput || !button) return;
+
+      const username = String(usernameInput.value || "").trim().toLowerCase();
+      const password = String(passwordInput.value || "");
+      const display_name = String((displayNameInput && displayNameInput.value) || "").trim();
+      const email = String((emailInput && emailInput.value) || "").trim();
+      if (!username || !password) {
+        setMemberEntryStatus("error", "Kayıt için kullanıcı adı ve şifre zorunludur.");
+        return;
+      }
+
+      button.disabled = true;
+      const oldLabel = button.textContent;
+      button.textContent = "Kayıt yapılıyor...";
+      try {
+        const response = await fetch("./api/member_register.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password, display_name, email })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        }
+        setMemberEntryStatus("ok", "Kayıt başarılı. Şimdi Üye Girişi ile giriş yapabilirsiniz.");
+      } catch (err) {
+        const msg = String(err && err.message ? err.message : err || "Kayıt başarısız.");
+        setMemberEntryStatus("error", msg);
+      } finally {
+        button.disabled = false;
+        button.textContent = oldLabel || "Kayıt Ol";
+      }
+    }
+
+    async function logoutMemberFromIndex() {
+      try {
+        await fetch("./api/member_logout.php", { method: "POST" });
+        setMemberEntryStatus("ok", "Üye oturumu kapatıldı.");
+      } catch (_) {
+        setMemberEntryStatus("error", "Çıkış yapılırken bir hata oluştu.");
+      }
+    }
+
+    async function hydrateMemberSessionOnIndex() {
+      try {
+        const response = await fetch("./api/member_session.php", { method: "GET" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.authenticated) return;
+        const usernameInput = document.getElementById("memberEntryUsername");
+        if (usernameInput && payload.username) usernameInput.value = String(payload.username);
+        const display = String(payload.display_name || payload.username || "member");
+        setMemberEntryStatus("ok", `Aktif üye oturumu: ${display}`);
+      } catch (_) {
+        // ignore session bootstrap errors
+      }
     }
 
     function ensureUsableMainView() {
@@ -14227,31 +14303,39 @@
     }
     document.getElementById("studentLoginBtn").addEventListener("click", loginStudent);
     document.getElementById("studentLogoutBtn").addEventListener("click", logoutStudent);
-    const adminEntryLoginBtn = document.getElementById("adminEntryLoginBtn");
-    if (adminEntryLoginBtn) {
-      adminEntryLoginBtn.addEventListener("click", () => {
-        void loginAdminFromIndex();
+    const memberEntryLoginBtn = document.getElementById("memberEntryLoginBtn");
+    if (memberEntryLoginBtn) {
+      memberEntryLoginBtn.addEventListener("click", () => {
+        void loginMemberFromIndex();
       });
     }
-    const adminEntryCreateBtn = document.getElementById("adminEntryCreateBtn");
-    if (adminEntryCreateBtn) {
-      adminEntryCreateBtn.addEventListener("click", showCreateAccountInfoOnIndex);
+    const memberEntryCreateBtn = document.getElementById("memberEntryCreateBtn");
+    if (memberEntryCreateBtn) {
+      memberEntryCreateBtn.addEventListener("click", () => {
+        void registerMemberFromIndex();
+      });
     }
-    const adminEntryPassword = document.getElementById("adminEntryPassword");
-    if (adminEntryPassword) {
-      adminEntryPassword.addEventListener("keydown", event => {
+    const memberEntryLogoutBtn = document.getElementById("memberEntryLogoutBtn");
+    if (memberEntryLogoutBtn) {
+      memberEntryLogoutBtn.addEventListener("click", () => {
+        void logoutMemberFromIndex();
+      });
+    }
+    const memberEntryPassword = document.getElementById("memberEntryPassword");
+    if (memberEntryPassword) {
+      memberEntryPassword.addEventListener("keydown", event => {
         if (event.key === "Enter") {
           event.preventDefault();
-          void loginAdminFromIndex();
+          void loginMemberFromIndex();
         }
       });
     }
-    const adminEntryUsername = document.getElementById("adminEntryUsername");
-    if (adminEntryUsername) {
-      adminEntryUsername.addEventListener("keydown", event => {
+    const memberEntryUsername = document.getElementById("memberEntryUsername");
+    if (memberEntryUsername) {
+      memberEntryUsername.addEventListener("keydown", event => {
         if (event.key === "Enter") {
           event.preventDefault();
-          void loginAdminFromIndex();
+          void loginMemberFromIndex();
         }
       });
     }
@@ -14556,6 +14640,7 @@
     }
     renderHomeDashboard();
     removeArchivedBskFrontend();
+    void hydrateMemberSessionOnIndex();
     checkStudentSession().finally(() => {
       applyRouteFromQuery();
       ensureUsableMainView();
