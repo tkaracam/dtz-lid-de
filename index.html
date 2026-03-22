@@ -175,17 +175,37 @@
       border-radius: 10px; padding: 9px 12px; display: flex; align-items: center;
       background: #f8fcff; color: var(--ora-menu-text); text-decoration: none;
     }
-    .empty-tab {
+    .home-panel {
       margin-top: 20px;
       border-radius: 16px;
       border: 1px solid var(--ora-stroke);
       background: linear-gradient(160deg, #ffffff, #f5faff);
-      min-height: 420px;
       padding: 22px;
       box-shadow: var(--ora-shadow);
     }
-    .empty-tab h1 { margin: 0; font-size: 1rem; color: var(--ora-muted); letter-spacing: 0.08em; text-transform: uppercase; }
-    .empty-content { margin-top: 16px; border-radius: 12px; border: 1px dashed #c6dbef; background: #fbfdff; min-height: 320px; }
+    .home-panel h1 { margin: 0; font-size: 1rem; color: var(--ora-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .home-buttons {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .home-btn {
+      min-height: 58px;
+      border-radius: 12px;
+      border: 1px solid #cfe2f2;
+      background: #ffffff;
+      color: #1f3347;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.96rem;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+    }
+    .home-btn:hover {
+      border-color: #b8d5ec;
+      background: #f8fcff;
+    }
     .site-footer {
       margin-top: 26px;
       border-top: 1px solid var(--ora-stroke);
@@ -230,9 +250,16 @@
     </nav>
 
     <main>
-      <section class="empty-tab">
+      <section class="home-panel">
         <h1>Sekme</h1>
-        <div class="empty-content"></div>
+        <div class="home-buttons">
+          <button class="home-btn" type="button">A1</button>
+          <button class="home-btn" type="button">A2</button>
+          <button class="home-btn" type="button">B1</button>
+          <button class="home-btn" type="button">TEST</button>
+          <button class="home-btn" type="button">DTZ</button>
+          <button class="home-btn" type="button">LiD</button>
+        </div>
       </section>
     </main>
 
