@@ -3,18 +3,392 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>L | DTZ-LiD.de</title>
+  <title>Lesen | DTZ-LiD.de</title>
   <style>
-    :root { --ora-bg:#f6fbff; --ora-text:#1f3142; --ora-stroke:#d8e7f5; }
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;color:var(--ora-text);font-family:"Sora",sans-serif;background:radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),var(--ora-bg)}
-    .page-shell{width:min(1120px,92vw);margin:0 auto;padding:calc(env(safe-area-inset-top,0px)+90px) 0 60px}
-    .card{margin-top:20px;border-radius:16px;border:1px solid var(--ora-stroke);background:linear-gradient(160deg,#fff,#f5faff);padding:22px;max-width:860px}
-    h1{margin:0}
+    :root {
+      --ora-bg: #f6fbff;
+      --ora-text: #1f3142;
+      --ora-stroke: #d8e7f5;
+      --ora-accent-a: #ff8a57;
+      --ora-accent-b: #ff5f7f;
+      --ora-shadow: 0 16px 36px rgba(35, 71, 108, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ora-text);
+      font-family: "Sora", sans-serif;
+      background:
+        radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),
+        radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),
+        var(--ora-bg);
+    }
+    .page-shell {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
+    }
+    .card {
+      margin-top: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--ora-stroke);
+      background: linear-gradient(160deg, #ffffff, #f5faff);
+      padding: 22px;
+      box-shadow: var(--ora-shadow);
+      max-width: 860px;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid #b8d5ec;
+      background: #f3f9ff;
+      color: #2e4c67;
+      display: none;
+    }
+    .task {
+      margin-top: 12px;
+      border: 1px solid #d8e7f5;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 12px;
+    }
+    .task-title {
+      margin: 0 0 8px;
+      font-weight: 700;
+      color: #1f3347;
+    }
+    .task-text {
+      margin: 6px 0;
+      padding: 8px 10px;
+      border: 1px solid #e2edf8;
+      border-radius: 8px;
+      background: #fbfdff;
+      color: #2b445b;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+    .task-option {
+      display: block;
+      margin: 6px 0;
+      padding: 8px 10px;
+      border: 1px solid #e2edf8;
+      border-radius: 8px;
+      background: #fbfdff;
+      color: #2b445b;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .primary-btn {
+      min-height: 38px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 700;
+      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
+      color: #210f1a;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+    }
+    .section-trigger {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .section-trigger h1 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.35rem;
+    }
+    .section-trigger::after {
+      content: "-";
+      font-size: 1.2rem;
+      line-height: 1;
+      color: #3f5f80;
+      font-weight: 700;
+    }
+    .card.section-collapsed .section-trigger::after { content: "+"; }
+    .section-panel { margin-top: 12px; }
+    .card.section-collapsed .section-panel { display: none; }
   </style>
   <script defer src="/assets/site-shell.js"></script>
 </head>
 <body>
-  <div class="page-shell"><main><section class="card"><h1>L</h1></section></main></div>
+  <div class="page-shell">
+    <main>
+      <section id="lesenSection1" class="card section-collapsed">
+        <button id="lesenSectionToggle1" class="section-trigger" type="button" aria-expanded="false"><h1>Lesen Teil 1</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="1" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox1" class="status"></div>
+          <div id="taskList1"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="1" type="button">Neue Aufgaben laden</button></div>
+        </div>
+      </section>
+
+      <section id="lesenSection2" class="card section-collapsed">
+        <button id="lesenSectionToggle2" class="section-trigger" type="button" aria-expanded="false"><h1>Lesen Teil 2</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="2" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox2" class="status"></div>
+          <div id="taskList2"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="2" type="button">Neue Aufgaben laden</button></div>
+        </div>
+      </section>
+
+      <section id="lesenSection3" class="card section-collapsed">
+        <button id="lesenSectionToggle3" class="section-trigger" type="button" aria-expanded="false"><h1>Lesen Teil 3</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="3" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox3" class="status"></div>
+          <div id="taskList3"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="3" type="button">Neue Aufgaben laden</button></div>
+        </div>
+      </section>
+
+      <section id="lesenSection4" class="card section-collapsed">
+        <button id="lesenSectionToggle4" class="section-trigger" type="button" aria-expanded="false"><h1>Lesen Teil 4</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="4" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox4" class="status"></div>
+          <div id="taskList4"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="4" type="button">Neue Aufgaben laden</button></div>
+        </div>
+      </section>
+
+      <section id="lesenSection5" class="card section-collapsed">
+        <button id="lesenSectionToggle5" class="section-trigger" type="button" aria-expanded="false"><h1>Lesen Teil 5</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="5" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox5" class="status"></div>
+          <div id="taskList5"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-teil="5" type="button">Neue Aufgaben laden</button></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function setStatus(boxId, message, isError) {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+      box.style.display = message ? "block" : "none";
+      box.textContent = message || "";
+      box.style.borderColor = isError ? "#f3c1c6" : "#b8d5ec";
+      box.style.background = isError ? "#fdecee" : "#f3f9ff";
+      box.style.color = isError ? "#7a1f24" : "#2e4c67";
+    }
+
+    function addText(list, value) {
+      const text = String(value || "").trim();
+      if (!text) return;
+      const p = document.createElement("div");
+      p.className = "task-text";
+      p.textContent = text;
+      list.appendChild(p);
+    }
+
+    function addOptions(list, options) {
+      const map = options && typeof options === "object" ? options : {};
+      Object.keys(map).forEach(key => {
+        const row = document.createElement("div");
+        row.className = "task-option";
+        row.textContent = `${key}) ${String(map[key] || "")}`;
+        list.appendChild(row);
+      });
+    }
+
+    function renderTeil1(list, item) {
+      addText(list, item.instructions || "");
+      const wegweiser = Array.isArray(item.wegweiser) ? item.wegweiser : [];
+      if (wegweiser.length) {
+        addText(list, `${String(item.wegweiser_title || "Wegweiser")}:\n${wegweiser.join("\n")}`);
+      }
+      const situations = Array.isArray(item.situations) ? item.situations : [];
+      situations.forEach((s, idx) => {
+        const task = document.createElement("section");
+        task.className = "task";
+        const t = document.createElement("p");
+        t.className = "task-title";
+        t.textContent = `${idx + 1}. ${String(s.prompt || "")}`;
+        task.appendChild(t);
+        addOptions(task, s.options || {});
+        list.appendChild(task);
+      });
+    }
+
+    function renderTeil2(list, item) {
+      addText(list, item.instructions || "");
+      const ads = item && typeof item.ads === "object" ? item.ads : {};
+      if (Object.keys(ads).length) {
+        const adBlock = document.createElement("section");
+        adBlock.className = "task";
+        const adTitle = document.createElement("p");
+        adTitle.className = "task-title";
+        adTitle.textContent = "Anzeigen";
+        adBlock.appendChild(adTitle);
+        addOptions(adBlock, ads);
+        list.appendChild(adBlock);
+      }
+      const situations = Array.isArray(item.situations) ? item.situations : [];
+      situations.forEach((s, idx) => {
+        const task = document.createElement("section");
+        task.className = "task";
+        const t = document.createElement("p");
+        t.className = "task-title";
+        t.textContent = `${idx + 1}. ${String(s.prompt || "")}`;
+        task.appendChild(t);
+        addText(task, "Antworten Sie mit A-H oder X.");
+        list.appendChild(task);
+      });
+    }
+
+    function renderTeil3(list, item) {
+      addText(list, item.instructions || "");
+      const blocks = Array.isArray(item.blocks) ? item.blocks : [];
+      blocks.forEach((b, idx) => {
+        const task = document.createElement("section");
+        task.className = "task";
+        const t = document.createElement("p");
+        t.className = "task-title";
+        t.textContent = `${idx + 1}. ${String(b.title || "Text")}`;
+        task.appendChild(t);
+        addText(task, b.text || "");
+        if (b.true_false) {
+          addText(task, `${String(b.true_false.statement || "")}`);
+          addOptions(task, { A: "Richtig", B: "Falsch" });
+        }
+        if (b.mc) {
+          addText(task, String(b.mc.question || ""));
+          addOptions(task, b.mc.options || {});
+        }
+        list.appendChild(task);
+      });
+    }
+
+    function renderTeil4(list, item) {
+      addText(list, item.instructions || "");
+      addText(list, item.text || "");
+      const statements = Array.isArray(item.statements) ? item.statements : [];
+      statements.forEach((s, idx) => {
+        const task = document.createElement("section");
+        task.className = "task";
+        const t = document.createElement("p");
+        t.className = "task-title";
+        t.textContent = `${idx + 1}. ${String(s.statement || "")}`;
+        task.appendChild(t);
+        addOptions(task, { A: "Richtig", B: "Falsch" });
+        list.appendChild(task);
+      });
+    }
+
+    function renderTeil5(list, item) {
+      addText(list, item.instructions || "");
+      addText(list, item.text_template || "");
+      if (item.example && item.example.options) {
+        const ex = document.createElement("section");
+        ex.className = "task";
+        const t = document.createElement("p");
+        t.className = "task-title";
+        t.textContent = "Beispiel (0)";
+        ex.appendChild(t);
+        addOptions(ex, item.example.options || {});
+        list.appendChild(ex);
+      }
+      const gaps = Array.isArray(item.gaps) ? item.gaps : [];
+      gaps.forEach((g, idx) => {
+        const task = document.createElement("section");
+        task.className = "task";
+        const t = document.createElement("p");
+        t.className = "task-title";
+        t.textContent = `${idx + 1}. Lücke ${String(g.no || "")}`;
+        task.appendChild(t);
+        addOptions(task, g.options || {});
+        list.appendChild(task);
+      });
+    }
+
+    function renderLesen(listId, statusId, teil, payload) {
+      const list = document.getElementById(listId);
+      if (!list) return;
+      list.innerHTML = "";
+      const set = payload && payload.set ? payload.set : {};
+      const items = Array.isArray(set.items) ? set.items : [];
+      const item = items[0] || null;
+      if (!item) {
+        setStatus(statusId, `Lesen Teil ${teil} görevleri bulunamadı.`, true);
+        return;
+      }
+
+      if (teil === 1) renderTeil1(list, item);
+      if (teil === 2) renderTeil2(list, item);
+      if (teil === 3) renderTeil3(list, item);
+      if (teil === 4) renderTeil4(list, item);
+      if (teil === 5) renderTeil5(list, item);
+
+      setStatus(statusId, "", false);
+    }
+
+    async function loadLesenTeil(teil) {
+      const statusId = `statusBox${teil}`;
+      const listId = `taskList${teil}`;
+      setStatus(statusId, "", false);
+      try {
+        const response = await fetch(`./api/dtz_lesen_teil${teil}_public.php`, { method: "GET" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.ok) {
+          throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        }
+        renderLesen(listId, statusId, teil, payload);
+      } catch (err) {
+        setStatus(statusId, `Lesen Teil ${teil} yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+      }
+    }
+
+    document.querySelectorAll(".js-reload-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const teil = Number(btn.getAttribute("data-teil") || "1");
+        void loadLesenTeil(teil);
+      });
+    });
+
+    function bindSectionToggle(sectionId, toggleId) {
+      const section = document.getElementById(sectionId);
+      const toggle = document.getElementById(toggleId);
+      if (!section || !toggle) return;
+      toggle.addEventListener("click", () => {
+        const collapsed = section.classList.toggle("section-collapsed");
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+      });
+    }
+
+    bindSectionToggle("lesenSection1", "lesenSectionToggle1");
+    bindSectionToggle("lesenSection2", "lesenSectionToggle2");
+    bindSectionToggle("lesenSection3", "lesenSectionToggle3");
+    bindSectionToggle("lesenSection4", "lesenSectionToggle4");
+    bindSectionToggle("lesenSection5", "lesenSectionToggle5");
+
+    void loadLesenTeil(1);
+    void loadLesenTeil(2);
+    void loadLesenTeil(3);
+    void loadLesenTeil(4);
+    void loadLesenTeil(5);
+  </script>
 </body>
 </html>
