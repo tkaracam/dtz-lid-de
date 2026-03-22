@@ -3,18 +3,116 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sch | DTZ-LiD.de</title>
+  <title>Schreiben | DTZ-LiD.de</title>
   <style>
-    :root { --ora-bg:#f6fbff; --ora-text:#1f3142; --ora-stroke:#d8e7f5; }
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;color:var(--ora-text);font-family:"Sora",sans-serif;background:radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),var(--ora-bg)}
-    .page-shell{width:min(1120px,92vw);margin:0 auto;padding:calc(env(safe-area-inset-top,0px)+90px) 0 60px}
-    .card{margin-top:20px;border-radius:16px;border:1px solid var(--ora-stroke);background:linear-gradient(160deg,#fff,#f5faff);padding:22px;max-width:860px}
-    h1{margin:0}
+    :root {
+      --ora-bg: #f6fbff;
+      --ora-text: #1f3142;
+      --ora-stroke: #d8e7f5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ora-text);
+      font-family: "Sora", sans-serif;
+      background:
+        radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),
+        radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),
+        var(--ora-bg);
+    }
+    .page-shell {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
+    }
+    .card {
+      margin-top: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--ora-stroke);
+      background: linear-gradient(160deg, #ffffff, #f5faff);
+      padding: 22px;
+      max-width: 860px;
+    }
+    h1 { margin: 0; }
+    .section-subtitle {
+      margin: 0;
+      color: #587089;
+      font-size: 0.92rem;
+    }
+    .card-accordion {
+      border: 1px solid #d6e4f3;
+      border-radius: 12px;
+      background: #ffffff;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .card-accordion-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      padding: 12px;
+      background: #f9fcff;
+    }
+    .card-accordion-summary::-webkit-details-marker { display: none; }
+    .card-accordion-summary::marker { content: ""; }
+    .title-wrap { display: grid; gap: 6px; }
+    .card-accordion-icon {
+      color: #2e4c67;
+      font-weight: 700;
+      transition: transform 0.18s ease;
+    }
+    .card-accordion[open] .card-accordion-icon { transform: rotate(180deg); }
+    .card-accordion-body { padding: 12px; border-top: 1px solid #e3edf8; }
+    .portal-list {
+      border: 1px dashed #cdddf0;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 12px;
+      color: #35506a;
+      font-size: 0.9rem;
+    }
+    .task-notify-badge {
+      display: inline-flex;
+      margin-left: 6px;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: #ff6f61;
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0 6px;
+    }
+    .hidden { display: none !important; }
   </style>
   <script defer src="/assets/site-shell.js"></script>
 </head>
 <body>
-  <div class="page-shell"><main><section class="card"><h1>Sch</h1></section></main></div>
+  <div class="page-shell">
+    <main>
+      <section class="card">
+        <h1>Schreiben</h1>
+
+        <details id="portalWriteAccordion" class="card-accordion" open>
+          <summary class="card-accordion-summary">
+            <div class="title-wrap">
+              <h3 style="margin:0;">Mail schreiben und prüfen <span id="portalTaskNotifyBadge" class="task-notify-badge hidden">0</span></h3>
+              <p class="section-subtitle">Mail-Aufgabe auswählen, bearbeiten und direkt hochladen.</p>
+            </div>
+            <span class="card-accordion-icon">▾</span>
+          </summary>
+          <div class="card-accordion-body">
+            <div id="portalMailHomeworkWrap" class="portal-list">Keine Mail-Aufgaben vorhanden.</div>
+          </div>
+        </details>
+      </section>
+    </main>
+  </div>
 </body>
 </html>
