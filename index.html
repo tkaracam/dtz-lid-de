@@ -3257,6 +3257,21 @@
     body.single-admin-only #navLidBtn {
       display: none !important;
     }
+
+    .admin-entry-card {
+      margin-bottom: 14px;
+    }
+
+    .admin-entry-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .admin-entry-actions button {
+      max-width: 260px;
+    }
   </style>
 </head>
 <body class="single-admin-only">
@@ -3298,6 +3313,26 @@
       </div>
       </section>
     <div class="shell">
+      <section id="adminEntryCard" class="card auth-card admin-entry-card">
+        <h2 class="section-title">Konto erstellen / Login</h2>
+        <p class="section-subtitle">DTZ-LiD.de sürümünde tek bir admin hesabı kullanılmaktadır.</p>
+        <div class="grid">
+          <div>
+            <label for="adminEntryUsername">Benutzername</label>
+            <input id="adminEntryUsername" type="text" autocomplete="username" placeholder="admin">
+          </div>
+          <div>
+            <label for="adminEntryPassword">Passwort</label>
+            <input id="adminEntryPassword" type="password" autocomplete="current-password" placeholder="Admin-Passwort">
+          </div>
+        </div>
+        <div class="admin-entry-actions">
+          <button id="adminEntryLoginBtn" type="button">Login</button>
+          <button id="adminEntryCreateBtn" type="button" class="ghost-btn">Konto erstellen</button>
+        </div>
+        <div id="adminEntryStatus" class="hidden"></div>
+      </section>
+
       <section id="studentAuthCard" class="card auth-card">
         <h2 class="section-title">Schüler-Login</h2>
         <div class="grid">
@@ -10276,6 +10311,57 @@
       if (nav) nav.classList.remove("open");
     }
 
+    function setAdminEntryStatus(type, message) {
+      const box = document.getElementById("adminEntryStatus");
+      if (!box) return;
+      box.className = type ? type : "hidden";
+      box.textContent = message || "";
+      if (!type) box.classList.add("hidden");
+    }
+
+    async function loginAdminFromIndex() {
+      setAdminEntryStatus("", "");
+      const usernameInput = document.getElementById("adminEntryUsername");
+      const passwordInput = document.getElementById("adminEntryPassword");
+      const button = document.getElementById("adminEntryLoginBtn");
+      if (!passwordInput || !button) return;
+
+      const username = String((usernameInput && usernameInput.value) || "").trim().toLowerCase() || "admin";
+      const password = String(passwordInput.value || "");
+      if (!password.trim()) {
+        setAdminEntryStatus("error", "Bitte Admin-Passwort eingeben.");
+        passwordInput.focus();
+        return;
+      }
+
+      button.disabled = true;
+      const oldLabel = button.textContent;
+      button.textContent = "Login läuft...";
+      try {
+        const response = await fetch("./api/admin_login.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        }
+        setAdminEntryStatus("ok", "Login erfolgreich. Adminbereich wird geöffnet...");
+        window.location.href = "./admin.html";
+      } catch (err) {
+        const msg = String(err && err.message ? err.message : err || "Login fehlgeschlagen.");
+        setAdminEntryStatus("error", msg);
+      } finally {
+        button.disabled = false;
+        button.textContent = oldLabel || "Login";
+      }
+    }
+
+    function showCreateAccountInfoOnIndex() {
+      setAdminEntryStatus("error", "Bu sürümde yeni hesap açma kapalıdır. Sadece ana admin girişi kullanılabilir.");
+    }
+
     function ensureUsableMainView() {
       const singleAdminOnly = document.body.classList.contains("single-admin-only");
       const importantIds = [
@@ -14141,6 +14227,34 @@
     }
     document.getElementById("studentLoginBtn").addEventListener("click", loginStudent);
     document.getElementById("studentLogoutBtn").addEventListener("click", logoutStudent);
+    const adminEntryLoginBtn = document.getElementById("adminEntryLoginBtn");
+    if (adminEntryLoginBtn) {
+      adminEntryLoginBtn.addEventListener("click", () => {
+        void loginAdminFromIndex();
+      });
+    }
+    const adminEntryCreateBtn = document.getElementById("adminEntryCreateBtn");
+    if (adminEntryCreateBtn) {
+      adminEntryCreateBtn.addEventListener("click", showCreateAccountInfoOnIndex);
+    }
+    const adminEntryPassword = document.getElementById("adminEntryPassword");
+    if (adminEntryPassword) {
+      adminEntryPassword.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void loginAdminFromIndex();
+        }
+      });
+    }
+    const adminEntryUsername = document.getElementById("adminEntryUsername");
+    if (adminEntryUsername) {
+      adminEntryUsername.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void loginAdminFromIndex();
+        }
+      });
+    }
     document.getElementById("newClassicLidExamBtn").addEventListener("click", generateClassicLidExam);
     document.getElementById("submitClassicLidExamBtn").addEventListener("click", evaluateClassicLidExam);
     const newSpeakingSetBtn = document.getElementById("newSpeakingSetBtn");
