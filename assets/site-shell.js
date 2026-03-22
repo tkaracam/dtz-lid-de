@@ -346,9 +346,69 @@
     });
   }
 
+  function routeBaseName() {
+    const parts = String(location.pathname || "/").split("/");
+    const last = parts[parts.length - 1] || "";
+    return last === "" ? "index.html" : last.toLowerCase();
+  }
+
+  function isProtectedMemberRoute() {
+    const base = routeBaseName();
+    const protectedRoutes = new Set([
+      "index.html",
+      "dtz.html",
+      "h.html",
+      "l.html",
+      "sch.html",
+      "spr.html"
+    ]);
+    return protectedRoutes.has(base);
+  }
+
+  function redirectToMemberLogin(base) {
+    const next = `${location.pathname}${location.search}${location.hash}`;
+    const target = `${base}member.html?mode=login&next=${encodeURIComponent(next)}`;
+    location.replace(target);
+  }
+
+  async function ensureMemberAccessNow() {
+    if (!isProtectedMemberRoute()) return;
+    const base = getBaseHref();
+    try {
+      const response = await fetch(`${base}api/member_session.php`, { method: "GET", cache: "no-store" });
+      let payload = null;
+      try {
+        payload = await response.json();
+      } catch (_) {
+        payload = null;
+      }
+      const authenticated = !!(payload && payload.authenticated);
+      if (!response.ok || !authenticated) {
+        redirectToMemberLogin(base);
+      }
+    } catch (_) {
+      redirectToMemberLogin(base);
+    }
+  }
+
+  function startMemberAccessWatch() {
+    if (!isProtectedMemberRoute()) return;
+    const run = () => { void ensureMemberAccessNow(); };
+    run();
+    window.setInterval(run, 60000);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") run();
+    });
+    window.addEventListener("focus", run);
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", mountShell, { once: true });
+    document.addEventListener("DOMContentLoaded", () => {
+      mountShell();
+      startMemberAccessWatch();
+    }, { once: true });
   } else {
     mountShell();
+    startMemberAccessWatch();
   }
 })();
