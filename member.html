@@ -724,11 +724,11 @@
       <div class="nav-right">
         <div class="nav-quick">
           <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
-          <a class="quick-btn quick-btn-primary" href="./member.html?mode=register">Registrieren</a>
+          <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
         </div>
         <div class="nav-links">
           <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
-          <a class="nav-link menu-cta" href="./member.html?mode=register">Registrieren</a>
+          <a class="nav-link menu-cta" href="./register.html">Registrieren</a>
           <a class="nav-link" href="./index.html">Start</a>
           <a class="nav-link" href="./member.html?mode=login">Mitgliederbereich</a>
           <a class="nav-link" href="./admin.html">Admin-Panel</a>
@@ -740,15 +740,9 @@
     <main class="container">
 
     <section class="card">
-      <h1>Mitgliederbereich</h1>
-      <p class="section-subtitle">Login und Registrierung sind auf dieser separaten Seite.</p>
-      <div class="tabs">
-        <button id="tabLogin" class="tab-btn active" type="button">Mitglied Login</button>
-        <button id="tabRegister" class="tab-btn" type="button">Konto erstellen</button>
-      </div>
-
+      <h1>Anmelden</h1>
+      <p class="section-subtitle">Mitglieder-Login im Orakelia-Stil.</p>
       <div id="loginPane">
-        <h2>Mitglied Login</h2>
         <div class="grid">
           <div>
             <label for="memberLoginUsername">Benutzername</label>
@@ -762,48 +756,10 @@
         <a class="inline-link" href="./forgot-password.html">Passwort vergessen</a>
         <div class="actions">
           <button id="memberEntryLoginBtn" class="btn-green" type="button">Anmelden</button>
+          <a href="./register.html" class="link-btn btn-red">Registrieren</a>
           <button id="memberEntryLogoutBtn" class="btn-red" type="button">Abmelden</button>
         </div>
         <div id="memberLoginStatus" class="status hidden"></div>
-      </div>
-
-      <div id="registerPane" class="hidden">
-        <h2>Konto erstellen</h2>
-        <div class="register-stack">
-          <div>
-            <label for="memberRegisterUsername">Benutzername</label>
-            <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen" required>
-          </div>
-          <div>
-            <label for="memberRegisterPassword">Passwort</label>
-            <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe" required>
-          </div>
-          <div>
-            <label for="memberRegisterPasswordRepeat">Passwort wiederholen</label>
-            <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben" required>
-          </div>
-          <div>
-            <label for="memberRegisterFirstName">Vorname</label>
-            <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname" required>
-          </div>
-          <div>
-            <label for="memberRegisterLastName">Nachname</label>
-            <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname" required>
-          </div>
-          <div>
-            <label for="memberRegisterEmail">E-Mail</label>
-            <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
-          </div>
-          <div>
-            <label for="memberRegisterEmailRepeat">E-Mail wiederholen</label>
-            <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben" required>
-          </div>
-        </div>
-        <div class="actions">
-          <button id="memberEntryCreateBtn" class="btn-green" type="button">Registrieren</button>
-          <button id="closeMemberRegisterBtn" class="btn-red" type="button">schließen</button>
-        </div>
-        <div id="memberRegisterStatus" class="status hidden"></div>
       </div>
     </section>
     </main>
@@ -834,18 +790,6 @@
       box.className = type ? `status ${type}` : "status hidden";
       box.textContent = message || "";
       if (!type) box.classList.add("hidden");
-    }
-
-    function activateTab(tab) {
-      const loginPane = document.getElementById("loginPane");
-      const registerPane = document.getElementById("registerPane");
-      const tabLogin = document.getElementById("tabLogin");
-      const tabRegister = document.getElementById("tabRegister");
-      const isRegister = tab === "register";
-      if (loginPane) loginPane.classList.toggle("hidden", isRegister);
-      if (registerPane) registerPane.classList.toggle("hidden", !isRegister);
-      if (tabLogin) tabLogin.classList.toggle("active", !isRegister);
-      if (tabRegister) tabRegister.classList.toggle("active", isRegister);
     }
 
     async function loginMember() {
@@ -888,78 +832,6 @@
       }
     }
 
-    async function registerMember() {
-      setStatus("memberRegisterStatus", "", "");
-      const usernameInput = document.getElementById("memberRegisterUsername");
-      const passwordInput = document.getElementById("memberRegisterPassword");
-      const passwordRepeatInput = document.getElementById("memberRegisterPasswordRepeat");
-      const firstNameInput = document.getElementById("memberRegisterFirstName");
-      const lastNameInput = document.getElementById("memberRegisterLastName");
-      const emailInput = document.getElementById("memberRegisterEmail");
-      const emailRepeatInput = document.getElementById("memberRegisterEmailRepeat");
-      const button = document.getElementById("memberEntryCreateBtn");
-      if (!usernameInput || !passwordInput || !passwordRepeatInput || !firstNameInput || !lastNameInput || !emailInput || !emailRepeatInput || !button) return;
-
-      const username = String(usernameInput.value || "").trim().toLowerCase();
-      const password = String(passwordInput.value || "");
-      const passwordRepeat = String(passwordRepeatInput.value || "");
-      const firstName = String(firstNameInput.value || "").trim();
-      const lastName = String(lastNameInput.value || "").trim();
-      const display_name = `${firstName} ${lastName}`.trim();
-      const email = String(emailInput.value || "").trim();
-      const emailRepeat = String(emailRepeatInput.value || "").trim();
-
-      if (!username || !password || !passwordRepeat || !firstName || !lastName || !email || !emailRepeat) {
-        setStatus("memberRegisterStatus", "error", "Bitte alle Pflichtfelder ausfüllen.");
-        return;
-      }
-      if (password !== passwordRepeat) {
-        setStatus("memberRegisterStatus", "error", "Passwort und Passwort-Wiederholung stimmen nicht überein.");
-        passwordRepeatInput.focus();
-        return;
-      }
-      if (email !== emailRepeat) {
-        setStatus("memberRegisterStatus", "error", "E-Mail und E-Mail-Wiederholung stimmen nicht überein.");
-        emailRepeatInput.focus();
-        return;
-      }
-
-      button.disabled = true;
-      const oldLabel = button.textContent;
-      button.textContent = "Registrierung läuft...";
-      try {
-        const existsResponse = await fetch(`./api/member_username_exists.php?username=${encodeURIComponent(username)}`, { method: "GET" });
-        const existsPayload = await existsResponse.json().catch(() => ({}));
-        if (!existsResponse.ok) {
-          throw new Error(String(existsPayload.error || `Fehler: ${existsResponse.status}`));
-        }
-        if (existsPayload.exists) {
-          throw new Error("Benutzername ist bereits vergeben.");
-        }
-
-        const response = await fetch("./api/member_register.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password, display_name, email })
-        });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(String(payload.error || `Fehler: ${response.status}`));
-        }
-
-        setStatus("memberRegisterStatus", "ok", "Registrierung erfolgreich. Weiterleitung...");
-        window.setTimeout(() => {
-          window.location.href = "./index.html";
-        }, 300);
-      } catch (err) {
-        const msg = String(err && err.message ? err.message : err || "Registrierung fehlgeschlagen.");
-        setStatus("memberRegisterStatus", "error", msg);
-      } finally {
-        button.disabled = false;
-        button.textContent = oldLabel || "Registrieren";
-      }
-    }
-
     async function logoutMember() {
       setStatus("memberLoginStatus", "", "");
       try {
@@ -984,26 +856,12 @@
       }
     }
 
-    const tabLogin = document.getElementById("tabLogin");
-    const tabRegister = document.getElementById("tabRegister");
-    if (tabLogin) tabLogin.addEventListener("click", () => activateTab("login"));
-    if (tabRegister) tabRegister.addEventListener("click", () => activateTab("register"));
-
     const memberEntryLoginBtn = document.getElementById("memberEntryLoginBtn");
     if (memberEntryLoginBtn) memberEntryLoginBtn.addEventListener("click", () => { void loginMember(); });
-
-    const memberEntryCreateBtn = document.getElementById("memberEntryCreateBtn");
-    if (memberEntryCreateBtn) memberEntryCreateBtn.addEventListener("click", () => { void registerMember(); });
 
     const memberEntryLogoutBtn = document.getElementById("memberEntryLogoutBtn");
     if (memberEntryLogoutBtn) memberEntryLogoutBtn.addEventListener("click", () => { void logoutMember(); });
 
-    const closeMemberRegisterBtn = document.getElementById("closeMemberRegisterBtn");
-    if (closeMemberRegisterBtn) {
-      closeMemberRegisterBtn.addEventListener("click", () => {
-        activateTab("login");
-      });
-    }
 
     const memberLoginPassword = document.getElementById("memberLoginPassword");
     if (memberLoginPassword) {
@@ -1025,35 +883,6 @@
       });
     }
 
-    const memberRegisterPassword = document.getElementById("memberRegisterPassword");
-    if (memberRegisterPassword) {
-      memberRegisterPassword.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          void registerMember();
-        }
-      });
-    }
-
-    const memberRegisterPasswordRepeat = document.getElementById("memberRegisterPasswordRepeat");
-    if (memberRegisterPasswordRepeat) {
-      memberRegisterPasswordRepeat.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          void registerMember();
-        }
-      });
-    }
-
-    const memberRegisterEmailRepeat = document.getElementById("memberRegisterEmailRepeat");
-    if (memberRegisterEmailRepeat) {
-      memberRegisterEmailRepeat.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          void registerMember();
-        }
-      });
-    }
 
     const memberNavToggleBtn = document.getElementById("memberNavToggleBtn");
     if (memberNavToggleBtn) {
@@ -1083,9 +912,7 @@
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("mode") === "register") {
-      activateTab("register");
-    } else {
-      activateTab("login");
+      window.location.href = "./register.html";
     }
 
     void hydrateMemberSession();

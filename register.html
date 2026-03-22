@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DTZ-LiD.de | Registrieren</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ora-bg: #f6fbff;
+      --ora-surface-soft: #f8fcff;
+      --ora-text: #1f3142;
+      --ora-muted: #587089;
+      --ora-stroke: #d8e7f5;
+      --ora-accent-a: #ff8a57;
+      --ora-accent-b: #ff5f7f;
+      --ora-shadow: 0 16px 36px rgba(35, 71, 108, 0.12);
+      --ora-menu-text: #2b445b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ora-text);
+      font-family: "Sora", sans-serif;
+      background:
+        radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),
+        radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),
+        #f6fbff;
+    }
+    h1, h2 { font-family: "Space Grotesk", sans-serif; }
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: calc(env(safe-area-inset-top, 0px) + 14px) clamp(22px, 3.2vw, 38px) 14px clamp(10px, 1.4vw, 18px);
+      border-top: 1px solid var(--ora-stroke);
+      border-bottom: 1px solid var(--ora-stroke);
+      background: #ffffff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1004;
+    }
+    .brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      color: #1f3347;
+      text-decoration: none;
+      font-size: 1.08rem;
+    }
+    .nav-actions { display: inline-flex; gap: 8px; margin-left: auto; }
+    .quick-btn {
+      text-decoration: none;
+      color: var(--ora-menu-text);
+      border: 1px solid var(--ora-stroke);
+      background: var(--ora-surface-soft);
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .quick-btn-primary {
+      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
+      color: #210f1a;
+      border-color: transparent;
+    }
+    .container {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
+    }
+    .card {
+      margin-top: 18px;
+      border-radius: 16px;
+      padding: 22px;
+      background: linear-gradient(160deg, #ffffff, #f5faff);
+      border: 1px solid var(--ora-stroke);
+      box-shadow: var(--ora-shadow);
+      max-width: 660px;
+    }
+    p { color: var(--ora-muted); margin-top: 0; }
+    label { display: block; margin-bottom: 6px; font-size: 0.88rem; color: #48657f; }
+    input {
+      width: 100%;
+      border: 1px solid var(--ora-stroke);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      margin-bottom: 12px;
+      background: #ffffff;
+      color: var(--ora-text);
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    button, .link-btn {
+      min-height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--ora-stroke);
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ora-menu-text);
+      background: var(--ora-surface-soft);
+      cursor: pointer;
+    }
+    .primary-btn {
+      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
+      color: #210f1a;
+      border-color: transparent;
+    }
+    .status { margin-top: 10px; padding: 9px 10px; border-radius: 10px; border: 1px solid transparent; display: none; }
+    .status.ok { display:block; color:#104934; background:#e9f8f0; border-color:#b8e3cb; }
+    .status.error { display:block; color:#7a1f24; background:#fdecee; border-color:#f3c1c6; }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <a class="brand" href="./index.html">DTZ-LiD</a>
+    <div class="nav-actions">
+      <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
+      <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
+    </div>
+  </header>
+  <main class="container">
+    <section class="card">
+      <h1>Registrieren</h1>
+      <p>Neues Mitgliedskonto erstellen.</p>
+      <form id="registerForm">
+        <label for="memberRegisterUsername">Benutzername</label>
+        <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen" required>
+        <label for="memberRegisterPassword">Passwort</label>
+        <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe" required>
+        <label for="memberRegisterPasswordRepeat">Passwort wiederholen</label>
+        <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben" required>
+        <label for="memberRegisterFirstName">Vorname</label>
+        <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname" required>
+        <label for="memberRegisterLastName">Nachname</label>
+        <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname" required>
+        <label for="memberRegisterEmail">E-Mail</label>
+        <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
+        <label for="memberRegisterEmailRepeat">E-Mail wiederholen</label>
+        <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben" required>
+        <div class="actions">
+          <button id="memberEntryCreateBtn" class="primary-btn" type="submit">Registrieren</button>
+          <a class="link-btn" href="./member.html?mode=login">Zurück zu Anmelden</a>
+        </div>
+      </form>
+      <div id="memberRegisterStatus" class="status"></div>
+    </section>
+  </main>
+  <script>
+    function setStatus(type, message) {
+      const box = document.getElementById("memberRegisterStatus");
+      if (!box) return;
+      box.className = type ? `status ${type}` : "status";
+      box.textContent = message || "";
+      if (!type) box.style.display = "none";
+      else box.style.display = "block";
+    }
+    async function registerMember() {
+      setStatus("", "");
+      const usernameInput = document.getElementById("memberRegisterUsername");
+      const passwordInput = document.getElementById("memberRegisterPassword");
+      const passwordRepeatInput = document.getElementById("memberRegisterPasswordRepeat");
+      const firstNameInput = document.getElementById("memberRegisterFirstName");
+      const lastNameInput = document.getElementById("memberRegisterLastName");
+      const emailInput = document.getElementById("memberRegisterEmail");
+      const emailRepeatInput = document.getElementById("memberRegisterEmailRepeat");
+      const button = document.getElementById("memberEntryCreateBtn");
+      if (!usernameInput || !passwordInput || !passwordRepeatInput || !firstNameInput || !lastNameInput || !emailInput || !emailRepeatInput || !button) return;
+      const username = String(usernameInput.value || "").trim().toLowerCase();
+      const password = String(passwordInput.value || "");
+      const passwordRepeat = String(passwordRepeatInput.value || "");
+      const firstName = String(firstNameInput.value || "").trim();
+      const lastName = String(lastNameInput.value || "").trim();
+      const display_name = `${firstName} ${lastName}`.trim();
+      const email = String(emailInput.value || "").trim();
+      const emailRepeat = String(emailRepeatInput.value || "").trim();
+      if (!username || !password || !passwordRepeat || !firstName || !lastName || !email || !emailRepeat) { setStatus("error", "Bitte alle Pflichtfelder ausfüllen."); return; }
+      if (password !== passwordRepeat) { setStatus("error", "Passwort und Passwort-Wiederholung stimmen nicht überein."); return; }
+      if (email !== emailRepeat) { setStatus("error", "E-Mail und E-Mail-Wiederholung stimmen nicht überein."); return; }
+      button.disabled = true;
+      const oldLabel = button.textContent;
+      button.textContent = "Registrierung läuft...";
+      try {
+        const existsResponse = await fetch(`./api/member_username_exists.php?username=${encodeURIComponent(username)}`, { method: "GET" });
+        const existsPayload = await existsResponse.json().catch(() => ({}));
+        if (!existsResponse.ok) throw new Error(String(existsPayload.error || `Fehler: ${existsResponse.status}`));
+        if (existsPayload.exists) throw new Error("Benutzername ist bereits vergeben.");
+        const response = await fetch("./api/member_register.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password, display_name, email })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        setStatus("ok", "Registrierung erfolgreich. Weiterleitung...");
+        window.setTimeout(() => { window.location.href = "./index.html"; }, 300);
+      } catch (err) {
+        setStatus("error", String(err && err.message ? err.message : err || "Registrierung fehlgeschlagen."));
+      } finally {
+        button.disabled = false;
+        button.textContent = oldLabel || "Registrieren";
+      }
+    }
+    const registerForm = document.getElementById("registerForm");
+    if (registerForm) registerForm.addEventListener("submit", event => { event.preventDefault(); void registerMember(); });
+  </script>
+</body>
+</html>

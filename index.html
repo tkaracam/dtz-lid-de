@@ -3666,11 +3666,11 @@
         </div>
         <div class="nav-quick">
           <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
-          <a class="quick-btn quick-btn-primary" href="./member.html?mode=register">Registrieren</a>
+          <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
         </div>
         <div class="nav-links">
           <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
-          <a class="nav-link menu-cta" href="./member.html?mode=register">Registrieren</a>
+          <a class="nav-link menu-cta" href="./register.html">Registrieren</a>
           <button id="navHomeBtn" class="nav-link" type="button">Start</button>
           <button id="navPortalBtn" class="nav-link" type="button">Portal</button>
           <button id="navNiveauBtn" class="nav-link" type="button">Sprechen</button>
@@ -3704,7 +3704,7 @@
         <p class="section-subtitle">Der Mitgliederbereich ist jetzt auf einer eigenen Seite.</p>
         <div class="admin-entry-actions">
           <a href="./member.html?mode=login" class="portal-open-btn" style="display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 16px;border-radius:999px;text-decoration:none;">Mitglied Login</a>
-          <a href="./member.html?mode=register" class="portal-open-btn" style="display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 16px;border-radius:999px;text-decoration:none;">Konto erstellen</a>
+          <a href="./register.html" class="portal-open-btn" style="display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 16px;border-radius:999px;text-decoration:none;">Konto erstellen</a>
         </div>
       </section>
 
@@ -10827,7 +10827,7 @@
         const response = await fetch("./api/member_session.php", { method: "GET" });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok || !payload.authenticated) {
-          window.location.href = "./member.html?mode=register";
+          window.location.href = "./member.html?mode=login";
           return;
         }
         const usernameInput = document.getElementById("memberLoginUsername");
@@ -10835,7 +10835,7 @@
         const display = String(payload.display_name || payload.username || "member");
         setMemberLoginStatus("ok", `Aktive Mitglieds-Sitzung: ${display}`);
       } catch (_) {
-        window.location.href = "./member.html?mode=register";
+        window.location.href = "./member.html?mode=login";
       }
     }
 
