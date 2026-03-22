@@ -3304,15 +3304,45 @@
       box-shadow: 0 6px 14px rgba(23, 122, 223, 0.22);
     }
 
-    #studentLogoutBtn,
+    #memberEntryLoginBtn,
     #memberEntryLogoutBtn {
+      border-radius: 999px;
+      min-height: 38px;
+      padding: 8px 16px;
+      color: #ffffff;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    #memberEntryLoginBtn {
+      border: 1px solid #8fddbb;
+      background: linear-gradient(135deg, #1f8f60, #42bb84);
+      box-shadow: 0 10px 22px rgba(31, 143, 96, 0.28);
+    }
+
+    #memberEntryLoginBtn:hover {
+      filter: brightness(1.02);
+      box-shadow: 0 12px 24px rgba(31, 143, 96, 0.32);
+    }
+
+    #memberEntryLogoutBtn {
+      border: 1px solid #f0a6aa;
+      background: linear-gradient(135deg, #c43a3a, #de5a5a);
+      box-shadow: 0 10px 22px rgba(196, 58, 58, 0.26);
+    }
+
+    #memberEntryLogoutBtn:hover {
+      border-color: #e8898e;
+      filter: brightness(1.02);
+      box-shadow: 0 12px 24px rgba(196, 58, 58, 0.3);
+    }
+
+    #studentLogoutBtn {
       color: #ffffff;
       border: 1px solid #f0a6aa;
       background: linear-gradient(135deg, #c43a3a, #de5a5a);
     }
 
-    #studentLogoutBtn:hover,
-    #memberEntryLogoutBtn:hover {
+    #studentLogoutBtn:hover {
       color: #ffffff;
       border-color: #e8898e;
       filter: brightness(1.02);
