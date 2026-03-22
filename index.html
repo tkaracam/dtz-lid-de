@@ -3399,11 +3399,15 @@
               <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben">
             </div>
             <div>
-              <label for="memberRegisterDisplayName">Anzeigename</label>
-              <input id="memberRegisterDisplayName" type="text" autocomplete="name" placeholder="Vorname Nachname">
+              <label for="memberRegisterFirstName">Vorname</label>
+              <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname">
             </div>
           </div>
           <div class="grid">
+            <div>
+              <label for="memberRegisterLastName">Nachname</label>
+              <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname">
+            </div>
             <div>
               <label for="memberRegisterEmail">E-Mail (optional)</label>
               <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com">
@@ -10464,7 +10468,8 @@
       const usernameInput = document.getElementById("memberRegisterUsername");
       const passwordInput = document.getElementById("memberRegisterPassword");
       const passwordRepeatInput = document.getElementById("memberRegisterPasswordRepeat");
-      const displayNameInput = document.getElementById("memberRegisterDisplayName");
+      const firstNameInput = document.getElementById("memberRegisterFirstName");
+      const lastNameInput = document.getElementById("memberRegisterLastName");
       const emailInput = document.getElementById("memberRegisterEmail");
       const emailRepeatInput = document.getElementById("memberRegisterEmailRepeat");
       const button = document.getElementById("memberEntryCreateBtn");
@@ -10473,7 +10478,9 @@
       const username = String(usernameInput.value || "").trim().toLowerCase();
       const password = String(passwordInput.value || "");
       const passwordRepeat = String(passwordRepeatInput.value || "");
-      const display_name = String((displayNameInput && displayNameInput.value) || "").trim();
+      const firstName = String((firstNameInput && firstNameInput.value) || "").trim();
+      const lastName = String((lastNameInput && lastNameInput.value) || "").trim();
+      const display_name = `${firstName} ${lastName}`.trim();
       const email = String((emailInput && emailInput.value) || "").trim();
       const emailRepeat = String((emailRepeatInput && emailRepeatInput.value) || "").trim();
       if (!username || !password) {
