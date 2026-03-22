@@ -213,6 +213,9 @@
 
   <script>
     let currentSpeechBtn = null;
+    let currentAudioPlayer = null;
+    let currentPlaybackToken = 0;
+    const audioCache = new Map();
 
     function setStatus(message, isError) {
       const box = document.getElementById("statusBox");
@@ -259,50 +262,82 @@
           audioBtn.className = "audio-btn";
           audioBtn.type = "button";
           audioBtn.textContent = "Audio abspielen";
-          audioBtn.addEventListener("click", () => {
-            if (!("speechSynthesis" in window)) {
-              setStatus("Audio bu cihazda desteklenmiyor.", true);
-              return;
-            }
+          audioBtn.addEventListener("click", async () => {
+            const stopCurrent = () => {
+              currentPlaybackToken += 1;
+              if (currentAudioPlayer) {
+                try { currentAudioPlayer.pause(); } catch (_) {}
+              }
+              if (currentSpeechBtn) {
+                currentSpeechBtn.classList.remove("playing");
+                currentSpeechBtn.textContent = "Audio abspielen";
+              }
+              currentAudioPlayer = null;
+              currentSpeechBtn = null;
+            };
 
             if (currentSpeechBtn === audioBtn) {
-              window.speechSynthesis.cancel();
-              audioBtn.classList.remove("playing");
-              audioBtn.textContent = "Audio abspielen";
-              currentSpeechBtn = null;
+              stopCurrent();
               return;
             }
 
-            window.speechSynthesis.cancel();
-            if (currentSpeechBtn) {
-              currentSpeechBtn.classList.remove("playing");
-              currentSpeechBtn.textContent = "Audio abspielen";
-            }
-
-            const utterance = new SpeechSynthesisUtterance(audioScript);
-            utterance.lang = "de-DE";
-            utterance.rate = 0.95;
-            utterance.onend = () => {
-              audioBtn.classList.remove("playing");
-              audioBtn.textContent = "Audio abspielen";
-              if (currentSpeechBtn === audioBtn) currentSpeechBtn = null;
-            };
-            utterance.onerror = () => {
-              audioBtn.classList.remove("playing");
-              audioBtn.textContent = "Audio abspielen";
-              if (currentSpeechBtn === audioBtn) currentSpeechBtn = null;
-              setStatus("Audio oynatılırken hata oluştu.", true);
-            };
-
+            stopCurrent();
             audioBtn.classList.add("playing");
             audioBtn.textContent = "Audio stoppen";
             currentSpeechBtn = audioBtn;
-            window.speechSynthesis.speak(utterance);
+            const token = currentPlaybackToken;
+
+            try {
+              let segments = audioCache.get(audioScript);
+              if (!segments) {
+                const response = await fetch("./api/dtz_tts_public.php", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ script: audioScript })
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok || !payload.ok) {
+                  throw new Error(String(payload.error || `Fehler: ${response.status}`));
+                }
+                segments = Array.isArray(payload.segments) ? payload.segments : [];
+                audioCache.set(audioScript, segments);
+              }
+
+              if (!segments.length) {
+                throw new Error("Ses segmenti üretilemedi.");
+              }
+
+              for (const seg of segments) {
+                if (token !== currentPlaybackToken) return;
+                const url = String(seg && seg.url ? seg.url : "");
+                if (!url) continue;
+                const audio = new Audio(url);
+                currentAudioPlayer = audio;
+                await new Promise((resolve, reject) => {
+                  audio.onended = resolve;
+                  audio.onerror = () => reject(new Error("Audio-Stream konnte nicht abgespielt werden."));
+                  audio.play().catch(reject);
+                });
+                const pause = Math.max(0, Number(seg && seg.pause_ms ? seg.pause_ms : 0));
+                if (pause > 0) {
+                  await new Promise(resolve => setTimeout(resolve, pause));
+                }
+              }
+            } catch (err) {
+              setStatus(`Audio yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+            } finally {
+              if (token === currentPlaybackToken && currentSpeechBtn === audioBtn) {
+                audioBtn.classList.remove("playing");
+                audioBtn.textContent = "Audio abspielen";
+                currentSpeechBtn = null;
+                currentAudioPlayer = null;
+              }
+            }
           });
 
           const hint = document.createElement("span");
           hint.className = "audio-hint";
-          hint.textContent = "Soru metni sesli okunur";
+          hint.textContent = "AI Audio (OpenAI TTS)";
 
           audioRow.appendChild(audioBtn);
           audioRow.appendChild(hint);
