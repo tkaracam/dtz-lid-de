@@ -136,14 +136,6 @@
       color: #2d4f6e;
       line-height: 1.4;
     }
-    .mail-task-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      color: #355a7a;
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
     .mail-started {
       display: inline-flex;
       width: fit-content;
@@ -200,6 +192,19 @@
       padding: 8px 14px;
       width: 100%;
     }
+    .ai-btn {
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid #b9cfe6;
+      font: inherit;
+      font-weight: 700;
+      color: #234566;
+      background: #eef6ff;
+      cursor: pointer;
+      padding: 8px 14px;
+      width: 100%;
+      margin-top: 8px;
+    }
     .upload-status {
       margin: 4px 0 0;
       font-size: 0.84rem;
@@ -209,6 +214,28 @@
     }
     .upload-status.error { color: #b1324f; }
     .upload-status.success { color: #2e6c3f; }
+    .ai-result {
+      margin: 8px 0 0;
+      border: 1px solid #d6e4f3;
+      border-radius: 10px;
+      background: #f9fcff;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .ai-result-head {
+      margin: 0;
+      color: #1f3f60;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+    .ai-result-text {
+      margin: 0;
+      color: #2d4f6e;
+      white-space: pre-wrap;
+      line-height: 1.45;
+      font-size: 0.9rem;
+    }
     .task-notify-badge {
       display: inline-flex;
       margin-left: 6px;
@@ -253,10 +280,6 @@
                 </div>
                 <p id="mailTaskPrompt" class="mail-task-text"></p>
                 <ul id="mailTaskBullets" class="mail-task-list"></ul>
-                <div class="mail-task-meta">
-                  <span id="mailTaskDuration">Dauer: 5 Std.</span>
-                  <span>Abgabetimer: <span id="mailTimer">299:41</span></span>
-                </div>
                 <span class="mail-started">BEREITS GESTARTET</span>
               </section>
 
@@ -266,7 +289,13 @@
                 <p class="mail-note">Empfehlung: 50-80 Wörter für B1-Ziel.</p>
                 <textarea id="mailBodyInput" class="mail-textarea" placeholder="Schreiben Sie hier Ihre Mail..."></textarea>
                 <button id="mailUploadBtn" class="upload-btn" type="button">BRIEF HOCHLADEN</button>
+                <button id="mailAiBtn" class="ai-btn" type="button">KI KORREKTUR</button>
                 <p id="mailUploadStatus" class="upload-status" aria-live="polite"></p>
+                <div id="mailAiResult" class="ai-result hidden">
+                  <p id="mailAiHead" class="ai-result-head"></p>
+                  <p id="mailAiFeedback" class="ai-result-text"></p>
+                  <p id="mailAiCorrected" class="ai-result-text"></p>
+                </div>
               </section>
             </div>
           </div>
@@ -284,33 +313,197 @@
           "Entschuldigen Sie sich und nennen Sie den Grund.",
           "Nennen Sie den Termin (z. B. morgen) und was passiert.",
           "Bitten Sie um eine Information oder ein Ersatzmaterial."
-        ],
-        durationHours: 5,
-        startRemainingSec: 299 * 60 + 41
+        ]
       },
       {
-        id: "termin-amt",
-        title: "Termin bei Behörde verschieben",
-        prompt: "Sie haben morgen einen Termin beim Amt, können aber nicht kommen. Schreiben Sie eine E-Mail.",
+        id: "lauter-nachbar",
+        title: "Lauter Nachbar",
+        prompt: "Sie schreiben Ihrem Nachbarn. Er hört spät abends sehr laut Musik. Schreiben Sie eine Nachricht.",
         bullets: [
-          "Nennen Sie kurz den Grund.",
-          "Bitten Sie um einen neuen Termin.",
-          "Fragen Sie nach den nächsten freien Zeiten."
-        ],
-        durationHours: 5,
-        startRemainingSec: 299 * 60 + 41
+          "Beschreiben Sie das Problem.",
+          "Sagen Sie, wann es besonders stört.",
+          "Bitten Sie um eine Lösung oder Änderung."
+        ]
       },
       {
-        id: "kindergarten-info",
-        title: "Nachricht an Kindergarten",
-        prompt: "Ihr Kind ist krank und kann morgen nicht in den Kindergarten. Schreiben Sie eine E-Mail.",
+        id: "termin-verschieben-behoerde",
+        title: "Termin verschieben (Behörde)",
+        prompt: "Sie haben einen Termin im Bürgerbüro, können aber nicht kommen. Schreiben Sie eine E-Mail und bitten Sie um einen neuen Termin.",
         bullets: [
-          "Entschuldigen Sie Ihr Kind.",
-          "Schreiben Sie, wie lange es ungefähr fehlt.",
-          "Bitten Sie um die Aufgaben/Hinweise für zu Hause."
-        ],
-        durationHours: 5,
-        startRemainingSec: 299 * 60 + 41
+          "Nennen Sie den Grund.",
+          "Schlagen Sie einen neuen Termin vor.",
+          "Bitten Sie um Bestätigung."
+        ]
+      },
+      {
+        id: "kursbescheinigung",
+        title: "Kursbescheinigung",
+        prompt: "Sie brauchen eine Teilnahmebescheinigung für Ihren Deutschkurs. Schreiben Sie an die Schule.",
+        bullets: [
+          "Erklären Sie, wofür Sie die Bescheinigung brauchen.",
+          "Nennen Sie Ihren Kurs.",
+          "Bitten Sie um schnelle Bearbeitung."
+        ]
+      },
+      {
+        id: "wohnung-heizung-defekt",
+        title: "Wohnung: Heizung defekt",
+        prompt: "In Ihrer Wohnung ist die Heizung kaputt. Schreiben Sie an die Hausverwaltung.",
+        bullets: [
+          "Beschreiben Sie den Schaden.",
+          "Nennen Sie, seit wann es das Problem gibt.",
+          "Bitten Sie um Reparatur und Rückmeldung."
+        ]
+      },
+      {
+        id: "arbeit-schicht-tauschen",
+        title: "Arbeit: Schicht tauschen",
+        prompt: "Sie möchten Ihre Schicht am Freitag tauschen. Schreiben Sie Ihrer Teamleitung.",
+        bullets: [
+          "Sagen Sie, warum Sie tauschen möchten.",
+          "Schlagen Sie eine Alternative vor.",
+          "Bitten Sie um eine kurze Antwort."
+        ]
+      },
+      {
+        id: "kind-krank-schule",
+        title: "Kind krank (Schule)",
+        prompt: "Ihr Kind ist krank und kann morgen nicht in die Schule. Schreiben Sie eine kurze Nachricht an die Schule.",
+        bullets: [
+          "Entschuldigen Sie das Fehlen.",
+          "Nennen Sie den Zeitraum.",
+          "Bitten Sie um Hausaufgaben oder Infos."
+        ]
+      },
+      {
+        id: "bibliothek-ausweis-verlaengern",
+        title: "Bibliothek: Ausweis verlängern",
+        prompt: "Ihr Bibliotheksausweis läuft ab. Schreiben Sie an die Bibliothek.",
+        bullets: [
+          "Nennen Sie Ihren Ausweis.",
+          "Bitten Sie um Verlängerung.",
+          "Fragen Sie nach den Öffnungszeiten."
+        ]
+      },
+      {
+        id: "arzttermin-absagen",
+        title: "Arzttermin absagen",
+        prompt: "Sie haben einen Arzttermin, können aber nicht kommen. Schreiben Sie an die Praxis.",
+        bullets: [
+          "Nennen Sie den Termin.",
+          "Sagen Sie den Grund.",
+          "Bitten Sie um einen neuen Termin."
+        ]
+      },
+      {
+        id: "kursmaterial-fehlt",
+        title: "Kursmaterial fehlt",
+        prompt: "Sie haben das Kursmaterial verpasst. Schreiben Sie an die Lehrkraft.",
+        bullets: [
+          "Sagen Sie, was fehlt.",
+          "Nennen Sie den Grund.",
+          "Bitten Sie um das Material."
+        ]
+      },
+      {
+        id: "arbeit-urlaub-beantragen",
+        title: "Arbeit: Urlaub beantragen",
+        prompt: "Sie möchten im Juli eine Woche Urlaub. Schreiben Sie an Ihre Vorgesetzte.",
+        bullets: [
+          "Nennen Sie den Zeitraum.",
+          "Sagen Sie, warum Sie Urlaub brauchen.",
+          "Bitten Sie um Bestätigung."
+        ]
+      },
+      {
+        id: "nachhilfe-anfragen",
+        title: "Nachhilfe anfragen",
+        prompt: "Sie suchen Nachhilfe in Deutsch. Schreiben Sie an eine Nachhilfeschule.",
+        bullets: [
+          "Nennen Sie Ihr Niveau.",
+          "Sagen Sie, wann Sie Zeit haben.",
+          "Fragen Sie nach den Kosten."
+        ]
+      },
+      {
+        id: "sportverein-kuendigen",
+        title: "Sportverein kündigen",
+        prompt: "Sie möchten aus dem Sportverein austreten. Schreiben Sie eine E-Mail.",
+        bullets: [
+          "Nennen Sie Ihren Namen.",
+          "Sagen Sie, ab wann Sie kündigen möchten.",
+          "Bitten Sie um Bestätigung der Kündigung."
+        ]
+      },
+      {
+        id: "wohnung-besichtigen",
+        title: "Wohnung besichtigen",
+        prompt: "Sie haben eine Wohnungsanzeige gesehen. Schreiben Sie an die Vermieterin und bitten Sie um einen Besichtigungstermin.",
+        bullets: [
+          "Sagen Sie, welche Wohnung.",
+          "Schlagen Sie Termine vor.",
+          "Stellen Sie sich kurz vor."
+        ]
+      },
+      {
+        id: "kita-platz",
+        title: "Kita-Platz",
+        prompt: "Sie suchen einen Kita-Platz für Ihr Kind. Schreiben Sie an eine Kita.",
+        bullets: [
+          "Nennen Sie das Alter des Kindes.",
+          "Sagen Sie, ab wann Sie den Platz brauchen.",
+          "Bitten Sie um Rückmeldung."
+        ]
+      },
+      {
+        id: "reklamation-lieferung",
+        title: "Reklamation: Lieferung",
+        prompt: "Sie haben eine Bestellung erhalten, aber ein Teil fehlt. Schreiben Sie an den Kundenservice.",
+        bullets: [
+          "Beschreiben Sie das Problem.",
+          "Nennen Sie die Bestellnummer.",
+          "Bitten Sie um Nachlieferung."
+        ]
+      },
+      {
+        id: "fehlende-arbeitsbescheinigung",
+        title: "Fehlende Arbeitsbescheinigung",
+        prompt: "Sie brauchen eine Arbeitsbescheinigung von Ihrer Firma. Schreiben Sie an die Personalabteilung.",
+        bullets: [
+          "Erklären Sie, wofür Sie die Bescheinigung brauchen.",
+          "Nennen Sie Ihren Namen/Abteilung.",
+          "Bitten Sie um schnelle Rückmeldung."
+        ]
+      },
+      {
+        id: "nachbarschaft-paket",
+        title: "Nachbarschaft: Paket",
+        prompt: "Ihr Paket wurde beim Nachbarn abgegeben. Schreiben Sie eine kurze Nachricht.",
+        bullets: [
+          "Sagen Sie, dass Ihr Paket dort ist.",
+          "Bitten Sie um Abholung.",
+          "Schlagen Sie eine Uhrzeit vor."
+        ]
+      },
+      {
+        id: "jobcenter-termin",
+        title: "Jobcenter: Termin",
+        prompt: "Sie können einen Termin beim Jobcenter nicht wahrnehmen. Schreiben Sie eine E-Mail.",
+        bullets: [
+          "Nennen Sie den Termin.",
+          "Sagen Sie den Grund.",
+          "Bitten Sie um einen neuen Termin."
+        ]
+      },
+      {
+        id: "kurswechsel",
+        title: "Kurswechsel",
+        prompt: "Sie möchten von einem Abendkurs in einen Vormittagskurs wechseln. Schreiben Sie an die Schule.",
+        bullets: [
+          "Nennen Sie Ihren aktuellen Kurs.",
+          "Sagen Sie, warum Sie wechseln möchten.",
+          "Bitten Sie um einen Wechseltermin."
+        ]
       }
     ];
 
@@ -318,14 +511,15 @@
     const taskTitle = document.getElementById("mailTaskTitle");
     const taskPrompt = document.getElementById("mailTaskPrompt");
     const taskBullets = document.getElementById("mailTaskBullets");
-    const taskDuration = document.getElementById("mailTaskDuration");
-    const timerNode = document.getElementById("mailTimer");
     const bodyInput = document.getElementById("mailBodyInput");
     const uploadBtn = document.getElementById("mailUploadBtn");
+    const aiBtn = document.getElementById("mailAiBtn");
     const uploadStatus = document.getElementById("mailUploadStatus");
+    const aiResultBox = document.getElementById("mailAiResult");
+    const aiHead = document.getElementById("mailAiHead");
+    const aiFeedback = document.getElementById("mailAiFeedback");
+    const aiCorrected = document.getElementById("mailAiCorrected");
 
-    let currentRemainingSec = 299 * 60 + 41;
-    let timerId = null;
     let activeTopic = null;
 
     function setUploadStatus(type, text) {
@@ -333,30 +527,6 @@
       uploadStatus.classList.remove("error", "success");
       if (type === "error" || type === "success") uploadStatus.classList.add(type);
       uploadStatus.textContent = String(text || "");
-    }
-
-    function formatTimer(totalSec) {
-      const safe = Math.max(0, Number(totalSec || 0));
-      const minutes = Math.floor(safe / 60);
-      const seconds = safe % 60;
-      return `${String(minutes)}:${String(seconds).padStart(2, "0")}`;
-    }
-
-    function stopTimer() {
-      if (timerId) {
-        window.clearInterval(timerId);
-        timerId = null;
-      }
-    }
-
-    function startTimer() {
-      stopTimer();
-      timerNode.textContent = formatTimer(currentRemainingSec);
-      timerId = window.setInterval(() => {
-        currentRemainingSec = Math.max(0, currentRemainingSec - 1);
-        timerNode.textContent = formatTimer(currentRemainingSec);
-        if (currentRemainingSec <= 0) stopTimer();
-      }, 1000);
     }
 
     function renderTopic(topic) {
@@ -370,9 +540,7 @@
         li.textContent = line;
         taskBullets.appendChild(li);
       });
-      taskDuration.textContent = `Dauer: ${String(topic.durationHours || 5)} Std.`;
-      currentRemainingSec = Number(topic.startRemainingSec || (299 * 60 + 41));
-      startTimer();
+      if (aiResultBox) aiResultBox.classList.add("hidden");
     }
 
     function initTopics() {
@@ -408,8 +576,8 @@
         task_prompt: `${activeTopic.title}\n${activeTopic.prompt}`,
         required_points: Array.isArray(activeTopic.bullets) ? activeTopic.bullets : [],
         letter_text: text,
-        writing_duration_seconds: Math.max(0, (Number(activeTopic.startRemainingSec || 0) - Number(currentRemainingSec || 0))),
-        writing_started_at: new Date(Date.now() - Math.max(0, (Number(activeTopic.startRemainingSec || 0) - Number(currentRemainingSec || 0))) * 1000).toISOString()
+        writing_duration_seconds: 0,
+        writing_started_at: ""
       };
 
       uploadBtn.disabled = true;
@@ -433,6 +601,46 @@
       }
     }
 
+    async function runAiCorrection() {
+      const text = String((bodyInput && bodyInput.value) || "").trim();
+      if (!text) {
+        setUploadStatus("error", "Bitte zuerst Ihre Mail schreiben.");
+        return;
+      }
+      if (!activeTopic) {
+        setUploadStatus("error", "Bitte zuerst ein Thema auswählen.");
+        return;
+      }
+      if (!aiBtn) return;
+
+      aiBtn.disabled = true;
+      setUploadStatus("", "KI-Korrektur läuft...");
+      try {
+        const response = await fetch("./api/member_correct.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            letter_text: text,
+            task_prompt: `${activeTopic.title}\n${activeTopic.prompt}`,
+            required_points: Array.isArray(activeTopic.bullets) ? activeTopic.bullets : []
+          })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(String(data?.error || "KI-Korrektur fehlgeschlagen."));
+        }
+        if (aiHead) aiHead.textContent = `Ergebnis: ${String(data.score_total ?? "-")}/20 · Niveau: ${String(data.niveau_einschaetzung || "-")}`;
+        if (aiFeedback) aiFeedback.textContent = String(data.teacher_feedback_de || "");
+        if (aiCorrected) aiCorrected.textContent = `Korrigierte Version:\n${String(data.corrected_letter || "")}`;
+        if (aiResultBox) aiResultBox.classList.remove("hidden");
+        setUploadStatus("success", "KI-Korrektur fertig.");
+      } catch (error) {
+        setUploadStatus("error", String(error?.message || "KI-Korrektur fehlgeschlagen."));
+      } finally {
+        aiBtn.disabled = false;
+      }
+    }
+
     if (bodyInput) {
       ["copy", "cut", "paste"].forEach((evt) => {
         bodyInput.addEventListener(evt, (event) => event.preventDefault());
@@ -441,6 +649,9 @@
 
     if (uploadBtn) {
       uploadBtn.addEventListener("click", submitMailToAdmin);
+    }
+    if (aiBtn) {
+      aiBtn.addEventListener("click", runAiCorrection);
     }
 
     initTopics();
