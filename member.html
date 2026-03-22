@@ -167,6 +167,12 @@
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
 
+    .register-stack {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+
     label {
       display: block;
       font-size: 0.84rem;
@@ -411,7 +417,7 @@
 
       <div id="registerPane" class="hidden">
         <h2>Konto erstellen</h2>
-        <div class="grid">
+        <div class="register-stack">
           <div>
             <label for="memberRegisterUsername">Benutzername</label>
             <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen" required>
@@ -420,8 +426,6 @@
             <label for="memberRegisterPassword">Passwort</label>
             <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe" required>
           </div>
-        </div>
-        <div class="grid">
           <div>
             <label for="memberRegisterPasswordRepeat">Passwort wiederholen</label>
             <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben" required>
@@ -430,8 +434,6 @@
             <label for="memberRegisterFirstName">Vorname</label>
             <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname" required>
           </div>
-        </div>
-        <div class="grid">
           <div>
             <label for="memberRegisterLastName">Nachname</label>
             <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname" required>
