@@ -72,7 +72,44 @@
       text-decoration: none;
       font-size: 1.08rem;
     }
-    .nav-actions { display: inline-flex; gap: 8px; margin-left: auto; }
+    .nav-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      position: relative;
+    }
+    .nav-actions { display: inline-flex; gap: 8px; }
+    .nav-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-link {
+      text-decoration: none;
+      color: var(--ora-menu-text);
+      border: 1px solid var(--ora-stroke);
+      background: var(--ora-surface-soft);
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .nav-toggle {
+      display: none;
+      min-height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--ora-stroke);
+      background: var(--ora-surface-soft);
+      color: var(--ora-menu-text);
+      padding: 6px 10px;
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+    }
     .quick-btn {
       text-decoration: none;
       color: var(--ora-menu-text);
@@ -139,14 +176,44 @@
     .status { margin-top: 10px; padding: 9px 10px; border-radius: 10px; border: 1px solid transparent; display: none; }
     .status.ok { display:block; color:#104934; background:#e9f8f0; border-color:#b8e3cb; }
     .status.error { display:block; color:#7a1f24; background:#fdecee; border-color:#f3c1c6; }
+    @media (max-width: 980px) {
+      .nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        min-width: 180px;
+        background: #ffffff;
+        border: 1px solid var(--ora-stroke);
+        border-radius: 12px;
+        padding: 8px;
+        box-shadow: 0 14px 28px rgba(35, 71, 108, 0.16);
+        z-index: 20;
+      }
+      .navbar.open .nav-links { display: flex; }
+      .nav-link { text-align: center; }
+    }
   </style>
 </head>
 <body>
-  <header class="navbar">
+  <header id="registerTopNav" class="navbar">
     <a class="brand" href="./member.html?mode=login">DTZ-LiD</a>
-    <div class="nav-actions">
-      <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
-      <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
+    <div class="nav-right">
+      <div class="nav-actions">
+        <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
+        <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
+      </div>
+      <div class="nav-links">
+        <a class="nav-link" href="./index.html">Kaffee</a>
+        <a class="nav-link" href="./index.html">Katina</a>
+        <a class="nav-link" href="./index.html">Tarot</a>
+        <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
+        <a class="nav-link" href="./register.html">Registrieren</a>
+      </div>
+      <button id="registerNavToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">Menu</button>
     </div>
   </header>
   <main class="container">
@@ -232,6 +299,17 @@
     }
     const registerForm = document.getElementById("registerForm");
     if (registerForm) registerForm.addEventListener("submit", event => { event.preventDefault(); void registerMember(); });
+
+    const registerNavToggleBtn = document.getElementById("registerNavToggleBtn");
+    const registerTopNav = document.getElementById("registerTopNav");
+    if (registerNavToggleBtn && registerTopNav) {
+      registerNavToggleBtn.addEventListener("click", () => {
+        registerTopNav.classList.toggle("open");
+      });
+      registerTopNav.querySelectorAll(".nav-links a").forEach(link => {
+        link.addEventListener("click", () => registerTopNav.classList.remove("open"));
+      });
+    }
   </script>
 </body>
 </html>
