@@ -3272,6 +3272,18 @@
     .admin-entry-actions button {
       max-width: 260px;
     }
+
+    .member-auth-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 860px) {
+      .member-auth-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body class="single-admin-only">
@@ -3314,34 +3326,55 @@
       </section>
     <div class="shell">
       <section id="memberEntryCard" class="card auth-card admin-entry-card">
-        <h2 class="section-title">Kayıt Ol / Üye Girişi</h2>
-        <p class="section-subtitle">Yeni kullanıcı hesabı oluşturabilir veya mevcut üye hesabınla giriş yapabilirsin.</p>
-        <div class="grid">
-          <div>
-            <label for="memberEntryUsername">Benutzername</label>
-            <input id="memberEntryUsername" type="text" autocomplete="username" placeholder="ör. ahmet123">
+        <h2 class="section-title">Mitgliederbereich</h2>
+        <p class="section-subtitle">Registrierung und Login sind getrennt.</p>
+        <div class="member-auth-grid">
+          <div class="card" style="margin:0;">
+            <h3 class="section-title" style="margin-top:0;">Mitglied Login</h3>
+            <div class="grid">
+              <div>
+                <label for="memberLoginUsername">Benutzername</label>
+                <input id="memberLoginUsername" type="text" autocomplete="username" placeholder="z. B. ahmet123">
+              </div>
+              <div>
+                <label for="memberLoginPassword">Passwort</label>
+                <input id="memberLoginPassword" type="password" autocomplete="current-password" placeholder="Ihr Passwort">
+              </div>
+            </div>
+            <div class="admin-entry-actions">
+              <button id="memberEntryLoginBtn" type="button">Anmelden</button>
+              <button id="memberEntryLogoutBtn" type="button" class="ghost-btn">Abmelden</button>
+            </div>
+            <div id="memberLoginStatus" class="hidden"></div>
           </div>
-          <div>
-            <label for="memberEntryPassword">Passwort</label>
-            <input id="memberEntryPassword" type="password" autocomplete="current-password" placeholder="Üye şifresi">
+          <div class="card" style="margin:0;">
+            <h3 class="section-title" style="margin-top:0;">Konto erstellen</h3>
+            <div class="grid">
+              <div>
+                <label for="memberRegisterUsername">Benutzername</label>
+                <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen">
+              </div>
+              <div>
+                <label for="memberRegisterPassword">Passwort</label>
+                <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe">
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label for="memberRegisterDisplayName">Anzeigename</label>
+                <input id="memberRegisterDisplayName" type="text" autocomplete="name" placeholder="Vorname Nachname">
+              </div>
+              <div>
+                <label for="memberRegisterEmail">E-Mail (optional)</label>
+                <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com">
+              </div>
+            </div>
+            <div class="admin-entry-actions">
+              <button id="memberEntryCreateBtn" type="button" class="ghost-btn">Registrieren</button>
+            </div>
+            <div id="memberRegisterStatus" class="hidden"></div>
           </div>
         </div>
-        <div class="grid">
-          <div>
-            <label for="memberEntryDisplayName">Name (Kayıt için)</label>
-            <input id="memberEntryDisplayName" type="text" autocomplete="name" placeholder="Ad Soyad">
-          </div>
-          <div>
-            <label for="memberEntryEmail">E-Mail (opsiyonel)</label>
-            <input id="memberEntryEmail" type="email" autocomplete="email" placeholder="ornek@mail.com">
-          </div>
-        </div>
-        <div class="admin-entry-actions">
-          <button id="memberEntryLoginBtn" type="button">Üye Girişi</button>
-          <button id="memberEntryCreateBtn" type="button" class="ghost-btn">Kayıt Ol</button>
-          <button id="memberEntryLogoutBtn" type="button" class="ghost-btn">Çıkış</button>
-        </div>
-        <div id="memberEntryStatus" class="hidden"></div>
       </section>
 
       <section id="studentAuthCard" class="card auth-card">
@@ -10322,8 +10355,16 @@
       if (nav) nav.classList.remove("open");
     }
 
-    function setMemberEntryStatus(type, message) {
-      const box = document.getElementById("memberEntryStatus");
+    function setMemberLoginStatus(type, message) {
+      const box = document.getElementById("memberLoginStatus");
+      if (!box) return;
+      box.className = type ? type : "hidden";
+      box.textContent = message || "";
+      if (!type) box.classList.add("hidden");
+    }
+
+    function setMemberRegisterStatus(type, message) {
+      const box = document.getElementById("memberRegisterStatus");
       if (!box) return;
       box.className = type ? type : "hidden";
       box.textContent = message || "";
@@ -10331,21 +10372,21 @@
     }
 
     async function loginMemberFromIndex() {
-      setMemberEntryStatus("", "");
-      const usernameInput = document.getElementById("memberEntryUsername");
-      const passwordInput = document.getElementById("memberEntryPassword");
+      setMemberLoginStatus("", "");
+      const usernameInput = document.getElementById("memberLoginUsername");
+      const passwordInput = document.getElementById("memberLoginPassword");
       const button = document.getElementById("memberEntryLoginBtn");
       if (!passwordInput || !button) return;
 
       const username = String((usernameInput && usernameInput.value) || "").trim().toLowerCase();
       const password = String(passwordInput.value || "");
       if (!username) {
-        setMemberEntryStatus("error", "Bitte Benutzername eingeben.");
+        setMemberLoginStatus("error", "Bitte Benutzername eingeben.");
         if (usernameInput) usernameInput.focus();
         return;
       }
       if (!password.trim()) {
-        setMemberEntryStatus("error", "Bitte Passwort eingeben.");
+        setMemberLoginStatus("error", "Bitte Passwort eingeben.");
         passwordInput.focus();
         return;
       }
@@ -10364,22 +10405,22 @@
           throw new Error(String(payload.error || `Fehler: ${response.status}`));
         }
         const displayName = String(payload.display_name || payload.username || username);
-        setMemberEntryStatus("ok", `Üye girişi başarılı: ${displayName}`);
+        setMemberLoginStatus("ok", `Anmeldung erfolgreich: ${displayName}`);
       } catch (err) {
         const msg = String(err && err.message ? err.message : err || "Login fehlgeschlagen.");
-        setMemberEntryStatus("error", msg);
+        setMemberLoginStatus("error", msg);
       } finally {
         button.disabled = false;
-        button.textContent = oldLabel || "Login";
+        button.textContent = oldLabel || "Anmelden";
       }
     }
 
     async function registerMemberFromIndex() {
-      setMemberEntryStatus("", "");
-      const usernameInput = document.getElementById("memberEntryUsername");
-      const passwordInput = document.getElementById("memberEntryPassword");
-      const displayNameInput = document.getElementById("memberEntryDisplayName");
-      const emailInput = document.getElementById("memberEntryEmail");
+      setMemberRegisterStatus("", "");
+      const usernameInput = document.getElementById("memberRegisterUsername");
+      const passwordInput = document.getElementById("memberRegisterPassword");
+      const displayNameInput = document.getElementById("memberRegisterDisplayName");
+      const emailInput = document.getElementById("memberRegisterEmail");
       const button = document.getElementById("memberEntryCreateBtn");
       if (!usernameInput || !passwordInput || !button) return;
 
@@ -10388,13 +10429,13 @@
       const display_name = String((displayNameInput && displayNameInput.value) || "").trim();
       const email = String((emailInput && emailInput.value) || "").trim();
       if (!username || !password) {
-        setMemberEntryStatus("error", "Kayıt için kullanıcı adı ve şifre zorunludur.");
+        setMemberRegisterStatus("error", "Für die Registrierung sind Benutzername und Passwort erforderlich.");
         return;
       }
 
       button.disabled = true;
       const oldLabel = button.textContent;
-      button.textContent = "Kayıt yapılıyor...";
+      button.textContent = "Registrierung läuft...";
       try {
         const response = await fetch("./api/member_register.php", {
           method: "POST",
@@ -10405,22 +10446,22 @@
         if (!response.ok) {
           throw new Error(String(payload.error || `Fehler: ${response.status}`));
         }
-        setMemberEntryStatus("ok", "Kayıt başarılı. Şimdi Üye Girişi ile giriş yapabilirsiniz.");
+        setMemberRegisterStatus("ok", "Registrierung erfolgreich. Sie können sich jetzt anmelden.");
       } catch (err) {
-        const msg = String(err && err.message ? err.message : err || "Kayıt başarısız.");
-        setMemberEntryStatus("error", msg);
+        const msg = String(err && err.message ? err.message : err || "Registrierung fehlgeschlagen.");
+        setMemberRegisterStatus("error", msg);
       } finally {
         button.disabled = false;
-        button.textContent = oldLabel || "Kayıt Ol";
+        button.textContent = oldLabel || "Registrieren";
       }
     }
 
     async function logoutMemberFromIndex() {
       try {
         await fetch("./api/member_logout.php", { method: "POST" });
-        setMemberEntryStatus("ok", "Üye oturumu kapatıldı.");
+        setMemberLoginStatus("ok", "Mitglieds-Sitzung wurde abgemeldet.");
       } catch (_) {
-        setMemberEntryStatus("error", "Çıkış yapılırken bir hata oluştu.");
+        setMemberLoginStatus("error", "Fehler beim Abmelden.");
       }
     }
 
@@ -10429,10 +10470,10 @@
         const response = await fetch("./api/member_session.php", { method: "GET" });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok || !payload.authenticated) return;
-        const usernameInput = document.getElementById("memberEntryUsername");
+        const usernameInput = document.getElementById("memberLoginUsername");
         if (usernameInput && payload.username) usernameInput.value = String(payload.username);
         const display = String(payload.display_name || payload.username || "member");
-        setMemberEntryStatus("ok", `Aktif üye oturumu: ${display}`);
+        setMemberLoginStatus("ok", `Aktive Mitglieds-Sitzung: ${display}`);
       } catch (_) {
         // ignore session bootstrap errors
       }
@@ -14321,21 +14362,30 @@
         void logoutMemberFromIndex();
       });
     }
-    const memberEntryPassword = document.getElementById("memberEntryPassword");
-    if (memberEntryPassword) {
-      memberEntryPassword.addEventListener("keydown", event => {
+    const memberLoginPassword = document.getElementById("memberLoginPassword");
+    if (memberLoginPassword) {
+      memberLoginPassword.addEventListener("keydown", event => {
         if (event.key === "Enter") {
           event.preventDefault();
           void loginMemberFromIndex();
         }
       });
     }
-    const memberEntryUsername = document.getElementById("memberEntryUsername");
-    if (memberEntryUsername) {
-      memberEntryUsername.addEventListener("keydown", event => {
+    const memberLoginUsername = document.getElementById("memberLoginUsername");
+    if (memberLoginUsername) {
+      memberLoginUsername.addEventListener("keydown", event => {
         if (event.key === "Enter") {
           event.preventDefault();
           void loginMemberFromIndex();
+        }
+      });
+    }
+    const memberRegisterPassword = document.getElementById("memberRegisterPassword");
+    if (memberRegisterPassword) {
+      memberRegisterPassword.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void registerMemberFromIndex();
         }
       });
     }
