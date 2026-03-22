@@ -665,10 +665,159 @@
       font-weight: 700;
     }
 
+    .lang-switch {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 0;
+      width: 100%;
+    }
+
+    .lang-toggle-btn {
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1px solid #d5e6f6;
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fcff;
+      color: var(--ora-menu-text);
+      width: 100%;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+
+    .lang-toggle-btn::after {
+      content: "▾";
+      font-size: 0.92rem;
+      color: #537391;
+    }
+
+    .lang-switch-group.is-open .lang-toggle-btn::after {
+      content: "▴";
+    }
+
+    .lang-switch-list {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lang-switch-group.is-open .lang-switch-list {
+      display: flex;
+    }
+
+    .lang-switch-list a {
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1px solid #d5e6f6;
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      background: #f8fcff;
+      color: var(--ora-menu-text);
+      text-decoration: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
     .card {
       background: linear-gradient(160deg, #ffffff, #f5faff);
       border: 1px solid var(--ora-stroke);
       box-shadow: var(--ora-shadow);
+    }
+
+    .hero {
+      border: 1px solid var(--ora-stroke);
+      border-radius: 24px;
+      padding: 34px;
+      background: linear-gradient(150deg, #ffffff, #f4f9ff);
+      box-shadow: var(--ora-shadow);
+    }
+
+    .kicker {
+      margin: 0;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.73rem;
+      color: #6e8aa6;
+    }
+
+    .hero h1 {
+      margin: 10px 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.08;
+      color: #1f3449;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--ora-muted);
+      max-width: 70ch;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.92rem;
+    }
+
+    input,
+    button {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid #d0e2f3;
+      padding: 11px;
+    }
+
+    input {
+      background: var(--ora-surface-soft);
+      color: #1f3347;
+    }
+
+    input:focus {
+      outline: 2px solid rgba(54, 213, 255, 0.25);
+      border-color: #8ecae6;
+    }
+
+    .form-grid button {
+      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
+      color: #34170e;
+      border-color: transparent;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .form-grid button:hover {
+      filter: brightness(1.04);
+    }
+
+    .inline-link {
+      display: inline-block;
+      text-decoration: none;
+      font-weight: 700;
+      color: #35506a;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      min-height: 0;
+      margin-top: 0;
     }
 
     .site-footer {
@@ -714,6 +863,10 @@
         display: inline-flex;
         gap: 6px;
       }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -727,40 +880,43 @@
           <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
         </div>
         <div class="nav-links">
+          <a class="nav-link" href="./index.html">Kaffee</a>
+          <a class="nav-link" href="./index.html">Katina</a>
+          <a class="nav-link" href="./index.html">Tarot</a>
           <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
           <a class="nav-link menu-cta" href="./register.html">Registrieren</a>
-          <a class="nav-link" href="./index.html">Start</a>
-          <a class="nav-link" href="./member.html?mode=login">Mitgliederbereich</a>
-          <a class="nav-link" href="./admin.html">Admin-Panel</a>
+          <div class="lang-switch lang-switch-group" id="memberLangGroup">
+            <button type="button" class="lang-toggle-btn" id="memberLangToggleBtn" aria-expanded="false">🌐 Sprachen</button>
+            <div class="lang-switch-list" id="memberLangList" hidden>
+              <a href="./member.html?mode=login&lang=tr">🇹🇷 Türkisch</a>
+              <a href="./member.html?mode=login&lang=en">🇬🇧 Englisch</a>
+              <a href="./member.html?mode=login&lang=de">🇩🇪 Deutsch</a>
+            </div>
+          </div>
         </div>
       </div>
       <button id="memberNavToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">Menu</button>
     </nav>
 
     <main class="container">
-
-    <section class="card">
+    <section class="hero">
+      <p class="kicker">Kontozugang</p>
       <h1>Anmelden</h1>
-      <p class="section-subtitle">Mitglieder-Login im Orakelia-Stil.</p>
-      <div id="loginPane">
-        <div class="grid">
-          <div>
-            <label for="memberLoginUsername">Benutzername</label>
-            <input id="memberLoginUsername" type="text" autocomplete="username" placeholder="z. B. ahmet123" required>
-          </div>
-          <div>
-            <label for="memberLoginPassword">Passwort</label>
-            <input id="memberLoginPassword" type="password" autocomplete="current-password" placeholder="Ihr Passwort" required>
-          </div>
-        </div>
-        <a class="inline-link" href="./forgot-password.html">Passwort vergessen</a>
-        <div class="actions">
-          <button id="memberEntryLoginBtn" class="btn-green" type="button">Anmelden</button>
-          <a href="./register.html" class="link-btn btn-red">Registrieren</a>
-          <button id="memberEntryLogoutBtn" class="btn-red" type="button">Abmelden</button>
-        </div>
-        <div id="memberLoginStatus" class="status hidden"></div>
-      </div>
+      <p>Melde dich an, um deine Anfragen und Deutungen zentral zu verwalten.</p>
+    </section>
+
+    <section class="card" style="max-width:620px; margin-inline:auto;">
+      <form id="memberLoginForm" class="form-grid">
+        <label class="full">Benutzername
+          <input id="memberLoginUsername" name="username" minlength="3" autocomplete="username" required>
+        </label>
+        <label class="full">Passwort
+          <input id="memberLoginPassword" type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <a class="inline-link full" href="./forgot-password.html">Passwort vergessen</a>
+        <button id="memberEntryLoginBtn" type="submit">Anmelden</button>
+      </form>
+      <div id="memberLoginStatus" class="status hidden"></div>
     </section>
     </main>
 
@@ -832,16 +988,6 @@
       }
     }
 
-    async function logoutMember() {
-      setStatus("memberLoginStatus", "", "");
-      try {
-        await fetch("./api/member_logout.php", { method: "POST" });
-        setStatus("memberLoginStatus", "ok", "Mitglieds-Sitzung wurde abgemeldet.");
-      } catch (_) {
-        setStatus("memberLoginStatus", "error", "Fehler beim Abmelden.");
-      }
-    }
-
     async function hydrateMemberSession() {
       try {
         const response = await fetch("./api/member_session.php", { method: "GET" });
@@ -856,11 +1002,13 @@
       }
     }
 
-    const memberEntryLoginBtn = document.getElementById("memberEntryLoginBtn");
-    if (memberEntryLoginBtn) memberEntryLoginBtn.addEventListener("click", () => { void loginMember(); });
-
-    const memberEntryLogoutBtn = document.getElementById("memberEntryLogoutBtn");
-    if (memberEntryLogoutBtn) memberEntryLogoutBtn.addEventListener("click", () => { void logoutMember(); });
+    const memberLoginForm = document.getElementById("memberLoginForm");
+    if (memberLoginForm) {
+      memberLoginForm.addEventListener("submit", event => {
+        event.preventDefault();
+        void loginMember();
+      });
+    }
 
 
     const memberLoginPassword = document.getElementById("memberLoginPassword");
@@ -893,6 +1041,18 @@
       });
     }
 
+    const memberLangToggleBtn = document.getElementById("memberLangToggleBtn");
+    const memberLangGroup = document.getElementById("memberLangGroup");
+    const memberLangList = document.getElementById("memberLangList");
+    if (memberLangToggleBtn && memberLangGroup && memberLangList) {
+      memberLangToggleBtn.addEventListener("click", () => {
+        const nextOpen = !memberLangGroup.classList.contains("is-open");
+        memberLangGroup.classList.toggle("is-open", nextOpen);
+        memberLangList.hidden = !nextOpen;
+        memberLangToggleBtn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      });
+    }
+
     document.addEventListener("click", event => {
       const nav = document.getElementById("memberTopNav");
       if (!nav || !nav.classList.contains("open")) return;
@@ -900,6 +1060,11 @@
       if (!(target instanceof Node)) return;
       if (!nav.contains(target)) {
         nav.classList.remove("open");
+        if (memberLangGroup && memberLangList && memberLangToggleBtn) {
+          memberLangGroup.classList.remove("is-open");
+          memberLangList.hidden = true;
+          memberLangToggleBtn.setAttribute("aria-expanded", "false");
+        }
       }
     });
 
