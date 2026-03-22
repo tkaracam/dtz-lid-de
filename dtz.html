@@ -171,6 +171,9 @@
     .coffee-cta-wrap {
       max-width: 860px;
       margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
     }
     .coffee-orakel-btn {
       min-height: 38px;
@@ -182,8 +185,7 @@
       background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
       color: #210f1a;
       cursor: pointer;
-      width: 130%;
-      margin-left: -15%;
+      width: 100%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -243,9 +245,11 @@
       display: inline-flex;
     }
     @media (max-width: 820px) {
+      .coffee-cta-wrap {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
       .coffee-orakel-btn {
         width: 100%;
-        margin-left: 0;
       }
     }
   </style>
@@ -264,6 +268,9 @@
     <main>
       <div class="coffee-cta-wrap">
         <a class="coffee-orakel-btn" href="./index.html">H</a>
+        <a class="coffee-orakel-btn" href="./index.html">L</a>
+        <a class="coffee-orakel-btn" href="./index.html">Sch</a>
+        <a class="coffee-orakel-btn" href="./index.html">Spr</a>
       </div>
       <section id="hoerenSection1" class="card section-collapsed">
         <button id="hoerenSectionToggle" class="section-trigger" type="button" aria-expanded="false">
