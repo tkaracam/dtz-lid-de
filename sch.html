@@ -200,6 +200,15 @@
       padding: 8px 14px;
       width: 100%;
     }
+    .upload-status {
+      margin: 4px 0 0;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #3b5772;
+      min-height: 1.2em;
+    }
+    .upload-status.error { color: #b1324f; }
+    .upload-status.success { color: #2e6c3f; }
     .task-notify-badge {
       display: inline-flex;
       margin-left: 6px;
@@ -257,6 +266,7 @@
                 <p class="mail-note">Empfehlung: 50-80 Wörter für B1-Ziel.</p>
                 <textarea id="mailBodyInput" class="mail-textarea" placeholder="Schreiben Sie hier Ihre Mail..."></textarea>
                 <button id="mailUploadBtn" class="upload-btn" type="button">BRIEF HOCHLADEN</button>
+                <p id="mailUploadStatus" class="upload-status" aria-live="polite"></p>
               </section>
             </div>
           </div>
@@ -312,9 +322,18 @@
     const timerNode = document.getElementById("mailTimer");
     const bodyInput = document.getElementById("mailBodyInput");
     const uploadBtn = document.getElementById("mailUploadBtn");
+    const uploadStatus = document.getElementById("mailUploadStatus");
 
     let currentRemainingSec = 299 * 60 + 41;
     let timerId = null;
+    let activeTopic = null;
+
+    function setUploadStatus(type, text) {
+      if (!uploadStatus) return;
+      uploadStatus.classList.remove("error", "success");
+      if (type === "error" || type === "success") uploadStatus.classList.add(type);
+      uploadStatus.textContent = String(text || "");
+    }
 
     function formatTimer(totalSec) {
       const safe = Math.max(0, Number(totalSec || 0));
@@ -342,6 +361,7 @@
 
     function renderTopic(topic) {
       if (!topic) return;
+      activeTopic = topic;
       taskTitle.textContent = topic.title;
       taskPrompt.textContent = topic.prompt;
       taskBullets.innerHTML = "";
@@ -371,6 +391,48 @@
       renderTopic(mailTopics[0]);
     }
 
+    async function submitMailToAdmin() {
+      const text = String((bodyInput && bodyInput.value) || "").trim();
+      if (!text) {
+        setUploadStatus("error", "Bitte zuerst Ihre Mail schreiben.");
+        return;
+      }
+      if (!activeTopic) {
+        setUploadStatus("error", "Bitte zuerst ein Thema auswählen.");
+        return;
+      }
+      if (!uploadBtn) return;
+
+      const payload = {
+        student_name: "",
+        task_prompt: `${activeTopic.title}\n${activeTopic.prompt}`,
+        required_points: Array.isArray(activeTopic.bullets) ? activeTopic.bullets : [],
+        letter_text: text,
+        writing_duration_seconds: Math.max(0, (Number(activeTopic.startRemainingSec || 0) - Number(currentRemainingSec || 0))),
+        writing_started_at: new Date(Date.now() - Math.max(0, (Number(activeTopic.startRemainingSec || 0) - Number(currentRemainingSec || 0))) * 1000).toISOString()
+      };
+
+      uploadBtn.disabled = true;
+      setUploadStatus("", "Wird hochgeladen...");
+      try {
+        const response = await fetch("./api/member_save_letter.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data || data.ok !== true) {
+          throw new Error(String(data?.error || "Upload fehlgeschlagen."));
+        }
+        if (bodyInput) bodyInput.value = "";
+        setUploadStatus("success", `An Admin gesendet. Upload-ID: ${String(data.upload_id || "-")}`);
+      } catch (error) {
+        setUploadStatus("error", String(error?.message || "Upload fehlgeschlagen."));
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    }
+
     if (bodyInput) {
       ["copy", "cut", "paste"].forEach((evt) => {
         bodyInput.addEventListener(evt, (event) => event.preventDefault());
@@ -378,14 +440,7 @@
     }
 
     if (uploadBtn) {
-      uploadBtn.addEventListener("click", () => {
-        const text = String((bodyInput && bodyInput.value) || "").trim();
-        if (!text) {
-          window.alert("Bitte zuerst Ihre Mail schreiben.");
-          return;
-        }
-        window.alert("Brief hochgeladen.");
-      });
+      uploadBtn.addEventListener("click", submitMailToAdmin);
     }
 
     initTopics();
