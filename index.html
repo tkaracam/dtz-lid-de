@@ -84,12 +84,12 @@
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 14px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid #e7d6de;
-      background: rgba(255, 255, 255, 0.92);
-      box-shadow: 0 10px 24px rgba(59, 52, 66, 0.1);
-      backdrop-filter: blur(8px);
+      padding: 12px 14px;
+      border-radius: 22px;
+      border: 1px solid #dfe5ee;
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 16px 34px rgba(30, 34, 56, 0.12);
+      backdrop-filter: blur(10px);
       max-width: 100%;
     }
 
@@ -99,8 +99,8 @@
       justify-content: center;
       gap: 0;
       font-weight: 900;
-      font-size: 0.81rem;
-      letter-spacing: 0.02em;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
       white-space: nowrap;
       cursor: pointer;
       min-width: 0;
@@ -128,37 +128,37 @@
     }
 
     .nav-toggle {
-      display: inline-flex;
+      display: none;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      border: 1px solid #e6cfda;
-      background: #fff7fa;
-      color: #6f4f5f;
+      min-width: 92px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid #d9deea;
+      background: rgba(247, 249, 255, 0.92);
+      color: #344360;
       box-shadow: none;
-      padding: 0;
-      font-size: 1.1rem;
+      padding: 0 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       line-height: 1;
     }
 
     .nav-links {
-      display: none;
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      z-index: 45;
-      align-items: stretch;
+      display: flex;
+      position: static;
+      align-items: center;
       gap: 8px;
-      flex-direction: column;
-      min-width: 210px;
-      padding: 8px;
-      border-radius: 12px;
-      border: 1px solid #e7d6de;
-      background: rgba(255, 255, 255, 0.98);
-      box-shadow: 0 12px 24px rgba(59, 52, 66, 0.14);
+      flex-direction: row;
+      min-width: 0;
+      padding: 0;
+      border-radius: 0;
+      border: none;
+      background: transparent;
+      box-shadow: none;
       order: 1;
     }
 
@@ -212,22 +212,64 @@
     }
 
     .nav-link {
-      width: 100%;
+      width: auto;
       min-width: 0;
       border-radius: 999px;
-      padding: 8px 12px;
-      border: 1px solid #e6cfda;
-      background: #fff7fa;
-      color: #6f4f5f;
+      padding: 8px 14px;
+      border: 1px solid #d9deea;
+      background: rgba(247, 249, 255, 0.92);
+      color: #344360;
       text-transform: none;
       letter-spacing: 0;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
       box-shadow: none;
     }
 
     .nav-link:hover {
-      color: #f2849e;
-      border-color: #f2b7c9;
+      color: #2b3550;
+      border-color: #c7d1e7;
+      box-shadow: 0 8px 16px rgba(58, 74, 110, 0.12);
+    }
+
+    .nav-quick {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quick-btn {
+      min-height: 36px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid #d9deea;
+      background: rgba(247, 249, 255, 0.92);
+      color: #344360;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+    }
+
+    .quick-btn:hover {
+      transform: translateY(-1px);
+      border-color: #c7d1e7;
+      box-shadow: 0 8px 16px rgba(58, 74, 110, 0.12);
+    }
+
+    .quick-btn-primary {
+      border-color: #8fddbb;
+      background: linear-gradient(135deg, #1f8f60, #42bb84);
+      color: #ffffff;
+      box-shadow: 0 10px 22px rgba(31, 143, 96, 0.26);
+    }
+
+    .quick-btn-primary:hover {
+      border-color: #8fddbb;
+      box-shadow: 0 12px 24px rgba(31, 143, 96, 0.32);
     }
 
     .nav-sub-links {
@@ -3063,11 +3105,24 @@
       }
 
       .nav-links {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        z-index: 45;
         width: 220px;
         flex-direction: column;
         align-items: stretch;
         margin-top: 0;
-        right: 0;
+        padding: 10px;
+        border-radius: 16px;
+        border: 1px solid #dfe5ee;
+        background: rgba(255, 255, 255, 0.97);
+        box-shadow: 0 16px 32px rgba(30, 34, 56, 0.16);
+      }
+
+      .top-nav.open .nav-links {
+        display: flex;
       }
 
       .nav-right {
@@ -3087,6 +3142,10 @@
         width: 100%;
         text-align: left;
         white-space: normal;
+      }
+
+      .nav-quick {
+        display: none;
       }
 
       .nav-sub-links {
@@ -3381,6 +3440,10 @@
             <button id="studentLogoutBtn" type="button" class="ghost-btn">ABMELDEN</button>
           </div>
         </div>
+        <div class="nav-quick">
+          <a class="quick-btn" href="./member.html">Anmelden</a>
+          <a class="quick-btn quick-btn-primary" href="./member.html?mode=register">Registrieren</a>
+        </div>
         <div class="nav-links">
           <button id="navHomeBtn" class="nav-link" type="button">Start</button>
           <button id="navPortalBtn" class="nav-link" type="button">Portal</button>
@@ -3389,7 +3452,7 @@
           <button id="navAdminBtn" class="nav-link" type="button">Admin-Panel</button>
         </div>
       </div>
-      <button id="navToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">☰</button>
+      <button id="navToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">Menu</button>
     </nav>
     <div id="commandPaletteBackdrop" class="command-palette-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
       <div id="commandPalette" class="command-palette" role="document">
