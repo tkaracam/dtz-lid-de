@@ -262,6 +262,36 @@
           </div>
         </div>
       </section>
+      <section id="hoerenSection3" class="card">
+        <button id="hoerenSectionToggle3" class="section-trigger" type="button" aria-expanded="true">
+          <h1>Hören Teil 3</h1>
+        </button>
+        <div class="section-panel">
+          <div class="actions">
+            <button class="primary-btn js-reload-btn" data-section="3" type="button">Neue Aufgaben laden</button>
+          </div>
+          <div id="statusBox3" class="status"></div>
+          <div id="taskList3"></div>
+          <div class="actions">
+            <button class="primary-btn js-reload-btn" data-section="3" type="button">Neue Aufgaben laden</button>
+          </div>
+        </div>
+      </section>
+      <section id="hoerenSection4" class="card">
+        <button id="hoerenSectionToggle4" class="section-trigger" type="button" aria-expanded="true">
+          <h1>Hören Teil 4</h1>
+        </button>
+        <div class="section-panel">
+          <div class="actions">
+            <button class="primary-btn js-reload-btn" data-section="4" type="button">Neue Aufgaben laden</button>
+          </div>
+          <div id="statusBox4" class="status"></div>
+          <div id="taskList4"></div>
+          <div class="actions">
+            <button class="primary-btn js-reload-btn" data-section="4" type="button">Neue Aufgaben laden</button>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -285,21 +315,64 @@
       box.style.color = isError ? "#7a1f24" : "#2e4c67";
     }
 
-    function renderTasks(listId, statusId, payload, missingMessage) {
+    function normalizeHoerenQuestions(payload, teil) {
+      const set = payload && payload.set ? payload.set : {};
+      const items = Array.isArray(set.items) ? set.items : [];
+      const first = items[0] || {};
+
+      if (teil === 3) {
+        const dialogs = Array.isArray(first.dialogs) ? first.dialogs : [];
+        const normalized = [];
+        dialogs.forEach((dialog, index) => {
+          const tf = dialog && dialog.true_false ? dialog.true_false : {};
+          const detail = dialog && dialog.detail ? dialog.detail : {};
+          const tfStatement = String(tf.statement || "").trim();
+          const detailQuestion = String(detail.question || "").trim();
+          const dialogTitle = String(dialog.title || `Dialog ${index + 1}`);
+          const audioScript = String(dialog.audio_script || "").trim();
+
+          if (tfStatement) {
+            normalized.push({
+              question: `${dialogTitle}: ${tfStatement}`,
+              audio_script: audioScript,
+              options: { A: "Richtig", B: "Falsch" }
+            });
+          }
+          if (detailQuestion) {
+            normalized.push({
+              question: `${dialogTitle}: ${detailQuestion}`,
+              audio_script: audioScript,
+              options: detail && typeof detail.options === "object" ? detail.options : {}
+            });
+          }
+        });
+        return normalized;
+      }
+
+      if (teil === 4) {
+        const statements = Array.isArray(first.statements) ? first.statements : [];
+        const optionPool = first && typeof first.options === "object" ? first.options : {};
+        return statements.map((statement, index) => {
+          const title = String(statement && statement.title ? statement.title : `Aussage ${index + 1}`);
+          const question = String(statement && statement.question ? statement.question : "Welche Antwort passt?");
+          return {
+            question: `${title}: ${question}`,
+            audio_script: String(statement && statement.audio_script ? statement.audio_script : ""),
+            options: optionPool
+          };
+        });
+      }
+
+      return Array.isArray(first.questions) ? first.questions : [];
+    }
+
+    function renderTasks(listId, statusId, payload, missingMessage, teil) {
       const list = document.getElementById(listId);
       if (!list) return;
       list.innerHTML = "";
-      const set = payload && payload.set ? payload.set : {};
-      const items = Array.isArray(set.items) ? set.items : [];
-      if (!items.length) {
-        setStatus(statusId, missingMessage, true);
-        return;
-      }
-
-      const first = items[0] || {};
-      const questions = Array.isArray(first.questions) ? first.questions : [];
+      const questions = normalizeHoerenQuestions(payload, teil);
       if (!questions.length) {
-        setStatus(statusId, "Bu sette soru yok.", true);
+        setStatus(statusId, missingMessage, true);
         return;
       }
 
@@ -309,7 +382,7 @@
 
         const title = document.createElement("p");
         title.className = "task-title";
-        title.textContent = `${idx + 1}. ${String(q.question || "Soru")}`;
+        title.textContent = `${idx + 1}. ${String((q && q.question) || (q && q.title) || "Soru")}`;
         wrap.appendChild(title);
 
         const audioScript = String(q && q.audio_script ? q.audio_script : "").trim();
@@ -419,7 +492,7 @@
         if (!response.ok || !payload.ok) {
           throw new Error(String(payload.error || `Fehler: ${response.status}`));
         }
-        renderTasks("taskList1", "statusBox1", payload, "Hören Teil 1 görevleri bulunamadı.");
+        renderTasks("taskList1", "statusBox1", payload, "Hören Teil 1 görevleri bulunamadı.", 1);
       } catch (err) {
         setStatus("statusBox1", `Hören Teil 1 yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
       }
@@ -433,16 +506,53 @@
         if (!response.ok || !payload.ok) {
           throw new Error(String(payload.error || `Fehler: ${response.status}`));
         }
-        renderTasks("taskList2", "statusBox2", payload, "Hören Teil 2 görevleri bulunamadı.");
+        renderTasks("taskList2", "statusBox2", payload, "Hören Teil 2 görevleri bulunamadı.", 2);
       } catch (err) {
         setStatus("statusBox2", `Hören Teil 2 yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
       }
     }
 
+    async function loadHoerenTeil3() {
+      setStatus("statusBox3", "", false);
+      try {
+        const response = await fetch("./api/dtz_hoeren_teil3_public.php", { method: "GET" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.ok) {
+          throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        }
+        renderTasks("taskList3", "statusBox3", payload, "Hören Teil 3 görevleri bulunamadı.", 3);
+      } catch (err) {
+        setStatus("statusBox3", `Hören Teil 3 yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+      }
+    }
+
+    async function loadHoerenTeil4() {
+      setStatus("statusBox4", "", false);
+      try {
+        const response = await fetch("./api/dtz_hoeren_teil4_public.php", { method: "GET" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.ok) {
+          throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        }
+        renderTasks("taskList4", "statusBox4", payload, "Hören Teil 4 görevleri bulunamadı.", 4);
+      } catch (err) {
+        setStatus("statusBox4", `Hören Teil 4 yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+      }
+    }
+
     document.querySelectorAll(".js-reload-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        if (String(btn.getAttribute("data-section") || "") === "2") {
+        const section = String(btn.getAttribute("data-section") || "");
+        if (section === "2") {
           void loadHoerenTeil2();
+          return;
+        }
+        if (section === "3") {
+          void loadHoerenTeil3();
+          return;
+        }
+        if (section === "4") {
+          void loadHoerenTeil4();
           return;
         }
         void loadHoerenTeil1();
@@ -461,9 +571,13 @@
 
     bindSectionToggle("hoerenSection1", "hoerenSectionToggle");
     bindSectionToggle("hoerenSection2", "hoerenSectionToggle2");
+    bindSectionToggle("hoerenSection3", "hoerenSectionToggle3");
+    bindSectionToggle("hoerenSection4", "hoerenSectionToggle4");
 
     void loadHoerenTeil1();
     void loadHoerenTeil2();
+    void loadHoerenTeil3();
+    void loadHoerenTeil4();
   </script>
 </body>
 </html>
