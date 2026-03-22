@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/correction_engine.php';
 $member = require_member_session_json();
 
 $raw = file_get_contents('php://input') ?: '';
@@ -50,6 +51,19 @@ if ($taskPrompt === '') {
 if (mb_strlen($letterText) > 12000) {
     http_response_code(413);
     echo json_encode(['error' => 'Der Brieftext ist zu lang.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if (!dtz_is_likely_meaningful_german_text($letterText)) {
+    http_response_code(422);
+    echo json_encode(['error' => 'Der Text wirkt nicht sinnvoll. Bitte schreiben Sie zusammenhängende deutsche Sätze.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+$wordCount = dtz_word_count($letterText);
+if ($wordCount < 20) {
+    http_response_code(422);
+    echo json_encode(['error' => 'Der Text ist zu kurz. Bitte mindestens 20 Wörter schreiben.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

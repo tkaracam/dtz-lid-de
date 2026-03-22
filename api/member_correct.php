@@ -43,10 +43,65 @@ if (!is_array($requiredPoints)) {
     $requiredPoints = [];
 }
 
+if (!dtz_is_likely_meaningful_german_text($letterText)) {
+    http_response_code(422);
+    echo json_encode(['error' => 'Der Text wirkt nicht sinnvoll. Bitte schreiben Sie zusammenhängende deutsche Sätze.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+$wordCount = dtz_word_count($letterText);
+if ($wordCount < 20) {
+    http_response_code(422);
+    echo json_encode(['error' => 'Der Text ist zu kurz. Bitte mindestens 20 Wörter schreiben.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function member_local_correction_fallback(string $letterText, string $taskPrompt, array $requiredPoints, string $reason): array
+{
+    $points = dtz_evaluate_points($letterText, $requiredPoints);
+    $coveredCount = count($points['covered']);
+    $missingCount = count($points['missing']);
+    $wordCount = dtz_word_count($letterText);
+
+    $aufgaben = max(0, 5 - min(5, $missingCount * 2));
+    $textaufbau = $wordCount >= 50 ? 4 : ($wordCount >= 30 ? 3 : 2);
+    $grammatik = 3;
+    $wortschatz = 3;
+    $score = max(0, min(20, $aufgaben + $textaufbau + $grammatik + $wortschatz));
+    $niveau = $score >= 15 ? 'B1' : ($score >= 7 ? 'A2' : 'A1');
+
+    return [
+        'score_total' => $score,
+        'niveau_einschaetzung' => $niveau,
+        'rubric' => [
+            'aufgabenbezug' => $aufgaben,
+            'textaufbau' => $textaufbau,
+            'grammatik' => $grammatik,
+            'wortschatz_orthografie' => $wortschatz,
+        ],
+        'mistakes' => [],
+        'corrected_letter' => trim($letterText),
+        'teacher_feedback_de' => 'KI war kurzzeitig nicht erreichbar. Vorläufige Bewertung wurde lokal erstellt. Bitte später erneut prüfen.',
+        'covered_points' => $points['covered'],
+        'missing_points' => $points['missing'],
+        'source' => 'local-fallback',
+        'system_note' => $reason,
+        'fallback' => true,
+        'task_prompt' => $taskPrompt,
+        'required_points' => $requiredPoints,
+        'stats' => [
+            'word_count' => $wordCount,
+            'covered_points' => $coveredCount,
+            'missing_points' => $missingCount,
+        ],
+    ];
+}
+
 try {
     $result = dtz_run_correction($letterText, $taskPrompt, $requiredPoints);
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
-    http_response_code(502);
-    echo json_encode(['error' => dtz_sanitize_external_error($e->getMessage())], JSON_UNESCAPED_UNICODE);
+    $msg = dtz_sanitize_external_error($e->getMessage());
+    $fallback = member_local_correction_fallback($letterText, $taskPrompt, $requiredPoints, $msg);
+    echo json_encode($fallback, JSON_UNESCAPED_UNICODE);
 }

@@ -522,6 +522,20 @@
       uploadStatus.textContent = String(text || "");
     }
 
+    function countWords(text) {
+      return String(text || "").trim().split(/\s+/).filter(Boolean).length;
+    }
+
+    function validateMailText(text) {
+      const clean = String(text || "").trim();
+      if (!clean) return "Bitte zuerst Ihre Mail schreiben.";
+      const words = countWords(clean);
+      if (words < 20) return "Der Text ist zu kurz. Bitte mindestens 20 Wörter schreiben.";
+      if (/([a-zA-ZäöüÄÖÜß])\1{5,}/.test(clean)) return "Der Text wirkt nicht sinnvoll. Bitte normale Sätze schreiben.";
+      if (!/[.!?]/.test(clean)) return "Bitte vollständige Sätze mit Satzzeichen schreiben.";
+      return "";
+    }
+
     function renderTopic(topic) {
       if (!topic) return;
       activeTopic = topic;
@@ -554,8 +568,9 @@
 
     async function submitMailToAdmin() {
       const text = String((bodyInput && bodyInput.value) || "").trim();
-      if (!text) {
-        setUploadStatus("error", "Bitte zuerst Ihre Mail schreiben.");
+      const validationError = validateMailText(text);
+      if (validationError) {
+        setUploadStatus("error", validationError);
         return;
       }
       if (!activeTopic) {
@@ -596,8 +611,9 @@
 
     async function runAiCorrection() {
       const text = String((bodyInput && bodyInput.value) || "").trim();
-      if (!text) {
-        setUploadStatus("error", "Bitte zuerst Ihre Mail schreiben.");
+      const validationError = validateMailText(text);
+      if (validationError) {
+        setUploadStatus("error", validationError);
         return;
       }
       if (!activeTopic) {
