@@ -3,12 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>H | DTZ-LiD.de</title>
+  <title>Hören | DTZ-LiD.de</title>
   <style>
     :root {
       --ora-bg: #f6fbff;
+      --ora-surface-soft: #f8fcff;
       --ora-text: #1f3142;
+      --ora-muted: #587089;
       --ora-stroke: #d8e7f5;
+      --ora-accent-a: #ff8a57;
+      --ora-accent-b: #ff5f7f;
+      --ora-shadow: 0 16px 36px rgba(35, 71, 108, 0.12);
     }
     * { box-sizing: border-box; }
     body {
@@ -32,19 +37,362 @@
       border: 1px solid var(--ora-stroke);
       background: linear-gradient(160deg, #ffffff, #f5faff);
       padding: 22px;
+      box-shadow: var(--ora-shadow);
       max-width: 860px;
     }
-    h1 { margin: 0; }
+    .status {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid #b8d5ec;
+      background: #f3f9ff;
+      color: #2e4c67;
+      display: none;
+    }
+    .task {
+      margin-top: 12px;
+      border: 1px solid #d8e7f5;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 12px;
+    }
+    .task-title {
+      margin: 0 0 8px;
+      font-weight: 700;
+      color: #1f3347;
+    }
+    .task-option {
+      display: block;
+      margin: 6px 0;
+      padding: 8px 10px;
+      border: 1px solid #e2edf8;
+      border-radius: 8px;
+      background: #fbfdff;
+      color: #2b445b;
+    }
+    .audio-row {
+      margin: 8px 0 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .audio-btn {
+      min-height: 34px;
+      border-radius: 9px;
+      border: 1px solid #cfe2f2;
+      background: #f8fcff;
+      color: #1f3347;
+      font: inherit;
+      font-weight: 700;
+      padding: 6px 10px;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+    }
+    .audio-btn.playing {
+      border-color: #ffb69b;
+      background: #fff4ef;
+      color: #8e3a1d;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .primary-btn {
+      min-height: 38px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 700;
+      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
+      color: #210f1a;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+    }
+    .section-trigger {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .section-trigger h1 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.35rem;
+    }
+    .section-trigger::after {
+      content: "-";
+      font-size: 1.2rem;
+      line-height: 1;
+      color: #3f5f80;
+      font-weight: 700;
+    }
+    .card.section-collapsed .section-trigger::after { content: "+"; }
+    .section-panel { margin-top: 12px; }
+    .card.section-collapsed .section-panel { display: none; }
   </style>
   <script defer src="/assets/site-shell.js"></script>
 </head>
 <body>
   <div class="page-shell">
     <main>
-      <section class="card">
-        <h1>H</h1>
+      <section id="hoerenSection1" class="card section-collapsed">
+        <button id="hoerenSectionToggle1" class="section-trigger" type="button" aria-expanded="false"><h1>Hören Teil 1</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-section="1" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox1" class="status"></div>
+          <div id="taskList1"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-section="1" type="button">Neue Aufgaben laden</button></div>
+        </div>
+      </section>
+
+      <section id="hoerenSection2" class="card section-collapsed">
+        <button id="hoerenSectionToggle2" class="section-trigger" type="button" aria-expanded="false"><h1>Hören Teil 2</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-section="2" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox2" class="status"></div>
+          <div id="taskList2"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-section="2" type="button">Neue Aufgaben laden</button></div>
+        </div>
+      </section>
+
+      <section id="hoerenSection3" class="card section-collapsed">
+        <button id="hoerenSectionToggle3" class="section-trigger" type="button" aria-expanded="false"><h1>Hören Teil 3</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-section="3" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox3" class="status"></div>
+          <div id="taskList3"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-section="3" type="button">Neue Aufgaben laden</button></div>
+        </div>
+      </section>
+
+      <section id="hoerenSection4" class="card section-collapsed">
+        <button id="hoerenSectionToggle4" class="section-trigger" type="button" aria-expanded="false"><h1>Hören Teil 4</h1></button>
+        <div class="section-panel">
+          <div class="actions"><button class="primary-btn js-reload-btn" data-section="4" type="button">Neue Aufgaben laden</button></div>
+          <div id="statusBox4" class="status"></div>
+          <div id="taskList4"></div>
+          <div class="actions"><button class="primary-btn js-reload-btn" data-section="4" type="button">Neue Aufgaben laden</button></div>
+        </div>
       </section>
     </main>
   </div>
+
+  <script>
+    let currentSpeechBtn = null;
+    let currentAudioPlayer = null;
+    let currentPlaybackToken = 0;
+    const audioCache = new Map();
+
+    function setStatus(boxId, message, isError) {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+      box.style.display = message ? "block" : "none";
+      box.textContent = message || "";
+      box.style.borderColor = isError ? "#f3c1c6" : "#b8d5ec";
+      box.style.background = isError ? "#fdecee" : "#f3f9ff";
+      box.style.color = isError ? "#7a1f24" : "#2e4c67";
+    }
+
+    function normalizeHoerenQuestions(payload, teil) {
+      const set = payload && payload.set ? payload.set : {};
+      const items = Array.isArray(set.items) ? set.items : [];
+      const first = items[0] || {};
+
+      if (teil === 3) {
+        const dialogs = Array.isArray(first.dialogs) ? first.dialogs : [];
+        const normalized = [];
+        dialogs.forEach((dialog, index) => {
+          const tf = dialog && dialog.true_false ? dialog.true_false : {};
+          const detail = dialog && dialog.detail ? dialog.detail : {};
+          const tfStatement = String(tf.statement || "").trim();
+          const detailQuestion = String(detail.question || "").trim();
+          const dialogTitle = String(dialog.title || `Dialog ${index + 1}`);
+          const audioScript = String(dialog.audio_script || "").trim();
+
+          if (tfStatement) normalized.push({ question: `${dialogTitle}: ${tfStatement}`, audio_script: audioScript, options: { A: "Richtig", B: "Falsch" } });
+          if (detailQuestion) normalized.push({ question: `${dialogTitle}: ${detailQuestion}`, audio_script: audioScript, options: detail && typeof detail.options === "object" ? detail.options : {} });
+        });
+        return normalized;
+      }
+
+      if (teil === 4) {
+        const statements = Array.isArray(first.statements) ? first.statements : [];
+        const optionPool = first && typeof first.options === "object" ? first.options : {};
+        return statements.map((statement, index) => ({
+          question: `${String(statement && statement.title ? statement.title : `Aussage ${index + 1}`)}: ${String(statement && statement.question ? statement.question : "Welche Antwort passt?")}`,
+          audio_script: String(statement && statement.audio_script ? statement.audio_script : ""),
+          options: optionPool
+        }));
+      }
+
+      return Array.isArray(first.questions) ? first.questions : [];
+    }
+
+    function renderTasks(listId, statusId, payload, missingMessage, teil) {
+      const list = document.getElementById(listId);
+      if (!list) return;
+      list.innerHTML = "";
+      const questions = normalizeHoerenQuestions(payload, teil);
+      if (!questions.length) {
+        setStatus(statusId, missingMessage, true);
+        return;
+      }
+
+      questions.forEach((q, idx) => {
+        const wrap = document.createElement("section");
+        wrap.className = "task";
+
+        const title = document.createElement("p");
+        title.className = "task-title";
+        title.textContent = `${idx + 1}. ${String((q && q.question) || (q && q.title) || "Soru")}`;
+        wrap.appendChild(title);
+
+        const audioScript = String(q && q.audio_script ? q.audio_script : "").trim();
+        if (audioScript) {
+          const audioRow = document.createElement("div");
+          audioRow.className = "audio-row";
+
+          const audioBtn = document.createElement("button");
+          audioBtn.className = "audio-btn";
+          audioBtn.type = "button";
+          audioBtn.textContent = "Audio abspielen";
+          audioBtn.addEventListener("click", async () => {
+            const stopCurrent = () => {
+              currentPlaybackToken += 1;
+              if (currentAudioPlayer) { try { currentAudioPlayer.pause(); } catch (_) {} }
+              if (currentSpeechBtn) {
+                currentSpeechBtn.classList.remove("playing");
+                currentSpeechBtn.textContent = "Audio abspielen";
+              }
+              currentAudioPlayer = null;
+              currentSpeechBtn = null;
+            };
+
+            if (currentSpeechBtn === audioBtn) {
+              stopCurrent();
+              return;
+            }
+
+            stopCurrent();
+            audioBtn.classList.add("playing");
+            audioBtn.textContent = "Audio stoppen";
+            currentSpeechBtn = audioBtn;
+            const token = currentPlaybackToken;
+
+            try {
+              let segments = audioCache.get(audioScript);
+              if (!segments) {
+                const response = await fetch("./api/dtz_tts_public.php", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ script: audioScript })
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok || !payload.ok) throw new Error(String(payload.error || `Fehler: ${response.status}`));
+                segments = Array.isArray(payload.segments) ? payload.segments : [];
+                audioCache.set(audioScript, segments);
+              }
+
+              if (!segments.length) throw new Error("Ses segmenti üretilemedi.");
+
+              for (const seg of segments) {
+                if (token !== currentPlaybackToken) return;
+                const url = String(seg && seg.url ? seg.url : "");
+                if (!url) continue;
+                const audio = new Audio(url);
+                currentAudioPlayer = audio;
+                await new Promise((resolve, reject) => {
+                  audio.onended = resolve;
+                  audio.onerror = () => reject(new Error("Audio-Stream konnte nicht abgespielt werden."));
+                  audio.play().catch(reject);
+                });
+                const pause = Math.max(0, Number(seg && seg.pause_ms ? seg.pause_ms : 0));
+                if (pause > 0) await new Promise(resolve => setTimeout(resolve, pause));
+              }
+            } catch (err) {
+              setStatus(statusId, `Audio yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+            } finally {
+              if (token === currentPlaybackToken && currentSpeechBtn === audioBtn) {
+                audioBtn.classList.remove("playing");
+                audioBtn.textContent = "Audio abspielen";
+                currentSpeechBtn = null;
+                currentAudioPlayer = null;
+              }
+            }
+          });
+
+          audioRow.appendChild(audioBtn);
+          wrap.appendChild(audioRow);
+        }
+
+        const options = q && typeof q.options === "object" ? q.options : {};
+        Object.keys(options).forEach(key => {
+          const row = document.createElement("div");
+          row.className = "task-option";
+          row.textContent = `${key}) ${String(options[key] || "")}`;
+          wrap.appendChild(row);
+        });
+
+        list.appendChild(wrap);
+      });
+
+      setStatus(statusId, "", false);
+    }
+
+    async function loadHoerenTeil(teil) {
+      const statusId = `statusBox${teil}`;
+      const taskId = `taskList${teil}`;
+      setStatus(statusId, "", false);
+      try {
+        const response = await fetch(`./api/dtz_hoeren_teil${teil}_public.php`, { method: "GET" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.ok) throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        renderTasks(taskId, statusId, payload, `Hören Teil ${teil} görevleri bulunamadı.`, teil);
+      } catch (err) {
+        setStatus(statusId, `Hören Teil ${teil} yüklenemedi: ${String(err && err.message ? err.message : err)}`, true);
+      }
+    }
+
+    document.querySelectorAll(".js-reload-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const section = Number(btn.getAttribute("data-section") || "1");
+        void loadHoerenTeil(section);
+      });
+    });
+
+    function bindSectionToggle(sectionId, toggleId) {
+      const section = document.getElementById(sectionId);
+      const toggle = document.getElementById(toggleId);
+      if (!section || !toggle) return;
+      toggle.addEventListener("click", () => {
+        const collapsed = section.classList.toggle("section-collapsed");
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+      });
+    }
+
+    bindSectionToggle("hoerenSection1", "hoerenSectionToggle1");
+    bindSectionToggle("hoerenSection2", "hoerenSectionToggle2");
+    bindSectionToggle("hoerenSection3", "hoerenSectionToggle3");
+    bindSectionToggle("hoerenSection4", "hoerenSectionToggle4");
+
+    void loadHoerenTeil(1);
+    void loadHoerenTeil(2);
+    void loadHoerenTeil(3);
+    void loadHoerenTeil(4);
+  </script>
 </body>
 </html>
