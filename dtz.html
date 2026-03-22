@@ -106,42 +106,10 @@
       border: 1px solid #d8e7f5;
       border-radius: 12px;
       background: #ffffff;
-      overflow: hidden;
-    }
-    .task-trigger {
-      width: 100%;
-      text-align: left;
-      border: 0;
-      background: #ffffff;
-      color: #1f3347;
-      font: inherit;
-      font-weight: 700;
       padding: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .task-trigger::after {
-      content: "+";
-      font-size: 1.05rem;
-      line-height: 1;
-      color: #3f5f80;
-    }
-    .task.open .task-trigger::after {
-      content: "-";
     }
     .task-title {
-      margin: 0;
-    }
-    .task-panel {
-      display: none;
-      border-top: 1px solid #e2edf8;
-      padding: 12px;
-    }
-    .task.open .task-panel {
-      display: block;
+      margin: 0 0 8px;
     }
     .task-option {
       display: block;
@@ -200,6 +168,39 @@
       width: 100%;
       display: block;
     }
+    .section-trigger {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .section-trigger h1 {
+      margin: 0;
+    }
+    .section-trigger::after {
+      content: "-";
+      font-size: 1.2rem;
+      line-height: 1;
+      color: #3f5f80;
+      font-weight: 700;
+    }
+    .card.section-collapsed .section-trigger::after {
+      content: "+";
+    }
+    .section-panel {
+      margin-top: 12px;
+    }
+    .card.section-collapsed .section-panel {
+      display: none;
+    }
     .site-footer {
       margin-top: 26px;
       border-top: 1px solid var(--ora-stroke);
@@ -231,15 +232,19 @@
     </nav>
 
     <main>
-      <section class="card">
-        <h1>Hören Teil 1</h1>
-        <div class="actions">
-          <button class="primary-btn js-reload-btn" type="button">Neue Aufgaben laden</button>
-        </div>
-        <div id="statusBox" class="status"></div>
-        <div id="taskList"></div>
-        <div class="actions">
-          <button class="primary-btn js-reload-btn" type="button">Neue Aufgaben laden</button>
+      <section id="hoerenSection" class="card">
+        <button id="hoerenSectionToggle" class="section-trigger" type="button" aria-expanded="true">
+          <h1>Hören Teil 1</h1>
+        </button>
+        <div class="section-panel">
+          <div class="actions">
+            <button class="primary-btn js-reload-btn" type="button">Neue Aufgaben laden</button>
+          </div>
+          <div id="statusBox" class="status"></div>
+          <div id="taskList"></div>
+          <div class="actions">
+            <button class="primary-btn js-reload-btn" type="button">Neue Aufgaben laden</button>
+          </div>
         </div>
       </section>
       <section class="card">
@@ -290,18 +295,10 @@
         const wrap = document.createElement("section");
         wrap.className = "task";
 
-        const trigger = document.createElement("button");
-        trigger.type = "button";
-        trigger.className = "task-trigger";
-
         const title = document.createElement("p");
         title.className = "task-title";
         title.textContent = `${idx + 1}. ${String(q.question || "Soru")}`;
-        trigger.appendChild(title);
-        wrap.appendChild(trigger);
-
-        const panel = document.createElement("div");
-        panel.className = "task-panel";
+        wrap.appendChild(title);
 
         const audioScript = String(q && q.audio_script ? q.audio_script : "").trim();
         if (audioScript) {
@@ -386,7 +383,7 @@
           });
 
           audioRow.appendChild(audioBtn);
-          panel.appendChild(audioRow);
+          wrap.appendChild(audioRow);
         }
 
         const options = q && typeof q.options === "object" ? q.options : {};
@@ -394,16 +391,8 @@
           const row = document.createElement("div");
           row.className = "task-option";
           row.textContent = `${key}) ${String(options[key] || "")}`;
-          panel.appendChild(row);
+          wrap.appendChild(row);
         });
-
-        wrap.appendChild(panel);
-        trigger.addEventListener("click", () => {
-          const shouldOpen = !wrap.classList.contains("open");
-          list.querySelectorAll(".task.open").forEach(node => node.classList.remove("open"));
-          if (shouldOpen) wrap.classList.add("open");
-        });
-        if (idx === 0) wrap.classList.add("open");
         list.appendChild(wrap);
       });
 
@@ -427,6 +416,16 @@
     document.querySelectorAll(".js-reload-btn").forEach(btn => {
       btn.addEventListener("click", () => { void loadHoerenTeil1(); });
     });
+
+    const hoerenSection = document.getElementById("hoerenSection");
+    const hoerenSectionToggle = document.getElementById("hoerenSectionToggle");
+    if (hoerenSection && hoerenSectionToggle) {
+      hoerenSectionToggle.addEventListener("click", () => {
+        const collapsed = hoerenSection.classList.toggle("section-collapsed");
+        hoerenSectionToggle.setAttribute("aria-expanded", String(!collapsed));
+      });
+    }
+
     void loadHoerenTeil1();
   </script>
 </body>
