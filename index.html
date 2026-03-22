@@ -3273,16 +3273,19 @@
       max-width: 260px;
     }
 
-    .member-auth-grid {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .member-inline-link {
+      margin-top: 8px;
+      font-size: 0.92rem;
     }
 
-    @media (max-width: 860px) {
-      .member-auth-grid {
-        grid-template-columns: 1fr;
-      }
+    .member-inline-link button {
+      border: none;
+      background: transparent;
+      color: #177adf;
+      text-decoration: underline;
+      cursor: pointer;
+      font: inherit;
+      padding: 0;
     }
   </style>
 </head>
@@ -3326,54 +3329,55 @@
       </section>
     <div class="shell">
       <section id="memberEntryCard" class="card auth-card admin-entry-card">
-        <h2 class="section-title">Mitgliederbereich</h2>
-        <p class="section-subtitle">Registrierung und Login sind getrennt.</p>
-        <div class="member-auth-grid">
-          <div class="card" style="margin:0;">
-            <h3 class="section-title" style="margin-top:0;">Mitglied Login</h3>
-            <div class="grid">
-              <div>
-                <label for="memberLoginUsername">Benutzername</label>
-                <input id="memberLoginUsername" type="text" autocomplete="username" placeholder="z. B. ahmet123">
-              </div>
-              <div>
-                <label for="memberLoginPassword">Passwort</label>
-                <input id="memberLoginPassword" type="password" autocomplete="current-password" placeholder="Ihr Passwort">
-              </div>
+        <div class="card" style="margin:0;">
+          <h3 class="section-title" style="margin-top:0;">Mitglied Login</h3>
+          <div class="grid">
+            <div>
+              <label for="memberLoginUsername">Benutzername</label>
+              <input id="memberLoginUsername" type="text" autocomplete="username" placeholder="z. B. ahmet123">
             </div>
-            <div class="admin-entry-actions">
-              <button id="memberEntryLoginBtn" type="button">Anmelden</button>
-              <button id="memberEntryLogoutBtn" type="button" class="ghost-btn">Abmelden</button>
+            <div>
+              <label for="memberLoginPassword">Passwort</label>
+              <input id="memberLoginPassword" type="password" autocomplete="current-password" placeholder="Ihr Passwort">
             </div>
-            <div id="memberLoginStatus" class="hidden"></div>
           </div>
-          <div class="card" style="margin:0;">
-            <h3 class="section-title" style="margin-top:0;">Konto erstellen</h3>
-            <div class="grid">
-              <div>
-                <label for="memberRegisterUsername">Benutzername</label>
-                <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen">
-              </div>
-              <div>
-                <label for="memberRegisterPassword">Passwort</label>
-                <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe">
-              </div>
-            </div>
-            <div class="grid">
-              <div>
-                <label for="memberRegisterDisplayName">Anzeigename</label>
-                <input id="memberRegisterDisplayName" type="text" autocomplete="name" placeholder="Vorname Nachname">
-              </div>
-              <div>
-                <label for="memberRegisterEmail">E-Mail (optional)</label>
-                <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com">
-              </div>
-            </div>
-            <div class="admin-entry-actions">
-              <button id="memberEntryCreateBtn" type="button" class="ghost-btn">Registrieren</button>
-            </div>
-            <div id="memberRegisterStatus" class="hidden"></div>
+          <div class="admin-entry-actions">
+            <button id="memberEntryLoginBtn" type="button">Anmelden</button>
+            <button id="memberEntryLogoutBtn" type="button" class="ghost-btn">Abmelden</button>
           </div>
+          <div class="member-inline-link">
+            <button id="openMemberRegisterBtn" type="button">Mitglied werden</button>
+          </div>
+          <div id="memberLoginStatus" class="hidden"></div>
+        </div>
+
+        <div id="memberRegisterCard" class="card hidden" style="margin-top:12px;">
+          <h3 class="section-title" style="margin-top:0;">Konto erstellen</h3>
+          <div class="grid">
+            <div>
+              <label for="memberRegisterUsername">Benutzername</label>
+              <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen">
+            </div>
+            <div>
+              <label for="memberRegisterPassword">Passwort</label>
+              <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe">
+            </div>
+          </div>
+          <div class="grid">
+            <div>
+              <label for="memberRegisterDisplayName">Anzeigename</label>
+              <input id="memberRegisterDisplayName" type="text" autocomplete="name" placeholder="Vorname Nachname">
+            </div>
+            <div>
+              <label for="memberRegisterEmail">E-Mail (optional)</label>
+              <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com">
+            </div>
+          </div>
+          <div class="admin-entry-actions">
+            <button id="memberEntryCreateBtn" type="button" class="ghost-btn">Registrieren</button>
+            <button id="closeMemberRegisterBtn" type="button" class="ghost-btn">Schließen</button>
+          </div>
+          <div id="memberRegisterStatus" class="hidden"></div>
         </div>
       </section>
 
@@ -14354,6 +14358,23 @@
     if (memberEntryCreateBtn) {
       memberEntryCreateBtn.addEventListener("click", () => {
         void registerMemberFromIndex();
+      });
+    }
+    const openMemberRegisterBtn = document.getElementById("openMemberRegisterBtn");
+    if (openMemberRegisterBtn) {
+      openMemberRegisterBtn.addEventListener("click", () => {
+        const card = document.getElementById("memberRegisterCard");
+        if (!card) return;
+        card.classList.remove("hidden");
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+    const closeMemberRegisterBtn = document.getElementById("closeMemberRegisterBtn");
+    if (closeMemberRegisterBtn) {
+      closeMemberRegisterBtn.addEventListener("click", () => {
+        const card = document.getElementById("memberRegisterCard");
+        if (!card) return;
+        card.classList.add("hidden");
       });
     }
     const memberEntryLogoutBtn = document.getElementById("memberEntryLogoutBtn");
