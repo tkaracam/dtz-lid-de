@@ -260,46 +260,39 @@
       <section class="card">
         <h1>Schreiben</h1>
 
-        <details id="portalWriteAccordion" class="card-accordion" open>
-          <summary class="card-accordion-summary">
-            <div class="title-wrap">
-              <h3 style="margin:0;">Mail schreiben und prüfen <span id="portalTaskNotifyBadge" class="task-notify-badge hidden">0</span></h3>
-              <p class="section-subtitle">Mail-Aufgabe auswählen, bearbeiten und direkt hochladen.</p>
-            </div>
-            <span class="card-accordion-icon">▾</span>
-          </summary>
-          <div class="card-accordion-body">
-            <div id="portalMailHomeworkWrap" class="portal-list">
-              <label class="field-label" for="mailTopicSelect">Thema auswählen</label>
-              <select id="mailTopicSelect" class="topic-select"></select>
+        <div class="title-wrap" style="margin-top:14px;">
+          <h3 style="margin:0;">Mail schreiben und prüfen <span id="portalTaskNotifyBadge" class="task-notify-badge hidden">0</span></h3>
+          <p class="section-subtitle">Mail-Aufgabe auswählen, bearbeiten und direkt hochladen.</p>
+        </div>
+        <div id="portalMailHomeworkWrap" class="portal-list" style="margin-top:12px;">
+          <label class="field-label" for="mailTopicSelect">Thema auswählen</label>
+          <select id="mailTopicSelect" class="topic-select"></select>
 
-              <section class="mail-task-card">
-                <div class="mail-task-head">
-                  <h4 id="mailTaskTitle" class="mail-task-title"></h4>
-                  <span class="mail-task-state">Läuft</span>
-                </div>
-                <p id="mailTaskPrompt" class="mail-task-text"></p>
-                <ul id="mailTaskBullets" class="mail-task-list"></ul>
-                <span class="mail-started">BEREITS GESTARTET</span>
-              </section>
-
-              <section class="mail-compose">
-                <h4>Ihre Mail</h4>
-                <p class="mail-note">Kopieren, Einfügen und Ausschneiden sind gesperrt.</p>
-                <p class="mail-note">Empfehlung: 50-80 Wörter für B1-Ziel.</p>
-                <textarea id="mailBodyInput" class="mail-textarea" placeholder="Schreiben Sie hier Ihre Mail..."></textarea>
-                <button id="mailUploadBtn" class="upload-btn" type="button">BRIEF HOCHLADEN</button>
-                <button id="mailAiBtn" class="ai-btn" type="button">KI KORREKTUR</button>
-                <p id="mailUploadStatus" class="upload-status" aria-live="polite"></p>
-                <div id="mailAiResult" class="ai-result hidden">
-                  <p id="mailAiHead" class="ai-result-head"></p>
-                  <p id="mailAiFeedback" class="ai-result-text"></p>
-                  <p id="mailAiCorrected" class="ai-result-text"></p>
-                </div>
-              </section>
+          <section class="mail-task-card">
+            <div class="mail-task-head">
+              <h4 id="mailTaskTitle" class="mail-task-title"></h4>
+              <span class="mail-task-state">Läuft</span>
             </div>
-          </div>
-        </details>
+            <p id="mailTaskPrompt" class="mail-task-text"></p>
+            <ul id="mailTaskBullets" class="mail-task-list"></ul>
+            <span class="mail-started">BEREITS GESTARTET</span>
+          </section>
+
+          <section class="mail-compose">
+            <h4>Ihre Mail</h4>
+            <p class="mail-note">Kopieren, Einfügen und Ausschneiden sind gesperrt.</p>
+            <p class="mail-note">Empfehlung: 50-80 Wörter für B1-Ziel.</p>
+            <textarea id="mailBodyInput" class="mail-textarea" placeholder="Schreiben Sie hier Ihre Mail..."></textarea>
+            <button id="mailUploadBtn" class="upload-btn" type="button">BRIEF HOCHLADEN</button>
+            <button id="mailAiBtn" class="ai-btn" type="button">KI KORREKTUR</button>
+            <p id="mailUploadStatus" class="upload-status" aria-live="polite"></p>
+            <div id="mailAiResult" class="ai-result hidden">
+              <p id="mailAiHead" class="ai-result-head"></p>
+              <p id="mailAiFeedback" class="ai-result-text"></p>
+              <p id="mailAiCorrected" class="ai-result-text"></p>
+            </div>
+          </section>
+        </div>
       </section>
     </main>
   </div>
