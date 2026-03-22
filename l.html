@@ -4,12 +4,49 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lesen | DTZ-LiD.de</title>
-  <meta http-equiv="refresh" content="0; url=./dtz-legacy.html?route=dtz-lesen">
-  <script>
-    window.location.replace("./dtz-legacy.html?route=dtz-lesen");
-  </script>
+  <style>
+    html, body { margin: 0; height: 100%; background: #f6fbff; }
+    .frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: #f6fbff;
+    }
+  </style>
 </head>
 <body>
-  <p>Weiterleitung zu Lesen ... <a href="./dtz-legacy.html?route=dtz-lesen">hier klicken</a>.</p>
+  <iframe id="lesenFrame" class="frame" src="./dtz-legacy.html?route=dtz-lesen" title="DTZ Lesen"></iframe>
+  <script>
+    const frame = document.getElementById("lesenFrame");
+
+    function forceOpenLesen() {
+      try {
+        const w = frame && frame.contentWindow;
+        if (!w) return false;
+        if (typeof w.navigateToSection === "function") {
+          w.navigateToSection("dtz-lesen");
+          return true;
+        }
+        if (typeof w.openDtzModuleView === "function") {
+          w.openDtzModuleView("lesen");
+          return true;
+        }
+      } catch (_) {
+        return false;
+      }
+      return false;
+    }
+
+    frame.addEventListener("load", () => {
+      let tries = 0;
+      const timer = setInterval(() => {
+        tries += 1;
+        if (forceOpenLesen() || tries > 40) {
+          clearInterval(timer);
+        }
+      }, 200);
+    });
+  </script>
 </body>
 </html>
