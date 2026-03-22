@@ -3279,13 +3279,29 @@
     }
 
     .member-inline-link button {
-      border: none;
-      background: transparent;
-      color: #177adf;
-      text-decoration: underline;
+      border: 1px solid #b7d7ff;
+      background: linear-gradient(135deg, #177adf, #2db9a6);
+      color: #ffffff;
+      border-radius: 999px;
+      min-height: 38px;
+      padding: 8px 16px;
       cursor: pointer;
       font: inherit;
-      padding: 0;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      box-shadow: 0 8px 18px rgba(23, 122, 223, 0.25);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    .member-inline-link button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+      box-shadow: 0 12px 24px rgba(23, 122, 223, 0.3);
+    }
+
+    .member-inline-link button:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 14px rgba(23, 122, 223, 0.22);
     }
   </style>
 </head>
