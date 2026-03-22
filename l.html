@@ -662,17 +662,26 @@
     }
 
     function renderTeil4(list, item) {
-      addText(list, item.instructions || "");
-      addText(list, item.text || "");
+      const intro = document.createElement("section");
+      intro.className = "task";
+      const introTitle = document.createElement("p");
+      introTitle.className = "task-title";
+      introTitle.textContent = normalizeDtzGermanText(String(item.title || "Lesen Teil 4"));
+      intro.appendChild(introTitle);
+      addText(intro, item.instructions || "Lesen Sie den Text. Entscheiden Sie, ob die Aussagen 37-39 richtig oder falsch sind.");
+      addText(intro, item.text || "");
+      list.appendChild(intro);
+
       const statements = Array.isArray(item.statements) ? item.statements : [];
       statements.forEach((s, idx) => {
         const task = document.createElement("section");
         task.className = "task";
         const t = document.createElement("p");
         t.className = "task-title";
-        t.textContent = `${idx + 1}. ${String(s.statement || "")}`;
+        const no = String(s.no || (37 + idx));
+        t.textContent = normalizeDtzGermanText(`${no}. ${String(s.statement || "")}`);
         task.appendChild(t);
-        addOptions(task, { A: "Richtig", B: "Falsch" });
+        addOptions(task, { A: "richtig", B: "falsch" });
         list.appendChild(task);
       });
     }
