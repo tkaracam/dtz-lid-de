@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DTZ | DTZ-LiD.de</title>
+  <style>
+    :root {
+      --ora-bg: #f6fbff;
+      --ora-surface-soft: #f8fcff;
+      --ora-text: #1f3142;
+      --ora-muted: #587089;
+      --ora-stroke: #d8e7f5;
+      --ora-accent-a: #ff8a57;
+      --ora-accent-b: #ff5f7f;
+      --ora-shadow: 0 16px 36px rgba(35, 71, 108, 0.12);
+      --ora-menu-text: #2b445b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ora-text);
+      font-family: "Sora", sans-serif;
+      background:
+        radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),
+        radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),
+        #f6fbff;
+    }
+    .page-shell {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
+    }
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      max-width: none;
+      z-index: 1004;
+      border-top: 1px solid var(--ora-stroke);
+      border-bottom: 1px solid var(--ora-stroke);
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+      padding: calc(env(safe-area-inset-top, 0px) + 14px) clamp(22px, 3.2vw, 38px) 14px clamp(10px, 1.4vw, 18px);
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .nav-brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 1.08rem;
+      color: #1f3347;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav-quick {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .quick-btn {
+      text-decoration: none;
+      color: var(--ora-menu-text);
+      border: 1px solid var(--ora-stroke);
+      background: var(--ora-surface-soft);
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .quick-btn-primary {
+      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
+      color: #210f1a;
+      border-color: transparent;
+    }
+    .card {
+      margin-top: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--ora-stroke);
+      background: linear-gradient(160deg, #ffffff, #f5faff);
+      padding: 22px;
+      box-shadow: var(--ora-shadow);
+      max-width: 700px;
+    }
+    .site-footer {
+      margin-top: 26px;
+      border-top: 1px solid var(--ora-stroke);
+      padding-top: 18px;
+      color: var(--ora-muted);
+      text-align: center;
+    }
+    .footer-link {
+      color: #35506a;
+      border: 1px solid #cfe2f2;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      background: #ffffff;
+      text-decoration: none;
+      display: inline-flex;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <nav class="top-nav">
+      <a class="nav-brand" href="./index.html">DTZ-LiD</a>
+      <div class="nav-quick">
+        <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
+        <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
+      </div>
+    </nav>
+
+    <main>
+      <section class="card">
+        <h1>DTZ</h1>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="footer-link" href="./agb.html">AGB</a>
+    </footer>
+  </div>
+</body>
+</html>
