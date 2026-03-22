@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DTZ-LiD.de | Mitglied Login</title>
+  <style>
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("./assets/fonts/Comfortaa-Light.ttf") format("truetype");
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("./assets/fonts/Comfortaa-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("./assets/fonts/Comfortaa-Bold.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --paper: #ffffff;
+      --ink: #4b3f38;
+      --muted: #8c7567;
+      --line: rgba(231, 205, 189, 0.72);
+      --green-a: #1f8f60;
+      --green-b: #42bb84;
+      --red-a: #c43a3a;
+      --red-b: #de5a5a;
+      --blue-a: #177adf;
+      --blue-b: #2db9a6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Comfortaa", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #eef6ff, #f6fbff 48%, #ffffff);
+      line-height: 1.45;
+    }
+
+    .container {
+      width: min(820px, calc(100% - 1.2rem));
+      margin: 24px auto 40px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 16px 32px rgba(40, 40, 46, 0.08);
+      margin-bottom: 12px;
+    }
+
+    h1, h2 {
+      margin: 0 0 10px;
+    }
+
+    .section-subtitle {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0 14px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: 1px solid #c3dbf8;
+      background: #f5faff;
+      color: #2b587f;
+      border-radius: 999px;
+      min-height: 36px;
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      color: #ffffff;
+      border-color: #8fddbb;
+      background: linear-gradient(135deg, var(--green-a), var(--green-b));
+      box-shadow: 0 10px 22px rgba(31, 143, 96, 0.28);
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    label {
+      display: block;
+      font-size: 0.84rem;
+      margin-bottom: 6px;
+      color: #6f4f5f;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #e4d5cf;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #9dc8f4;
+      box-shadow: 0 0 0 3px rgba(23, 122, 223, 0.12);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    button,
+    .link-btn {
+      border-radius: 999px;
+      min-height: 38px;
+      padding: 8px 16px;
+      border: 1px solid transparent;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: filter 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-green {
+      border-color: #8fddbb;
+      background: linear-gradient(135deg, var(--green-a), var(--green-b));
+      box-shadow: 0 10px 22px rgba(31, 143, 96, 0.28);
+    }
+
+    .btn-red {
+      border-color: #f0a6aa;
+      background: linear-gradient(135deg, var(--red-a), var(--red-b));
+      box-shadow: 0 10px 22px rgba(196, 58, 58, 0.26);
+    }
+
+    .btn-blue {
+      border-color: #b7d7ff;
+      background: linear-gradient(135deg, var(--blue-a), var(--blue-b));
+      box-shadow: 0 10px 22px rgba(23, 122, 223, 0.25);
+    }
+
+    button:hover,
+    .link-btn:hover {
+      filter: brightness(1.02);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+    }
+
+    .status.hidden {
+      display: none;
+    }
+
+    .status.ok {
+      color: #104934;
+      background: #e9f8f0;
+      border-color: #b8e3cb;
+    }
+
+    .status.error {
+      color: #7a1f24;
+      background: #fdecee;
+      border-color: #f3c1c6;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .top-links {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="top-links">
+      <a class="link-btn btn-blue" href="./index.html">Zur Startseite</a>
+      <a class="link-btn btn-red" href="./admin.html">Admin-Panel</a>
+    </div>
+
+    <section class="card">
+      <h1>Mitgliederbereich</h1>
+      <p class="section-subtitle">Login und Registrierung sind auf dieser separaten Seite.</p>
+      <div class="tabs">
+        <button id="tabLogin" class="tab-btn active" type="button">Mitglied Login</button>
+        <button id="tabRegister" class="tab-btn" type="button">Konto erstellen</button>
+      </div>
+
+      <div id="loginPane">
+        <h2>Mitglied Login</h2>
+        <div class="grid">
+          <div>
+            <label for="memberLoginUsername">Benutzername</label>
+            <input id="memberLoginUsername" type="text" autocomplete="username" placeholder="z. B. ahmet123" required>
+          </div>
+          <div>
+            <label for="memberLoginPassword">Passwort</label>
+            <input id="memberLoginPassword" type="password" autocomplete="current-password" placeholder="Ihr Passwort" required>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="memberEntryLoginBtn" class="btn-green" type="button">Anmelden</button>
+          <button id="memberEntryLogoutBtn" class="btn-red" type="button">Abmelden</button>
+        </div>
+        <div id="memberLoginStatus" class="status hidden"></div>
+      </div>
+
+      <div id="registerPane" class="hidden">
+        <h2>Konto erstellen</h2>
+        <div class="grid">
+          <div>
+            <label for="memberRegisterUsername">Benutzername</label>
+            <input id="memberRegisterUsername" type="text" autocomplete="username" placeholder="6-32 Zeichen" required>
+          </div>
+          <div>
+            <label for="memberRegisterPassword">Passwort</label>
+            <input id="memberRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen + 1 Großbuchstabe" required>
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <label for="memberRegisterPasswordRepeat">Passwort wiederholen</label>
+            <input id="memberRegisterPasswordRepeat" type="password" autocomplete="new-password" placeholder="Passwort erneut eingeben" required>
+          </div>
+          <div>
+            <label for="memberRegisterFirstName">Vorname</label>
+            <input id="memberRegisterFirstName" type="text" autocomplete="given-name" placeholder="Vorname" required>
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <label for="memberRegisterLastName">Nachname</label>
+            <input id="memberRegisterLastName" type="text" autocomplete="family-name" placeholder="Nachname" required>
+          </div>
+          <div>
+            <label for="memberRegisterEmail">E-Mail</label>
+            <input id="memberRegisterEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
+          </div>
+          <div>
+            <label for="memberRegisterEmailRepeat">E-Mail wiederholen</label>
+            <input id="memberRegisterEmailRepeat" type="email" autocomplete="email" placeholder="E-Mail erneut eingeben" required>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="memberEntryCreateBtn" class="btn-green" type="button">Registrieren</button>
+          <button id="closeMemberRegisterBtn" class="btn-red" type="button">schließen</button>
+        </div>
+        <div id="memberRegisterStatus" class="status hidden"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function setStatus(id, type, message) {
+      const box = document.getElementById(id);
+      if (!box) return;
+      box.className = type ? `status ${type}` : "status hidden";
+      box.textContent = message || "";
+      if (!type) box.classList.add("hidden");
+    }
+
+    function activateTab(tab) {
+      const loginPane = document.getElementById("loginPane");
+      const registerPane = document.getElementById("registerPane");
+      const tabLogin = document.getElementById("tabLogin");
+      const tabRegister = document.getElementById("tabRegister");
+      const isRegister = tab === "register";
+      if (loginPane) loginPane.classList.toggle("hidden", isRegister);
+      if (registerPane) registerPane.classList.toggle("hidden", !isRegister);
+      if (tabLogin) tabLogin.classList.toggle("active", !isRegister);
+      if (tabRegister) tabRegister.classList.toggle("active", isRegister);
+    }
+
+    async function loginMember() {
+      setStatus("memberLoginStatus", "", "");
+      const usernameInput = document.getElementById("memberLoginUsername");
+      const passwordInput = document.getElementById("memberLoginPassword");
+      const button = document.getElementById("memberEntryLoginBtn");
+      if (!usernameInput || !passwordInput || !button) return;
+
+      const username = String(usernameInput.value || "").trim().toLowerCase();
+      const password = String(passwordInput.value || "");
+      if (!username || !password.trim()) {
+        setStatus("memberLoginStatus", "error", "Bitte Benutzername und Passwort eingeben.");
+        return;
+      }
+
+      button.disabled = true;
+      const oldLabel = button.textContent;
+      button.textContent = "Login läuft...";
+      try {
+        const response = await fetch("./api/member_login.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        }
+        setStatus("memberLoginStatus", "ok", "Anmeldung erfolgreich. Weiterleitung...");
+        window.setTimeout(() => {
+          window.location.href = "./index.html";
+        }, 300);
+      } catch (err) {
+        const msg = String(err && err.message ? err.message : err || "Login fehlgeschlagen.");
+        setStatus("memberLoginStatus", "error", msg);
+      } finally {
+        button.disabled = false;
+        button.textContent = oldLabel || "Anmelden";
+      }
+    }
+
+    async function registerMember() {
+      setStatus("memberRegisterStatus", "", "");
+      const usernameInput = document.getElementById("memberRegisterUsername");
+      const passwordInput = document.getElementById("memberRegisterPassword");
+      const passwordRepeatInput = document.getElementById("memberRegisterPasswordRepeat");
+      const firstNameInput = document.getElementById("memberRegisterFirstName");
+      const lastNameInput = document.getElementById("memberRegisterLastName");
+      const emailInput = document.getElementById("memberRegisterEmail");
+      const emailRepeatInput = document.getElementById("memberRegisterEmailRepeat");
+      const button = document.getElementById("memberEntryCreateBtn");
+      if (!usernameInput || !passwordInput || !passwordRepeatInput || !firstNameInput || !lastNameInput || !emailInput || !emailRepeatInput || !button) return;
+
+      const username = String(usernameInput.value || "").trim().toLowerCase();
+      const password = String(passwordInput.value || "");
+      const passwordRepeat = String(passwordRepeatInput.value || "");
+      const firstName = String(firstNameInput.value || "").trim();
+      const lastName = String(lastNameInput.value || "").trim();
+      const display_name = `${firstName} ${lastName}`.trim();
+      const email = String(emailInput.value || "").trim();
+      const emailRepeat = String(emailRepeatInput.value || "").trim();
+
+      if (!username || !password || !passwordRepeat || !firstName || !lastName || !email || !emailRepeat) {
+        setStatus("memberRegisterStatus", "error", "Bitte alle Pflichtfelder ausfüllen.");
+        return;
+      }
+      if (password !== passwordRepeat) {
+        setStatus("memberRegisterStatus", "error", "Passwort und Passwort-Wiederholung stimmen nicht überein.");
+        passwordRepeatInput.focus();
+        return;
+      }
+      if (email !== emailRepeat) {
+        setStatus("memberRegisterStatus", "error", "E-Mail und E-Mail-Wiederholung stimmen nicht überein.");
+        emailRepeatInput.focus();
+        return;
+      }
+
+      button.disabled = true;
+      const oldLabel = button.textContent;
+      button.textContent = "Registrierung läuft...";
+      try {
+        const existsResponse = await fetch(`./api/member_username_exists.php?username=${encodeURIComponent(username)}`, { method: "GET" });
+        const existsPayload = await existsResponse.json().catch(() => ({}));
+        if (!existsResponse.ok) {
+          throw new Error(String(existsPayload.error || `Fehler: ${existsResponse.status}`));
+        }
+        if (existsPayload.exists) {
+          throw new Error("Benutzername ist bereits vergeben.");
+        }
+
+        const response = await fetch("./api/member_register.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password, display_name, email })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(String(payload.error || `Fehler: ${response.status}`));
+        }
+
+        setStatus("memberRegisterStatus", "ok", "Registrierung erfolgreich. Weiterleitung...");
+        window.setTimeout(() => {
+          window.location.href = "./index.html";
+        }, 300);
+      } catch (err) {
+        const msg = String(err && err.message ? err.message : err || "Registrierung fehlgeschlagen.");
+        setStatus("memberRegisterStatus", "error", msg);
+      } finally {
+        button.disabled = false;
+        button.textContent = oldLabel || "Registrieren";
+      }
+    }
+
+    async function logoutMember() {
+      setStatus("memberLoginStatus", "", "");
+      try {
+        await fetch("./api/member_logout.php", { method: "POST" });
+        setStatus("memberLoginStatus", "ok", "Mitglieds-Sitzung wurde abgemeldet.");
+      } catch (_) {
+        setStatus("memberLoginStatus", "error", "Fehler beim Abmelden.");
+      }
+    }
+
+    async function hydrateMemberSession() {
+      try {
+        const response = await fetch("./api/member_session.php", { method: "GET" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.authenticated) return;
+        const usernameInput = document.getElementById("memberLoginUsername");
+        if (usernameInput && payload.username) usernameInput.value = String(payload.username);
+        const display = String(payload.display_name || payload.username || "member");
+        setStatus("memberLoginStatus", "ok", `Aktive Mitglieds-Sitzung: ${display}`);
+      } catch (_) {
+        // ignore
+      }
+    }
+
+    const tabLogin = document.getElementById("tabLogin");
+    const tabRegister = document.getElementById("tabRegister");
+    if (tabLogin) tabLogin.addEventListener("click", () => activateTab("login"));
+    if (tabRegister) tabRegister.addEventListener("click", () => activateTab("register"));
+
+    const memberEntryLoginBtn = document.getElementById("memberEntryLoginBtn");
+    if (memberEntryLoginBtn) memberEntryLoginBtn.addEventListener("click", () => { void loginMember(); });
+
+    const memberEntryCreateBtn = document.getElementById("memberEntryCreateBtn");
+    if (memberEntryCreateBtn) memberEntryCreateBtn.addEventListener("click", () => { void registerMember(); });
+
+    const memberEntryLogoutBtn = document.getElementById("memberEntryLogoutBtn");
+    if (memberEntryLogoutBtn) memberEntryLogoutBtn.addEventListener("click", () => { void logoutMember(); });
+
+    const closeMemberRegisterBtn = document.getElementById("closeMemberRegisterBtn");
+    if (closeMemberRegisterBtn) {
+      closeMemberRegisterBtn.addEventListener("click", () => {
+        activateTab("login");
+      });
+    }
+
+    const memberLoginPassword = document.getElementById("memberLoginPassword");
+    if (memberLoginPassword) {
+      memberLoginPassword.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void loginMember();
+        }
+      });
+    }
+
+    const memberLoginUsername = document.getElementById("memberLoginUsername");
+    if (memberLoginUsername) {
+      memberLoginUsername.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void loginMember();
+        }
+      });
+    }
+
+    const memberRegisterPassword = document.getElementById("memberRegisterPassword");
+    if (memberRegisterPassword) {
+      memberRegisterPassword.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void registerMember();
+        }
+      });
+    }
+
+    const memberRegisterPasswordRepeat = document.getElementById("memberRegisterPasswordRepeat");
+    if (memberRegisterPasswordRepeat) {
+      memberRegisterPasswordRepeat.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void registerMember();
+        }
+      });
+    }
+
+    const memberRegisterEmailRepeat = document.getElementById("memberRegisterEmailRepeat");
+    if (memberRegisterEmailRepeat) {
+      memberRegisterEmailRepeat.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          void registerMember();
+        }
+      });
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "register") {
+      activateTab("register");
+    } else {
+      activateTab("login");
+    }
+
+    void hydrateMemberSession();
+  </script>
+</body>
+</html>
