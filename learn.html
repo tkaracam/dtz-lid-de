@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Üben | DTZ-LiD.de</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #10b981;
+      --error: #ef4444;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f1f5f9;
+      --white: #ffffff;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-back {
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .header-back:hover {
+      color: var(--primary);
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+    }
+
+    .header-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Main */
+    .main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 999px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      transition: width 0.3s;
+    }
+
+    /* Question Card */
+    .question-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .question-meta {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .question-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .question-badge.module-lesen { background: #dbeafe; color: #1e40af; }
+    .question-badge.module-hoeren { background: #fef3c7; color: #92400e; }
+    .question-badge.module-schreiben { background: #d1fae5; color: #065f46; }
+    .question-badge.module-sprechen { background: #fce7f3; color: #9d174d; }
+    .question-badge.module-lid { background: #f3e8ff; color: #6b21a8; }
+
+    .question-badge.level-a1 { background: #f3f4f6; color: #374151; }
+    .question-badge.level-a2 { background: #e0e7ff; color: #3730a3; }
+    .question-badge.level-b1 { background: #fef9c3; color: #854d0e; }
+    .question-badge.level-b2 { background: #dcfce7; color: #166534; }
+
+    .question-points {
+      margin-left: auto;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .question-text {
+      font-size: 18px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+    }
+
+    .question-prompt {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+    }
+
+    /* Options */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option:hover {
+      border-color: var(--primary);
+      background: var(--white);
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .option.correct {
+      border-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .option.incorrect {
+      border-color: var(--error);
+      background: #fef2f2;
+    }
+
+    .option-letter {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .option.selected .option-letter {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .option.correct .option-letter {
+      background: var(--success);
+      color: white;
+      border-color: var(--success);
+    }
+
+    .option.incorrect .option-letter {
+      background: var(--error);
+      color: white;
+      border-color: var(--error);
+    }
+
+    .option-text {
+      font-size: 15px;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      margin-top: 24px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Result */
+    .result-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .result-card.visible {
+      display: block;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .result-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .result-icon.correct {
+      background: #f0fdf4;
+    }
+
+    .result-icon.incorrect {
+      background: #fef2f2;
+    }
+
+    .result-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .result-title.correct {
+      color: var(--success);
+    }
+
+    .result-title.incorrect {
+      color: var(--error);
+    }
+
+    .result-answer {
+      background: var(--bg);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .result-answer-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .result-explanation {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Stats Summary */
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .summary-stat {
+      text-align: center;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .summary-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Loading */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error State */
+    .error-container {
+      text-align: center;
+      padding: 60px 24px;
+    }
+
+    .error-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .error-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .error-message {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .btn-retry {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="/dashboard.html" class="header-back">← Zurück</a>
+      <div class="header-title" id="moduleTitle">Lesen</div>
+      <div class="header-stats">
+        <div class="header-stat">
+          <span>🔥</span>
+          <span id="streakValue">0</span>
+        </div>
+        <div class="header-stat">
+          <span>⭐</span>
+          <span id="pointsValue">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Loading -->
+    <div class="loading-container" id="loadingState">
+      <div class="spinner"></div>
+      <p>Frage wird geladen...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-container" id="errorState" style="display: none;">
+      <div class="error-icon">😕</div>
+      <h2 class="error-title">Etwas ist schiefgelaufen</h2>
+      <p class="error-message" id="errorMessage">Konnte keine Frage laden.</p>
+      <button class="btn-retry" onclick="loadQuestion()">Erneut versuchen</button>
+    </div>
+
+    <!-- Question -->
+    <div id="questionContainer" style="display: none;">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-meta">
+          <span class="question-badge" id="moduleBadge">Lesen</span>
+          <span class="question-badge" id="levelBadge">A2</span>
+          <span class="question-points">+<span id="pointsBadge">10</span> Punkte</span>
+        </div>
+
+        <div class="question-text" id="questionText"></div>
+        <div class="question-prompt" id="questionPrompt"></div>
+
+        <div class="options-list" id="optionsList"></div>
+
+        <button class="btn-submit" id="submitBtn" onclick="submitAnswer()" disabled>
+          Antwort prüfen
+        </button>
+      </div>
+
+      <!-- Result -->
+      <div class="result-card" id="resultCard">
+        <div class="result-header">
+          <div class="result-icon" id="resultIcon"></div>
+          <div class="result-title" id="resultTitle"></div>
+        </div>
+
+        <div class="result-answer">
+          <div class="result-answer-label">Richtige Antwort</div>
+          <div id="correctAnswer"></div>
+        </div>
+
+        <div class="result-explanation" id="explanation"></div>
+
+        <div class="stats-summary">
+          <div class="summary-stat">
+            <div class="summary-value" id="statTotal">0</div>
+            <div class="summary-label">Gelöst</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-value" id="statCorrect">0</div>
+            <div class="summary-label">Richtig</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-value" id="statAccuracy">0%</div>
+            <div class="summary-label">Genauigkeit</div>
+          </div>
+        </div>
+
+        <button class="btn-submit" onclick="nextQuestion()" style="margin-top: 24px;">
+          Nächste Frage →
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/api.js"></script>
+  <script>
+    let currentQuestion = null;
+    let sessionId = null;
+    let selectedOption = null;
+    let user = null;
+    let startTime = null;
+
+    // Initialize
+    async function init() {
+      user = await requireAuth();
+      if (!user) return;
+
+      // Get module from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const module = urlParams.get('module') || 'lesen';
+      
+      // Update UI
+      document.getElementById('moduleTitle').textContent = MODULE_NAMES[module] || 'Üben';
+      
+      // Load first question
+      await loadQuestion(module);
+    }
+
+    async function loadQuestion(module) {
+      document.getElementById('loadingState').style.display = 'flex';
+      document.getElementById('questionContainer').style.display = 'none';
+      document.getElementById('errorState').style.display = 'none';
+
+      try {
+        const result = await api.getNextQuestion(module, user.level, sessionId);
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Konnte keine Frage laden');
+        }
+
+        currentQuestion = result.question;
+        sessionId = result.session_id;
+        startTime = Date.now();
+
+        // Update header stats
+        if (result.stats) {
+          document.getElementById('streakValue').textContent = 
+            result.stats.streak?.current_streak || 0;
+          document.getElementById('pointsValue').textContent = 
+            result.stats.today?.total_points || 0;
+        }
+
+        renderQuestion();
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('questionContainer').style.display = 'block';
+
+      } catch (error) {
+        console.error('Load error:', error);
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+        document.getElementById('errorMessage').textContent = error.message;
+      }
+    }
+
+    function renderQuestion() {
+      const content = currentQuestion.content;
+      
+      // Badges
+      document.getElementById('moduleBadge').textContent = MODULE_NAMES[currentQuestion.module];
+      document.getElementById('moduleBadge').className = `question-badge module-${currentQuestion.module}`;
+      document.getElementById('levelBadge').textContent = currentQuestion.level;
+      document.getElementById('levelBadge').className = `question-badge level-${currentQuestion.level.toLowerCase()}`;
+      document.getElementById('pointsBadge').textContent = currentQuestion.points;
+
+      // Text
+      document.getElementById('questionText').textContent = content.text || '';
+      document.getElementById('questionPrompt').textContent = content.question || '';
+
+      // Options
+      const optionsList = document.getElementById('optionsList');
+      optionsList.innerHTML = '';
+
+      if (content.options) {
+        content.options.forEach((option, index) => {
+          const letter = String.fromCharCode(65 + index); // A, B, C, D
+          const optionEl = document.createElement('div');
+          optionEl.className = 'option';
+          optionEl.onclick = () => selectOption(index, letter);
+          optionEl.innerHTML = `
+            <div class="option-letter">${letter}</div>
+            <div class="option-text">${option}</div>
+          `;
+          optionEl.dataset.index = index;
+          optionEl.dataset.letter = letter;
+          optionsList.appendChild(optionEl);
+        });
+      }
+
+      // Reset state
+      selectedOption = null;
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('resultCard').classList.remove('visible');
+      document.getElementById('progressBar').style.width = '0%';
+    }
+
+    function selectOption(index, letter) {
+      if (document.getElementById('resultCard').classList.contains('visible')) return;
+
+      selectedOption = letter;
+      
+      // Update UI
+      document.querySelectorAll('.option').forEach(el => {
+        el.classList.remove('selected');
+      });
+      document.querySelector(`.option[data-index="${index}"]`).classList.add('selected');
+      
+      document.getElementById('submitBtn').disabled = false;
+    }
+
+    async function submitAnswer() {
+      if (!selectedOption || !currentQuestion) return;
+
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+      document.getElementById('submitBtn').disabled = true;
+
+      try {
+        const result = await api.submitAnswer({
+          question_id: currentQuestion.id,
+          answer: selectedOption,
+          session_id: sessionId,
+          time_spent_seconds: timeSpent
+        });
+
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        showResult(result);
+
+      } catch (error) {
+        console.error('Submit error:', error);
+        alert('Fehler beim Senden der Antwort. Bitte versuche es erneut.');
+        document.getElementById('submitBtn').disabled = false;
+      }
+    }
+
+    function showResult(result) {
+      const isCorrect = result.result.is_correct;
+      
+      // Update options styling
+      document.querySelectorAll('.option').forEach(el => {
+        const letter = el.dataset.letter;
+        if (letter === result.result.correct_answer) {
+          el.classList.add('correct');
+        } else if (letter === selectedOption && !isCorrect) {
+          el.classList.add('incorrect');
+        }
+      });
+
+      // Show result card
+      const resultCard = document.getElementById('resultCard');
+      resultCard.classList.add('visible');
+
+      // Result icon and title
+      document.getElementById('resultIcon').textContent = isCorrect ? '✓' : '✗';
+      document.getElementById('resultIcon').className = `result-icon ${isCorrect ? 'correct' : 'incorrect'}`;
+      document.getElementById('resultTitle').textContent = isCorrect ? 'Richtig!' : 'Leider falsch';
+      document.getElementById('resultTitle').className = `result-title ${isCorrect ? 'correct' : 'incorrect'}`;
+
+      // Correct answer
+      document.getElementById('correctAnswer').textContent = result.result.correct_answer;
+
+      // Explanation
+      document.getElementById('explanation').textContent = result.result.explanation || '';
+
+      // Stats
+      document.getElementById('statTotal').textContent = result.stats.today.total_questions;
+      document.getElementById('statCorrect').textContent = result.stats.today.correct_count;
+      document.getElementById('statAccuracy').textContent = result.stats.today.accuracy_rate + '%';
+
+      // Update header stats
+      document.getElementById('pointsValue').textContent = result.stats.today.total_points;
+      document.getElementById('streakValue').textContent = result.stats.streak.current_streak;
+
+      // Scroll to result
+      resultCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function nextQuestion() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const module = urlParams.get('module') || 'lesen';
+      loadQuestion(module);
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>

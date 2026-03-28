@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registrieren | DTZ-LiD.de</title>
+  <title>Anmelden | DTZ-LiD.de</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -19,7 +19,6 @@
       --error: #dc2626;
       --error-bg: #fef2f2;
       --success: #16a34a;
-      --success-bg: #f0fdf4;
       --radius: 12px;
       --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
       --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
@@ -43,7 +42,7 @@
 
     .auth-container {
       width: 100%;
-      max-width: 460px;
+      max-width: 420px;
     }
 
     .auth-card {
@@ -78,30 +77,7 @@
     .auth-subtitle {
       color: var(--text-muted);
       text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .trial-banner {
-      background: linear-gradient(135deg, var(--success-bg), #dcfce7);
-      border: 1px solid #bbf7d0;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    .trial-banner h3 {
-      color: var(--success);
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .trial-banner p {
-      color: #166534;
-      font-size: 13px;
+      margin-bottom: 32px;
     }
 
     .form-group {
@@ -116,7 +92,7 @@
       margin-bottom: 8px;
     }
 
-    .form-input, .form-select {
+    .form-input {
       width: 100%;
       padding: 12px 16px;
       border: 2px solid var(--border);
@@ -124,16 +100,15 @@
       font-size: 16px;
       transition: all 0.2s;
       font-family: inherit;
-      background: white;
     }
 
-    .form-input:focus, .form-select:focus {
+    .form-input:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-light);
     }
 
-    .form-input.error, .form-select.error {
+    .form-input.error {
       border-color: var(--error);
     }
 
@@ -166,36 +141,6 @@
       border: 1px solid #fecaca;
     }
 
-    .password-requirements {
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-top: 8px;
-    }
-
-    .password-requirements ul {
-      list-style: none;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .password-requirements li {
-      padding: 4px 0;
-      padding-left: 20px;
-      position: relative;
-    }
-
-    .password-requirements li::before {
-      content: '○';
-      position: absolute;
-      left: 0;
-    }
-
-    .password-requirements li.valid::before {
-      content: '✓';
-      color: var(--success);
-    }
-
     .btn {
       width: 100%;
       padding: 14px;
@@ -224,6 +169,16 @@
       transform: none;
     }
 
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
     .auth-footer {
       text-align: center;
       margin-top: 24px;
@@ -240,6 +195,23 @@
       color: var(--primary);
       text-decoration: none;
       font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .trial-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      color: var(--success);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
     }
 
     .loading {
@@ -271,31 +243,19 @@
       <div class="auth-logo">
         <a href="/">DTZ-LiD.de</a>
       </div>
-
-      <div class="trial-banner">
-        <h3>🎁 7 Tage kostenlos</h3>
-        <p>Teste alle Funktionen ohne Risiko. Keine Kreditkarte erforderlich.</p>
+      
+      <div style="text-align: center;">
+        <div class="trial-badge">
+          ✨ 7 Tage kostenlos testen
+        </div>
       </div>
 
-      <h1 class="auth-title">Konto erstellen</h1>
-      <p class="auth-subtitle">Starte deine DTZ-Vorbereitung</p>
+      <h1 class="auth-title">Willkommen zurück</h1>
+      <p class="auth-subtitle">Melde dich an, um weiterzulernen</p>
 
       <div id="alert" class="alert alert-error"></div>
 
-      <form id="registerForm">
-        <div class="form-group">
-          <label class="form-label" for="display_name">Vollständiger Name</label>
-          <input 
-            type="text" 
-            id="display_name" 
-            name="display_name" 
-            class="form-input" 
-            placeholder="Max Mustermann"
-            required
-          >
-          <div class="error-message" id="displayNameError"></div>
-        </div>
-
+      <form id="loginForm">
         <div class="form-group">
           <label class="form-label" for="email">E-Mail-Adresse</label>
           <input 
@@ -310,17 +270,6 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="level">Dein Sprachniveau</label>
-          <select id="level" name="level" class="form-select" required>
-            <option value="">Bitte wählen...</option>
-            <option value="A1">A1 - Anfänger</option>
-            <option value="A2" selected>A2 - Grundkenntnisse</option>
-            <option value="B1">B1 - Fortgeschritten</option>
-            <option value="B2">B2 - Sehr gute Kenntnisse</option>
-          </select>
-        </div>
-
-        <div class="form-group">
           <label class="form-label" for="password">Passwort</label>
           <input 
             type="password" 
@@ -330,24 +279,16 @@
             placeholder="••••••••"
             required
           >
-          <div class="password-requirements">
-            <ul>
-              <li id="req-length">Mindestens 8 Zeichen</li>
-              <li id="req-upper">Ein Großbuchstabe (A-Z)</li>
-              <li id="req-lower">Ein Kleinbuchstabe (a-z)</li>
-              <li id="req-number">Eine Zahl (0-9)</li>
-            </ul>
-          </div>
           <div class="error-message" id="passwordError"></div>
         </div>
 
         <button type="submit" class="btn btn-primary" id="submitBtn">
-          Kostenlos registrieren
+          Anmelden
         </button>
       </form>
 
       <div class="auth-footer">
-        <p>Bereits registriert? <a href="/login.html">Anmelden</a></p>
+        <p>Noch kein Konto? <a href="/register.html">Kostenlos registrieren</a></p>
       </div>
     </div>
   </div>
@@ -357,20 +298,9 @@
     // Redirect if already logged in
     redirectIfAuth();
 
-    const form = document.getElementById('registerForm');
+    const form = document.getElementById('loginForm');
     const submitBtn = document.getElementById('submitBtn');
     const alert = document.getElementById('alert');
-    const passwordInput = document.getElementById('password');
-
-    // Password strength validation
-    passwordInput.addEventListener('input', (e) => {
-      const value = e.target.value;
-      
-      document.getElementById('req-length').classList.toggle('valid', value.length >= 8);
-      document.getElementById('req-upper').classList.toggle('valid', /[A-Z]/.test(value));
-      document.getElementById('req-lower').classList.toggle('valid', /[a-z]/.test(value));
-      document.getElementById('req-number').classList.toggle('valid', /[0-9]/.test(value));
-    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -381,79 +311,42 @@
         el.classList.remove('visible');
         el.textContent = '';
       });
-      document.querySelectorAll('.form-input, .form-select').forEach(el => {
+      document.querySelectorAll('.form-input').forEach(el => {
         el.classList.remove('error');
       });
 
-      const displayName = document.getElementById('display_name').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      const level = document.getElementById('level').value;
-
-      // Client-side validation
-      let hasError = false;
-
-      if (password.length < 8) {
-        document.getElementById('passwordError').textContent = 'Passwort muss mindestens 8 Zeichen haben';
-        document.getElementById('passwordError').classList.add('visible');
-        passwordInput.classList.add('error');
-        hasError = true;
-      }
-
-      if (!/[A-Z]/.test(password)) {
-        document.getElementById('passwordError').textContent = 'Passwort muss einen Großbuchstaben enthalten';
-        document.getElementById('passwordError').classList.add('visible');
-        passwordInput.classList.add('error');
-        hasError = true;
-      }
-
-      if (hasError) return;
 
       // Show loading
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="loading"></span>Registrierung...';
+      submitBtn.innerHTML = '<span class="loading"></span>Anmeldung...';
 
       try {
-        const result = await api.register({ 
-          display_name: displayName,
-          email, 
-          password,
-          level
-        });
+        const result = await api.login({ email, password });
 
         if (result.success) {
           window.location.href = '/dashboard.html';
         } else {
-          // Show field errors
-          if (result.errors) {
-            Object.keys(result.errors).forEach(field => {
-              const errorEl = document.getElementById(field + 'Error') || 
-                             document.getElementById(field.replace('_', '') + 'Error');
-              const inputEl = document.getElementById(field) || 
-                             document.getElementById(field.replace('_', ''));
-              
-              if (errorEl) {
-                errorEl.textContent = result.errors[field];
-                errorEl.classList.add('visible');
-              }
-              if (inputEl) {
-                inputEl.classList.add('error');
-              }
-            });
-          } else {
-            alert.textContent = result.error || 'Registrierung fehlgeschlagen';
-            alert.classList.add('visible');
-          }
+          // Show error
+          alert.textContent = result.error || 'Anmeldung fehlgeschlagen';
+          alert.classList.add('visible');
         }
       } catch (error) {
-        console.error(error);
         alert.textContent = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
         alert.classList.add('visible');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Kostenlos registrieren';
+        submitBtn.textContent = 'Anmelden';
       }
     });
+
+    // Auto-fill email from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParam = urlParams.get('email');
+    if (emailParam) {
+      document.getElementById('email').value = emailParam;
+    }
   </script>
 </body>
 </html>

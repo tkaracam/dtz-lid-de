@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | DTZ-LiD.de</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --secondary: #7c3aed;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f1f5f9;
+      --white: #ffffff;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Navigation */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-user-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nav-user-level {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: var(--error);
+      color: white;
+      border-color: var(--error);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Welcome Section */
+    .welcome {
+      margin-bottom: 32px;
+    }
+
+    .welcome h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .welcome p {
+      color: var(--text-muted);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .stat-card.streak {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-color: #f59e0b;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .stat-card.streak .stat-value {
+      color: #92400e;
+    }
+
+    .stat-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Trial Banner */
+    .trial-banner {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .trial-banner-content h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .trial-banner-content p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .trial-banner-btn {
+      background: white;
+      color: var(--primary);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Modules Section */
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .module-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .module-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .module-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .module-icon.lesen { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .module-icon.hoeren { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .module-icon.schreiben { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+    .module-icon.sprechen { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+    .module-icon.lid { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); }
+
+    .module-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .module-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .module-progress {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .module-progress-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--bg);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-right: 12px;
+    }
+
+    .module-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 999px;
+      transition: width 0.3s;
+    }
+
+    .module-progress-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Today's Activity */
+    .activity-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .activity-empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .activity-empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    /* Loading State */
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-text {
+      height: 16px;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-title {
+      height: 24px;
+      width: 60%;
+      margin-bottom: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-container {
+        padding: 0 16px;
+      }
+
+      .container {
+        padding: 24px 16px;
+      }
+
+      .welcome h1 {
+        font-size: 24px;
+      }
+
+      .modules-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="/dashboard.html" class="nav-logo">DTZ-LiD.de</a>
+      <div class="nav-user">
+        <span class="nav-user-level" id="userLevel">A2</span>
+        <span class="nav-user-name" id="userName">...</span>
+        <button class="btn-logout" onclick="logout()">Abmelden</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Welcome -->
+    <div class="welcome">
+      <h1>Hallo, <span id="welcomeName">...</span>! 👋</h1>
+      <p>Bereite dich auf den DTZ vor. Du hast heute noch <strong id="remainingGoal">10</strong> Fragen für dein Tagesziel.</p>
+    </div>
+
+    <!-- Trial Banner -->
+    <div class="trial-banner" id="trialBanner" style="display: none;">
+      <div class="trial-banner-content">
+        <h3>🎁 Probiertest aktiv</h3>
+        <p>Noch <strong id="trialDays">7</strong> Tage kostenlos. Alle Funktionen freigeschaltet.</p>
+      </div>
+      <button class="trial-banner-btn" onclick="location.href='/subscription.html'">
+        Jetzt upgraden
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card streak">
+        <div class="stat-label">🔥 Streak</div>
+        <div class="stat-value" id="streakValue">0</div>
+        <div class="stat-meta">Tage am Stück</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">✓ Heute richtig</div>
+        <div class="stat-value" id="correctValue">0</div>
+        <div class="stat-meta" id="accuracyMeta">0% Genauigkeit</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">📝 Heute gelöst</div>
+        <div class="stat-value" id="solvedValue">0</div>
+        <div class="stat-meta">Fragen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">⭐ Punkte</div>
+        <div class="stat-value" id="pointsValue">0</div>
+        <div class="stat-meta">Heute verdient</div>
+      </div>
+    </div>
+
+    <!-- Modules -->
+    <h2 class="section-title">Wähle ein Modul</h2>
+    <div class="modules-grid">
+      <a href="/learn.html?module=lesen" class="module-card">
+        <div class="module-header">
+          <div class="module-icon lesen">📖</div>
+          <div class="module-title">Lesen</div>
+        </div>
+        <p class="module-desc">Textverständnis und Lesekompetenz üben</p>
+        <div class="module-progress">
+          <div class="module-progress-bar">
+            <div class="module-progress-fill" style="width: 0%"></div>
+          </div>
+          <span class="module-progress-text">0%</span>
+        </div>
+      </a>
+
+      <a href="/learn.html?module=hoeren" class="module-card">
+        <div class="module-header">
+          <div class="module-icon hoeren">🎧</div>
+          <div class="module-title">Hören</div>
+        </div>
+        <p class="module-desc">Hörverständnis mit Audio-Übungen</p>
+        <div class="module-progress">
+          <div class="module-progress-bar">
+            <div class="module-progress-fill" style="width: 0%"></div>
+          </div>
+          <span class="module-progress-text">0%</span>
+        </div>
+      </a>
+
+      <a href="/learn.html?module=schreiben" class="module-card">
+        <div class="module-header">
+          <div class="module-icon schreiben">✍️</div>
+          <div class="module-title">Schreiben</div>
+        </div>
+        <p class="module-desc">Briefe schreiben mit KI-Korrektur</p>
+        <div class="module-progress">
+          <div class="module-progress-bar">
+            <div class="module-progress-fill" style="width: 0%"></div>
+          </div>
+          <span class="module-progress-text">0%</span>
+        </div>
+      </a>
+
+      <a href="/learn.html?module=sprechen" class="module-card">
+        <div class="module-header">
+          <div class="module-icon sprechen">🗣️</div>
+          <div class="module-title">Sprechen</div>
+        </div>
+        <p class="module-desc">Mündliche Kommunikation trainieren</p>
+        <div class="module-progress">
+          <div class="module-progress-bar">
+            <div class="module-progress-fill" style="width: 0%"></div>
+          </div>
+          <span class="module-progress-text">0%</span>
+        </div>
+      </a>
+
+      <a href="/learn.html?module=lid" class="module-card">
+        <div class="module-header">
+          <div class="module-icon lid">🇩🇪</div>
+          <div class="module-title">Leben in Deutschland</div>
+        </div>
+        <p class="module-desc">300 Fragen zur Orientierungskurs-Prüfung</p>
+        <div class="module-progress">
+          <div class="module-progress-bar">
+            <div class="module-progress-fill" style="width: 0%"></div>
+          </div>
+          <span class="module-progress-text">0%</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Today's Activity -->
+    <h2 class="section-title">Heutige Aktivität</h2>
+    <div class="activity-card">
+      <div class="activity-empty" id="activityEmpty">
+        <div class="activity-empty-icon">📝</div>
+        <p>Noch keine Aktivität heute.<br>Starte jetzt mit deiner ersten Übung!</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/api.js"></script>
+  <script>
+    let user = null;
+    let stats = null;
+
+    // Load dashboard data
+    async function loadDashboard() {
+      user = await requireAuth();
+      if (!user) return;
+
+      // Update UI with user data
+      document.getElementById('userName').textContent = user.display_name;
+      document.getElementById('userLevel').textContent = user.level;
+      document.getElementById('welcomeName').textContent = user.display_name.split(' ')[0];
+
+      // Show trial banner if trialing
+      if (user.subscription_status === 'trialing') {
+        document.getElementById('trialBanner').style.display = 'flex';
+        document.getElementById('trialDays').textContent = user.trial_days_remaining;
+      }
+
+      // Load stats
+      try {
+        const statsData = await api.getStats();
+        if (statsData.success) {
+          stats = statsData.stats;
+          updateStats(stats);
+        }
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      }
+    }
+
+    function updateStats(stats) {
+      const today = stats.today || {};
+      const streak = stats.streak || {};
+
+      // Streak
+      document.getElementById('streakValue').textContent = streak.current_streak || 0;
+
+      // Today's stats
+      document.getElementById('solvedValue').textContent = today.total_questions || 0;
+      document.getElementById('correctValue').textContent = today.correct_count || 0;
+      document.getElementById('pointsValue').textContent = today.total_points || 0;
+      document.getElementById('accuracyMeta').textContent = 
+        (today.accuracy_rate || 0) + '% Genauigkeit';
+
+      // Remaining goal
+      const dailyGoal = user?.daily_goal || 10;
+      const solved = today.total_questions || 0;
+      const remaining = Math.max(0, dailyGoal - solved);
+      document.getElementById('remainingGoal').textContent = remaining;
+
+      // Activity empty state
+      if (solved > 0) {
+        document.getElementById('activityEmpty').style.display = 'none';
+      }
+    }
+
+    async function logout() {
+      try {
+        await api.logout();
+      } catch (e) {
+        // Ignore error
+      }
+      api.clearTokens();
+      window.location.href = '/login.html';
+    }
+
+    // Initialize
+    loadDashboard();
+  </script>
+</body>
+</html>
