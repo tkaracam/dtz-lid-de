@@ -10,6 +10,7 @@ class DTZApp {
         this.deferredPrompt = null;
         this.isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
                            window.navigator.standalone === true;
+        this.updateAvailable = false;
         
         this.init();
     }
@@ -19,7 +20,6 @@ class DTZApp {
         this.setupOfflineDetection();
         this.setupInstallPrompt();
         this.setupMobileUX();
-        this.setupPullToRefresh();
     }
     
     /**
@@ -28,97 +28,169 @@ class DTZApp {
     async registerServiceWorker() {
         if (!('serviceWorker' in navigator)) {
             console.log('[App] Service Worker not supported');
+            this.showToast('Service Worker wird nicht unterstützt', 'warning');
             return;
         }
         
         try {
-            this.swRegistration = await navigator.serviceWorker.register('/frontend/sw.js');
-            console.log('[App] SW registered:', this.swRegistration.scope);
+            // Check if service worker is already registered
+            const existingReg = await navigator.serviceWorker.getRegistration('/frontend/sw.js');
             
-            // Handle updates
-            this.swRegistration.addEventListener('updatefound', () => {
-                const newWorker = this.swRegistration.installing;
-                newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // New version available
-                        this.showUpdateNotification();
-                    }
-                });
+            if (existingReg) {
+                console.log('[App] SW already registered');
+                this.swRegistration = existingReg;
+                this.handleServiceWorkerUpdates(existingReg);
+            } else {
+                // Register new service worker
+                this.swRegistration = await navigator.serviceWorker.register('/frontend/sw.js');
+                console.log('[App] SW registered:', this.swRegistration.scope);
+            }
+            
+            // Listen for controller changes (new version activated)
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('[App] New service worker activated');
+                if (this.updateAvailable) {
+                    this.showUpdateNotification();
+                }
             });
+            
         } catch (error) {
             console.error('[App] SW registration failed:', error);
+            this.showToast('Offline-Modus nicht verfügbar', 'warning');
         }
+    }
+    
+    /**
+     * Handle service worker updates
+     */
+    handleServiceWorkerUpdates(registration) {
+        // Check for updates periodically
+        setInterval(() => {
+            registration.update();
+        }, 60000); // Check every minute
+        
+        // Handle new service worker waiting
+        registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            
+            newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New version available
+                    console.log('[App] New version available');
+                    this.updateAvailable = true;
+                    this.showUpdateNotification();
+                }
+            });
+        });
     }
     
     /**
      * Setup offline/online detection
      */
     setupOfflineDetection() {
-        const offlineIndicator = document.createElement('div');
-        offlineIndicator.className = 'offline-indicator';
-        offlineIndicator.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 8px;">
-                <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
-            </svg>
-            Du bist offline
-        `;
-        document.body.appendChild(offlineIndicator);
+        // Create offline indicator
+        this.createOfflineIndicator();
         
-        const updateOnlineStatus = () => {
-            this.isOnline = navigator.onLine;
-            if (this.isOnline) {
-                offlineIndicator.classList.remove('show');
-                document.body.classList.remove('is-offline');
-                // Sync when coming back online
-                this.syncOfflineData();
-            } else {
-                offlineIndicator.classList.add('show');
-                document.body.classList.add('is-offline');
-            }
-        };
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.updateOnlineStatus();
+            this.showToast('Du bist wieder online!', 'success');
+            this.syncOfflineData();
+        });
         
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+            this.updateOnlineStatus();
+            this.showToast('Du bist offline. Einige Funktionen sind eingeschränkt.', 'warning');
+        });
         
         // Initial check
-        updateOnlineStatus();
+        this.updateOnlineStatus();
+        
+        // Periodic connectivity check
+        setInterval(() => this.checkConnectivity(), 30000);
+    }
+    
+    createOfflineIndicator() {
+        // Remove existing indicator if any
+        const existing = document.getElementById('offline-indicator');
+        if (existing) existing.remove();
+        
+        const indicator = document.createElement('div');
+        indicator.id = 'offline-indicator';
+        indicator.className = 'offline-indicator';
+        indicator.innerHTML = `
+            <span class="offline-icon">📡</span>
+            <span>Du bist offline</span>
+        `;
+        document.body.appendChild(indicator);
+    }
+    
+    updateOnlineStatus() {
+        const indicator = document.getElementById('offline-indicator');
+        if (!indicator) return;
+        
+        if (this.isOnline) {
+            indicator.classList.remove('show');
+            document.body.classList.remove('is-offline');
+        } else {
+            indicator.classList.add('show');
+            document.body.classList.add('is-offline');
+        }
+    }
+    
+    async checkConnectivity() {
+        if (!navigator.onLine) return;
+        
+        try {
+            const response = await fetch('/api/health.php', { 
+                method: 'HEAD',
+                cache: 'no-store',
+                timeout: 5000 
+            });
+            
+            if (response.ok && !this.isOnline) {
+                this.isOnline = true;
+                this.updateOnlineStatus();
+            }
+        } catch (e) {
+            if (this.isOnline) {
+                this.isOnline = false;
+                this.updateOnlineStatus();
+            }
+        }
     }
     
     /**
      * Setup install prompt
      */
     setupInstallPrompt() {
-        // Don't show if already installed
         if (this.isStandalone) return;
         
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent default prompt
             e.preventDefault();
             this.deferredPrompt = e;
             
-            // Show custom install prompt after delay
+            // Show install prompt after delay
             setTimeout(() => this.showInstallPrompt(), 5000);
         });
         
-        // Hide prompt if installed
         window.addEventListener('appinstalled', () => {
             this.deferredPrompt = null;
             this.hideInstallPrompt();
-            console.log('[App] PWA was installed');
+            this.showToast('App installiert!', 'success');
         });
     }
     
     showInstallPrompt() {
-        // Check if user previously dismissed
         if (localStorage.getItem('installPromptDismissed')) return;
         
         const prompt = document.createElement('div');
         prompt.className = 'install-prompt';
         prompt.id = 'install-prompt';
         prompt.innerHTML = `
-            <div class="install-prompt-icon">
-                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            </div>
+            <div class="install-prompt-icon">📱</div>
             <div class="install-prompt-content">
                 <div class="install-prompt-title">DTZ App installieren</div>
                 <div class="install-prompt-text">Schneller Zugriff, auch offline</div>
@@ -142,7 +214,10 @@ class DTZApp {
     }
     
     async installPWA() {
-        if (!this.deferredPrompt) return;
+        if (!this.deferredPrompt) {
+            this.showToast('Installation nicht verfügbar. Nutze "Zum Home-Bildschirm hinzufügen".', 'info');
+            return;
+        }
         
         this.deferredPrompt.prompt();
         const { outcome } = await this.deferredPrompt.userChoice;
@@ -159,13 +234,13 @@ class DTZApp {
      * Setup mobile-specific UX enhancements
      */
     setupMobileUX() {
-        // Add active state to touch elements
+        // Add touch feedback
         document.addEventListener('touchstart', function() {}, { passive: true });
         
-        // Handle iOS viewport height issues
+        // Handle iOS viewport issues
         this.setupViewportHeight();
         
-        // Add page transition animation
+        // Page transition
         document.body.classList.add('page-transition');
     }
     
@@ -181,61 +256,18 @@ class DTZApp {
     }
     
     /**
-     * Setup pull-to-refresh
-     */
-    setupPullToRefresh() {
-        let startY = 0;
-        let isPulling = false;
-        const ptrThreshold = 80;
-        
-        const container = document.querySelector('.main-content') || document.body;
-        
-        container.addEventListener('touchstart', (e) => {
-            if (container.scrollTop === 0) {
-                startY = e.touches[0].clientY;
-                isPulling = true;
-            }
-        }, { passive: true });
-        
-        container.addEventListener('touchmove', (e) => {
-            if (!isPulling) return;
-            
-            const currentY = e.touches[0].clientY;
-            const diff = currentY - startY;
-            
-            if (diff > 0 && diff < ptrThreshold) {
-                container.style.transform = `translateY(${diff * 0.5}px)`;
-            }
-        }, { passive: true });
-        
-        container.addEventListener('touchend', () => {
-            if (!isPulling) return;
-            
-            const currentTransform = parseInt(container.style.transform?.replace('translateY(', '') || 0);
-            
-            if (currentTransform > ptrThreshold * 0.5) {
-                // Trigger refresh
-                window.location.reload();
-            } else {
-                container.style.transform = '';
-            }
-            
-            isPulling = false;
-        });
-    }
-    
-    /**
      * Show update notification
      */
     showUpdateNotification() {
         const toast = document.createElement('div');
-        toast.className = 'toast show';
+        toast.className = 'toast show update-toast';
         toast.innerHTML = `
             <div class="toast-content">
-                <div class="toast-title">Update verfügbar</div>
-                <div class="toast-message">Neue Version der App verfügbar</div>
+                <div class="toast-title">🎉 Neue Version verfügbar</div>
+                <div class="toast-message">Aktualisiere für neue Features</div>
             </div>
             <button class="toast-action" onclick="window.location.reload()">Aktualisieren</button>
+            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
         `;
         
         let container = document.querySelector('.toast-container');
@@ -246,20 +278,62 @@ class DTZApp {
         }
         
         container.appendChild(toast);
+        
+        // Auto remove after 10 seconds
+        setTimeout(() => {
+            toast.remove();
+        }, 10000);
+    }
+    
+    /**
+     * Show toast notification
+     */
+    showToast(message, type = 'info', duration = 3000) {
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type} show`;
+        
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+        
+        toast.innerHTML = `
+            <span class="toast-icon">${icons[type] || icons.info}</span>
+            <span class="toast-message">${message}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Remove after duration
+        if (duration > 0) {
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        return toast;
     }
     
     /**
      * Sync offline data when coming back online
      */
     async syncOfflineData() {
-        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+        if (!('serviceWorker' in navigator)) return;
         
-        // Trigger background sync
         try {
-            await this.swRegistration.sync.register('sync-submissions');
-            console.log('[App] Background sync registered');
+            await this.swRegistration?.sync?.register('sync-submissions');
         } catch (error) {
-            console.log('[App] Background sync failed:', error);
+            console.log('[App] Background sync not available');
         }
     }
     
@@ -267,33 +341,16 @@ class DTZApp {
      * Request notification permission
      */
     async requestNotificationPermission() {
-        if (!('Notification' in window)) return false;
+        if (!('Notification' in window)) {
+            this.showToast('Benachrichtigungen werden nicht unterstützt', 'warning');
+            return false;
+        }
         
         const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            this.showToast('Benachrichtigungen aktiviert!', 'success');
+        }
         return permission === 'granted';
-    }
-    
-    /**
-     * Schedule study reminder
-     */
-    scheduleReminder(title, body, delay) {
-        if (!('serviceWorker' in navigator)) return;
-        
-        setTimeout(() => {
-            navigator.serviceWorker.ready.then(registration => {
-                registration.showNotification(title, {
-                    body,
-                    icon: '/frontend/img/icon-192x192.png',
-                    badge: '/frontend/img/icon-72x72.png',
-                    tag: 'study-reminder',
-                    requireInteraction: true,
-                    actions: [
-                        { action: 'open', title: 'Öffnen' },
-                        { action: 'dismiss', title: 'Später' }
-                    ]
-                });
-            });
-        }, delay);
     }
     
     /**
@@ -310,7 +367,7 @@ class DTZApp {
      */
     async share(data) {
         if (!navigator.share) {
-            console.log('[App] Web Share API not supported');
+            this.showToast('Teilen nicht unterstützt', 'warning');
             return false;
         }
         
@@ -318,15 +375,53 @@ class DTZApp {
             await navigator.share(data);
             return true;
         } catch (error) {
-            console.log('[App] Share cancelled or failed:', error);
+            if (error.name !== 'AbortError') {
+                console.error('[App] Share failed:', error);
+            }
             return false;
         }
     }
+    
+    /**
+     * Check if running as installed PWA
+     */
+    isInstalled() {
+        return this.isStandalone || window.matchMedia('(display-mode: standalone)').matches;
+    }
+    
+    /**
+     * Get connection info
+     */
+    getConnectionInfo() {
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        return {
+            online: navigator.onLine,
+            type: conn?.effectiveType || 'unknown',
+            downlink: conn?.downlink || 0,
+            rtt: conn?.rtt || 0
+        };
+    }
 }
 
-// Initialize app
-const app = new DTZApp();
+// Initialize app when DOM is ready
+let app;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        app = new DTZApp();
+    });
+} else {
+    app = new DTZApp();
+}
 
 // Export for global access
 window.DTZApp = DTZApp;
 window.app = app;
+
+// Service Worker message handling
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data === 'reload') {
+            window.location.reload();
+        }
+    });
+}

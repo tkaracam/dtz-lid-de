@@ -377,6 +377,19 @@
                             </div>
                             <button class="btn-setting danger" onclick="clearCache()">Leeren</button>
                         </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>App aktualisieren</h3>
+                                <p>Neueste Version laden</p>
+                            </div>
+                            <button class="btn-setting" onclick="updateApp()">Aktualisieren</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Cache-Version</h3>
+                                <p id="cache-version">Lade...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -505,9 +518,55 @@
         
         function clearCache() {
             if (confirm('Möchtest du wirklich alle zwischengespeicherten Daten löschen?')) {
-                updateOfflineContent();
+                // Unregister service worker
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                        registrations.forEach(reg => reg.unregister());
+                    }).then(() => {
+                        // Clear all caches
+                        caches.keys().then(cacheNames => {
+                            return Promise.all(cacheNames.map(name => caches.delete(name)));
+                        }).then(() => {
+                            alert('Cache geleert! Seite wird neu geladen.');
+                            window.location.reload(true);
+                        });
+                    });
+                }
             }
         }
+        
+        function updateApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg && reg.waiting) {
+                        reg.waiting.postMessage('skipWaiting');
+                        window.location.reload();
+                    } else {
+                        // Force update check
+                        reg?.update().then(() => {
+                            alert('Auf Updates geprüft. Falls verfügbar, wird die Seite neu geladen.');
+                            setTimeout(() => window.location.reload(), 1000);
+                        });
+                    }
+                });
+            }
+        }
+        
+        // Get cache version from service worker
+        async function getCacheVersion() {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                const channel = new MessageChannel();
+                navigator.serviceWorker.controller.postMessage('getVersion', [channel.port2]);
+                channel.port1.onmessage = (event) => {
+                    document.getElementById('cache-version').textContent = event.data.version || 'Unbekannt';
+                };
+            } else {
+                document.getElementById('cache-version').textContent = 'Kein Service Worker';
+            }
+        }
+        
+        // Call on load
+        getCacheVersion();
         
         function logout() {
             localStorage.removeItem('token');

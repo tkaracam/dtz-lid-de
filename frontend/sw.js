@@ -3,39 +3,36 @@
  * Provides offline functionality and caching
  */
 
-const CACHE_NAME = 'dtz-learning-v2';
-const STATIC_CACHE = 'dtz-static-v1';
-const DYNAMIC_CACHE = 'dtz-dynamic-v1';
+const CACHE_VERSION = 'v3';
+const STATIC_CACHE = `dtz-static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `dtz-dynamic-${CACHE_VERSION}`;
 
 // Assets to cache on install
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/frontend/css/style.css',
+  '/frontend/css/styles.css',
   '/frontend/css/mobile.css',
   '/frontend/js/auth.js',
   '/frontend/js/api.js',
   '/frontend/js/ui.js',
+  '/frontend/js/app.js',
+  '/frontend/js/config.js',
   '/frontend/dashboard.html',
   '/frontend/learn.html',
   '/frontend/progress.html',
   '/frontend/modelltest.html',
   '/frontend/writing.html',
-  '/frontend/speaking.html',
   '/frontend/settings.html',
+  '/frontend/login.html',
+  '/frontend/register.html',
+  '/frontend/offline.html',
   '/manifest.json'
-];
-
-// CDN resources to cache
-const CDN_ASSETS = [
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
-  'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_0ew.woff2'
 ];
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing...');
+  console.log('[SW] Installing version:', CACHE_VERSION);
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
@@ -43,35 +40,30 @@ self.addEventListener('install', (event) => {
         console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       })
-      .catch(err => console.error('[SW] Static cache failed:', err))
-  );
-  
-  // Cache CDN assets separately
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[SW] Caching CDN assets');
-        return cache.addAll(CDN_ASSETS);
+      .then(() => {
+        console.log('[SW] Install complete');
+        return self.skipWaiting();
       })
-      .catch(err => console.error('[SW] CDN cache failed:', err))
+      .catch(err => {
+        console.error('[SW] Cache failed:', err);
+        // Continue even if some assets fail
+        return self.skipWaiting();
+      })
   );
-  
-  self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating...');
+  console.log('[SW] Activating version:', CACHE_VERSION);
   
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames
           .filter(name => {
+            // Delete old versioned caches
             return name.startsWith('dtz-') && 
-                   name !== STATIC_CACHE && 
-                   name !== DYNAMIC_CACHE &&
-                   name !== CACHE_NAME;
+                   !name.includes(CACHE_VERSION);
           })
           .map(name => {
             console.log('[SW] Deleting old cache:', name);
@@ -79,9 +71,11 @@ self.addEventListener('activate', (event) => {
           })
       );
     })
+    .then(() => {
+      console.log('[SW] Activation complete');
+      return self.clients.claim();
+    })
   );
-  
-  self.clients.claim();
 });
 
 // Fetch event - serve from cache or network
@@ -92,15 +86,26 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
   
-  // Skip API calls - always go to network
+  // Skip API calls - always go to network, no cache
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/')) {
-    event.respondWith(networkFirst(request));
+    event.respondWith(
+      fetch(request).catch(() => {
+        // If network fails, return a JSON error
+        return new Response(
+          JSON.stringify({ error: 'Offline - Bitte Internetverbindung prüfen' }),
+          { 
+            status: 503, 
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      })
+    );
     return;
   }
   
-  // HTML pages - network first with cache fallback
-  if (request.mode === 'navigate' || request.headers.get('accept').includes('text/html')) {
-    event.respondWith(networkFirst(request));
+  // HTML navigation requests - network first
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirstWithOfflineFallback(request));
     return;
   }
   
@@ -119,42 +124,65 @@ async function cacheFirst(request) {
   const cache = await caches.open(STATIC_CACHE);
   const cached = await cache.match(request);
   
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
   
   try {
     const response = await fetch(request);
-    cache.put(request, response.clone());
+    if (response.ok) {
+      cache.put(request, response.clone());
+    }
     return response;
   } catch (error) {
-    console.error('[SW] Cache first failed:', error);
-    throw error;
+    console.error('[SW] Cache first failed:', request.url);
+    // Return a minimal error response instead of throwing
+    return new Response('Network error', { status: 408 });
   }
 }
 
-async function networkFirst(request) {
+async function networkFirstWithOfflineFallback(request) {
   try {
     const networkResponse = await fetch(request);
     
     if (networkResponse.ok) {
+      // Update cache with fresh version
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, networkResponse.clone());
+      return networkResponse;
     }
     
-    return networkResponse;
+    throw new Error('Network response not ok');
   } catch (error) {
-    console.log('[SW] Network failed, trying cache:', request.url);
+    console.log('[SW] Network failed, serving from cache:', request.url);
+    
+    // Try cache
     const cache = await caches.open(DYNAMIC_CACHE);
     const cached = await cache.match(request);
     
-    if (cached) return cached;
-    
-    // Return offline page for navigation requests
-    if (request.mode === 'navigate') {
-      const staticCache = await caches.open(STATIC_CACHE);
-      return staticCache.match('/frontend/offline.html');
+    if (cached) {
+      return cached;
     }
     
-    throw error;
+    // Try static cache as fallback
+    const staticCache = await caches.open(STATIC_CACHE);
+    const staticCached = await staticCache.match(request);
+    
+    if (staticCached) {
+      return staticCached;
+    }
+    
+    // Last resort: offline page
+    const offlinePage = await staticCache.match('/frontend/offline.html');
+    if (offlinePage) {
+      return offlinePage;
+    }
+    
+    // Absolute fallback
+    return new Response(
+      '<html><body><h1>Offline</h1><p>Bitte Internetverbindung prüfen</p></body></html>',
+      { headers: { 'Content-Type': 'text/html' } }
+    );
   }
 }
 
@@ -162,15 +190,21 @@ async function staleWhileRevalidate(request) {
   const cache = await caches.open(DYNAMIC_CACHE);
   const cached = await cache.match(request);
   
-  const fetchPromise = fetch(request).then(response => {
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  }).catch(err => {
-    console.log('[SW] Revalidate failed:', err);
-  });
+  const fetchPromise = fetch(request)
+    .then(response => {
+      if (response.ok) {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(err => {
+      console.log('[SW] Fetch failed, serving cached:', request.url);
+      // Return cached if available, otherwise throw
+      if (cached) return cached;
+      throw err;
+    });
   
+  // Return cached immediately if available, otherwise wait for fetch
   return cached || fetchPromise;
 }
 
@@ -183,27 +217,29 @@ self.addEventListener('sync', (event) => {
 
 async function syncSubmissions() {
   console.log('[SW] Syncing pending submissions...');
-  // This would sync pending writing/speaking submissions when back online
-  // Implementation would read from IndexedDB and send to API
 }
 
-// Push notifications (for study reminders)
+// Push notifications
 self.addEventListener('push', (event) => {
   if (!event.data) return;
   
-  const data = event.data.json();
-  const options = {
-    body: data.body,
-    icon: '/frontend/img/icon-192x192.png',
-    badge: '/frontend/img/icon-72x72.png',
-    tag: data.tag,
-    requireInteraction: data.requireInteraction || false,
-    actions: data.actions || []
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+  try {
+    const data = event.data.json();
+    const options = {
+      body: data.body || 'Neue Benachrichtigung',
+      icon: '/frontend/img/icon-192x192.svg',
+      badge: '/frontend/img/icon-72x72.svg',
+      tag: data.tag || 'default',
+      requireInteraction: data.requireInteraction || false,
+      actions: data.actions || []
+    };
+    
+    event.waitUntil(
+      self.registration.showNotification(data.title || 'DTZ Lernen', options)
+    );
+  } catch (e) {
+    console.error('[SW] Push notification error:', e);
+  }
 });
 
 // Notification click handler
@@ -213,20 +249,41 @@ self.addEventListener('notificationclick', (event) => {
   const action = event.action;
   const notification = event.notification;
   
-  if (action === 'open') {
-    event.waitUntil(
-      clients.openWindow(notification.data?.url || '/frontend/dashboard.html')
-    );
-  } else {
-    event.waitUntil(
-      clients.openWindow('/frontend/dashboard.html')
-    );
-  }
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then(clientList => {
+      // If a window is already open, focus it
+      for (const client of clientList) {
+        if (client.url.includes('/frontend/') && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Otherwise open new window
+      if (clients.openWindow) {
+        return clients.openWindow(notification.data?.url || '/frontend/dashboard.html');
+      }
+    })
+  );
 });
 
 // Message handler from main thread
 self.addEventListener('message', (event) => {
   if (event.data === 'skipWaiting') {
     self.skipWaiting();
+  }
+  
+  if (event.data === 'getVersion') {
+    event.ports[0].postMessage({ version: CACHE_VERSION });
+  }
+  
+  if (event.data === 'clearCache') {
+    event.waitUntil(
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(name => caches.delete(name))
+        );
+      }).then(() => {
+        event.ports[0].postMessage({ cleared: true });
+      })
+    );
   }
 });
