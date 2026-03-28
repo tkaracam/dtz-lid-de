@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Einstellungen - DTZ Lernplattform</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <style>
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+        }
+        
+        .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-menu { list-style: none; }
+        .nav-item { margin-bottom: 0.5rem; }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 92, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 { font-size: 1.75rem; }
+        
+        .settings-container {
+            display: grid;
+            gap: 1.5rem;
+            max-width: 800px;
+        }
+        
+        .settings-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        
+        .settings-card-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .settings-card-header h2 {
+            font-size: 1.125rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .settings-card-header h2 svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--primary);
+        }
+        
+        .settings-list {
+            padding: 0.5rem 0;
+        }
+        
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            gap: 1rem;
+        }
+        
+        .setting-item:not(:last-child) {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .setting-info h3 {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .setting-info p {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+        
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .toggle.active {
+            background: var(--primary);
+        }
+        
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        
+        .toggle.active::after {
+            transform: translateX(22px);
+        }
+        
+        .btn-setting {
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .btn-setting:hover { opacity: 0.9; }
+        
+        .btn-setting.danger {
+            background: #ef4444;
+        }
+        
+        .app-version {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+        }
+        
+        .storage-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .storage-used {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .pwa-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .pwa-status.online { color: #22c55e; }
+        .pwa-status.offline { color: #ef4444; }
+        
+        .pwa-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar desktop-only">
+            <div class="sidebar-logo">DTZ Lernplattform</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="learn.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                        </svg>
+                        Lernen
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="modelltest.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        Modelltest
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="progress.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                        </svg>
+                        Fortschritt
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link active">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L5.09 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                        </svg>
+                        Einstellungen
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="logout()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                        </svg>
+                        Abmelden
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Einstellungen</h1>
+                <div class="pwa-status online" id="connection-status">
+                    Online
+                </div>
+            </div>
+            
+            <div class="settings-container">
+                <!-- Account Settings -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            Konto
+                        </h2>
+                    </div>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>E-Mail-Adresse</h3>
+                                <p id="user-email">user@example.com</p>
+                            </div>
+                            <button class="btn-setting" onclick="changeEmail()">Ändern</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Passwort</h3>
+                                <p>Zuletzt geändert: Nie</p>
+                            </div>
+                            <button class="btn-setting" onclick="changePassword()">Ändern</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- App Settings -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L5.09 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                            App-Einstellungen
+                        </h2>
+                    </div>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Push-Benachrichtigungen</h3>
+                                <p>Erinnerungen zum Lernen</p>
+                            </div>
+                            <div class="toggle" id="toggle-notifications" onclick="toggleSetting(this, 'notifications')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Tägliche Erinnerung</h3>
+                                <p>Benachrichtigung um 18:00 Uhr</p>
+                            </div>
+                            <div class="toggle" id="toggle-reminder" onclick="toggleSetting(this, 'reminder')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Dark Mode</h3>
+                                <p>Dunkles Erscheinungsbild</p>
+                            </div>
+                            <div class="toggle active" id="toggle-darkmode" onclick="toggleSetting(this, 'darkmode')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Soundeffekte</h3>
+                                <p>Töne bei richtigen Antworten</p>
+                            </div>
+                            <div class="toggle active" id="toggle-sound" onclick="toggleSetting(this, 'sound')"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Storage -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 2h2v2h-2V5zm0 4h2v2h-2V9zm0 4h2v2h-2v-2z"/></svg>
+                            Speicher
+                        </h2>
+                    </div>
+                    <div class="settings-list">
+                        <div class="setting-item" style="flex-direction: column; align-items: stretch;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Cache-Speicher</span>
+                                <span id="storage-text">12 MB / 50 MB</span>
+                            </div>
+                            <div class="storage-bar">
+                                <div class="storage-used" style="width: 24%"></div>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Offline-Inhalte</h3>
+                                <p>Für Offline-Nutzung verfügbar</p>
+                            </div>
+                            <button class="btn-setting" onclick="updateOfflineContent()">Aktualisieren</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Cache leeren</h3>
+                                <p>Alle zwischengespeicherten Daten löschen</p>
+                            </div>
+                            <button class="btn-setting danger" onclick="clearCache()">Leeren</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- About -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            Über
+                        </h2>
+                    </div>
+                    <div class="app-version">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📚</div>
+                        <strong>DTZ Lernplattform</strong><br>
+                        Version 1.0.0<br>
+                        <span style="color: var(--text-secondary);">Made with ❤️ für DTZ Lernende</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav mobile-only">
+        <a href="dashboard.html" class="bottom-nav-item">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Home</span>
+        </a>
+        <a href="learn.html" class="bottom-nav-item">
+            <svg viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+            <span>Lernen</span>
+        </a>
+        <a href="progress.html" class="bottom-nav-item">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+            <span>Statistik</span>
+        </a>
+        <a href="settings.html" class="bottom-nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L5.09 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <span>Einstell.</span>
+        </a>
+    </nav>
+
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Load user data
+        async function loadUserData() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user.email) {
+                document.getElementById('user-email').textContent = user.email;
+            }
+            
+            // Load saved settings
+            const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            if (settings.notifications) {
+                document.getElementById('toggle-notifications').classList.add('active');
+            }
+            if (settings.reminder) {
+                document.getElementById('toggle-reminder').classList.add('active');
+            }
+            if (settings.sound !== false) {
+                document.getElementById('toggle-sound').classList.add('active');
+            }
+        }
+        
+        // Toggle setting
+        function toggleSetting(element, key) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            
+            const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            settings[key] = isActive;
+            localStorage.setItem('settings', JSON.stringify(settings));
+            
+            // Handle specific settings
+            if (key === 'notifications' && isActive) {
+                if (typeof app !== 'undefined') {
+                    app.requestNotificationPermission();
+                }
+            }
+            
+            if (typeof app !== 'undefined') {
+                app.vibrate(20);
+            }
+        }
+        
+        // Update connection status
+        function updateConnectionStatus() {
+            const statusEl = document.getElementById('connection-status');
+            if (navigator.onLine) {
+                statusEl.textContent = 'Online';
+                statusEl.className = 'pwa-status online';
+            } else {
+                statusEl.textContent = 'Offline';
+                statusEl.className = 'pwa-status offline';
+            }
+        }
+        
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Actions
+        function changeEmail() {
+            const newEmail = prompt('Neue E-Mail-Adresse:');
+            if (newEmail && newEmail.includes('@')) {
+                // API call to update email
+                showToast('E-Mail aktualisiert', 'success');
+            }
+        }
+        
+        function changePassword() {
+            window.location.href = 'reset-password.html';
+        }
+        
+        function updateOfflineContent() {
+            if ('serviceWorker' in navigator) {
+                caches.keys().then(cacheNames => {
+                    return Promise.all(
+                        cacheNames.map(cacheName => caches.delete(cacheName))
+                    );
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        }
+        
+        function clearCache() {
+            if (confirm('Möchtest du wirklich alle zwischengespeicherten Daten löschen?')) {
+                updateOfflineContent();
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+        
+        function showToast(message, type = 'info') {
+            // Implementation would go here
+            alert(message);
+        }
+        
+        // Init
+        loadUserData();
+        updateConnectionStatus();
+    </script>
+</body>
+</html>
