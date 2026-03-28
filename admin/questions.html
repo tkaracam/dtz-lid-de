@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fragen | Admin | DTZ-LiD.de</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f1f5f9;
+      --white: #ffffff;
+      --border: #e2e8f0;
+      --sidebar: #1e293b;
+      --sidebar-hover: #334155;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .sidebar { background: var(--sidebar); color: white; padding: 24px 0; position: fixed; width: 260px; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid var(--sidebar-hover); margin-bottom: 16px; }
+    .sidebar-logo a { color: white; text-decoration: none; font-size: 20px; font-weight: 800; }
+    .sidebar-badge { display: inline-block; background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 8px; text-transform: uppercase; }
+    .nav-section { padding: 0 16px; margin-bottom: 24px; }
+    .nav-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; padding: 0 12px; margin-bottom: 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 6px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: all 0.2s; }
+    .nav-item:hover, .nav-item.active { background: var(--sidebar-hover); color: white; }
+    .nav-item-icon { width: 20px; text-align: center; }
+
+    .main { margin-left: 260px; padding: 32px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .header-title { font-size: 28px; font-weight: 800; }
+    .btn-logout { background: var(--error); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+
+    .filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .filter-select, .search-input { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+    .search-input { flex: 1; min-width: 200px; }
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-success { background: var(--success); color: white; }
+
+    .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-item { background: var(--white); padding: 16px; border-radius: 8px; text-align: center; }
+    .stat-number { font-size: 24px; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 12px; color: var(--text-muted); }
+
+    .table-container { background: var(--white); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 14px; text-align: left; font-size: 14px; }
+    th { background: var(--bg); font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+    tr { border-bottom: 1px solid var(--border); }
+    tr:last-child { border-bottom: none; }
+    tr:hover { background: var(--bg); }
+
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .badge-lesen { background: #dbeafe; color: #1e40af; }
+    .badge-hoeren { background: #fef3c7; color: #92400e; }
+    .badge-schreiben { background: #d1fae5; color: #065f46; }
+    .badge-sprechen { background: #fce7f3; color: #9d174d; }
+    .badge-lid { background: #f3e8ff; color: #6b21a8; }
+    .badge-active { background: var(--success); color: white; }
+    .badge-inactive { background: var(--error); color: white; }
+
+    .question-preview { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .actions { display: flex; gap: 8px; }
+    .btn-icon { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .btn-edit { background: var(--primary); color: white; }
+    .btn-toggle { background: var(--warning); color: white; }
+    .btn-delete { background: var(--error); color: white; }
+
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
+    .page-btn { padding: 8px 16px; border: 1px solid var(--border); background: var(--white); border-radius: 6px; cursor: pointer; }
+    .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .loading { text-align: center; padding: 60px; color: var(--text-muted); }
+    .empty { text-align: center; padding: 60px; color: var(--text-muted); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.visible { display: flex; }
+    .modal { background: var(--white); border-radius: 12px; padding: 32px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .form-select, .form-input, .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .form-textarea { min-height: 100px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+    .modal-actions .btn { flex: 1; }
+    .btn-secondary { background: var(--bg); color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <a href="/">DTZ-LiD<span class="sidebar-badge">Admin</span></a>
+      </div>
+      <nav>
+        <div class="nav-section">
+          <div class="nav-label">Hauptmenü</div>
+          <a href="/admin/dashboard.html" class="nav-item">
+            <span class="nav-item-icon">📊</span> Dashboard
+          </a>
+          <a href="/admin/questions.html" class="nav-item active">
+            <span class="nav-item-icon">📝</span> Fragen
+          </a>
+          <a href="/admin/users.html" class="nav-item">
+            <span class="nav-item-icon">👥</span> Benutzer
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">System</div>
+          <a href="/" class="nav-item">
+            <span class="nav-item-icon">🏠</span> Zurück zur Website
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="header">
+        <h1 class="header-title">Fragen</h1>
+        <button class="btn-logout" onclick="logout()">Abmelden</button>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-number" id="statTotal">0</div>
+          <div class="stat-label">Gesamt</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statLesen">0</div>
+          <div class="stat-label">Lesen</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statHoeren">0</div>
+          <div class="stat-label">Hören</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statLid">0</div>
+          <div class="stat-label">LiD</div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <select class="filter-select" id="filterModule" onchange="loadQuestions()">
+          <option value="">Alle Module</option>
+          <option value="lesen">Lesen</option>
+          <option value="hoeren">Hören</option>
+          <option value="schreiben">Schreiben</option>
+          <option value="sprechen">Sprechen</option>
+          <option value="lid">Leben in Deutschland</option>
+        </select>
+        <select class="filter-select" id="filterLevel" onchange="loadQuestions()">
+          <option value="">Alle Level</option>
+          <option value="A1">A1</option>
+          <option value="A2">A2</option>
+          <option value="B1">B1</option>
+          <option value="B2">B2</option>
+        </select>
+        <input type="text" class="search-input" id="searchInput" placeholder="Suche..." onkeypress="if(event.key==='Enter') loadQuestions()">
+        <button class="btn btn-primary" onclick="loadQuestions()">🔍 Suchen</button>
+        <button class="btn btn-success" onclick="openAddModal()">️ Neu</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Modul</th>
+              <th>Teil</th>
+              <th>Level</th>
+              <th>Frage</th>
+              <th>Punkte</th>
+              <th>Status</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="questionsTable">
+            <tr><td colspan="8" class="loading">Lade Fragen...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="questionModal">
+    <div class="modal">
+      <h2 class="modal-title" id="modalTitle">Frage hinzufügen</h2>
+      <input type="hidden" id="questionId">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Modul</label>
+          <select class="form-select" id="qModule">
+            <option value="lesen">Lesen</option>
+            <option value="hoeren">Hören</option>
+            <option value="schreiben">Schreiben</option>
+            <option value="sprechen">Sprechen</option>
+            <option value="lid">Leben in Deutschland</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teil</label>
+          <input type="number" class="form-input" id="qTeil" value="1" min="1" max="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Level</label>
+          <select class="form-select" id="qLevel">
+            <option value="A1">A1</option>
+            <option value="A2" selected>A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Punkte</label>
+          <input type="number" class="form-input" id="qPoints" value="10" min="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fragetext / Kontext</label>
+        <textarea class="form-textarea" id="qText" placeholder="Text oder Anzeige..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Frage</label>
+        <input type="text" class="form-input" id="qQuestion" placeholder="Was ist richtig?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Optionen (eine pro Zeile, Format: A: Antwort)</label>
+        <textarea class="form-textarea" id="qOptions" rows="4" placeholder="A: Option 1&#10;B: Option 2&#10;C: Option 3"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Richtige Antwort (Buchstabe)</label>
+        <input type="text" class="form-input" id="qAnswer" placeholder="B" maxlength="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Erklärung</label>
+        <textarea class="form-textarea" id="qExplanation" placeholder="Warum ist das die richtige Antwort?"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Abbrechen</button>
+        <button class="btn btn-primary" onclick="saveQuestion()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/api.js"></script>
+  <script>
+    let currentPage = 1;
+
+    async function init() {
+      const user = await api.me();
+      if (!user || !user.success) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      loadQuestions();
+      loadStats();
+    }
+
+    async function loadStats() {
+      try {
+        const response = await api.request('/api/admin/stats.php');
+        if (response.success) {
+          const q = response.stats.questions;
+          document.getElementById('statTotal').textContent = q.total_questions || 0;
+          document.getElementById('statLesen').textContent = q.lesen_count || 0;
+          document.getElementById('statHoeren').textContent = q.hoeren_count || 0;
+          document.getElementById('statLid').textContent = q.lid_count || 0;
+        }
+      } catch (e) {}
+    }
+
+    async function loadQuestions(page = 1) {
+      currentPage = page;
+      const module = document.getElementById('filterModule').value;
+      const level = document.getElementById('filterLevel').value;
+      const search = document.getElementById('searchInput').value;
+
+      let url = `/api/admin/questions.php?page=${page}`;
+      if (module) url += `&module=${module}`;
+      if (level) url += `&level=${level}`;
+      if (search) url += `&search=${search}`;
+
+      try {
+        const response = await api.request(url);
+        if (response.success) {
+          renderQuestions(response.data.questions);
+          renderPagination(response.data);
+        }
+      } catch (error) {
+        document.getElementById('questionsTable').innerHTML = '<tr><td colspan="8" class="empty">Fehler beim Laden</td></tr>';
+      }
+    }
+
+    function renderQuestions(questions) {
+      if (!questions || questions.length === 0) {
+        document.getElementById('questionsTable').innerHTML = '<tr><td colspan="8" class="empty">Keine Fragen gefunden</td></tr>';
+        return;
+      }
+
+      document.getElementById('questionsTable').innerHTML = questions.map(q => {
+        const content = q.content || {};
+        return `
+        <tr>
+          <td>#${q.id}</td>
+          <td><span class="badge badge-${q.module}">${q.module}</span></td>
+          <td>${q.teil}</td>
+          <td>${q.level}</td>
+          <td class="question-preview" title="${content.question || ''}">${content.text || content.question || '-'}</td>
+          <td>${q.points}</td>
+          <td><span class="badge badge-${q.is_active ? 'active' : 'inactive'}">${q.is_active ? 'Aktiv' : 'Inaktiv'}</span></td>
+          <td>
+            <div class="actions">
+              <button class="btn-icon btn-edit" onclick="editQuestion(${q.id})">✏️</button>
+              <button class="btn-icon btn-toggle" onclick="toggleQuestion(${q.id})">${q.is_active ? '🚫' : '✓'}</button>
+              <button class="btn-icon btn-delete" onclick="deleteQuestion(${q.id})">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `}).join('');
+    }
+
+    function renderPagination(data) {
+      const totalPages = data.total_pages;
+      let html = '';
+      html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="loadQuestions(${currentPage - 1})">←</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="loadQuestions(${i})">${i}</button>`;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += `<span style="padding: 8px;">...</span>`;
+        }
+      }
+      html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="loadQuestions(${currentPage + 1})">→</button>`;
+      document.getElementById('pagination').innerHTML = html;
+    }
+
+    function openAddModal() {
+      document.getElementById('questionId').value = '';
+      document.getElementById('modalTitle').textContent = 'Frage hinzufügen';
+      document.getElementById('qText').value = '';
+      document.getElementById('qQuestion').value = '';
+      document.getElementById('qOptions').value = '';
+      document.getElementById('qAnswer').value = '';
+      document.getElementById('qExplanation').value = '';
+      document.getElementById('questionModal').classList.add('visible');
+    }
+
+    async function editQuestion(id) {
+      // Load question details and fill form
+      alert('Bearbeiten wird implementiert...');
+    }
+
+    async function saveQuestion() {
+      const id = document.getElementById('questionId').value;
+      const module = document.getElementById('qModule').value;
+      const teil = parseInt(document.getElementById('qTeil').value);
+      const level = document.getElementById('qLevel').value;
+      const points = parseInt(document.getElementById('qPoints').value);
+      const text = document.getElementById('qText').value;
+      const question = document.getElementById('qQuestion').value;
+      const optionsText = document.getElementById('qOptions').value;
+      const answer = document.getElementById('qAnswer').value;
+      const explanation = document.getElementById('qExplanation').value;
+
+      // Parse options
+      const options = optionsText.split('\n').filter(o => o.trim()).map(o => o.trim());
+
+      const data = {
+        module,
+        teil,
+        level,
+        question_type: 'multiple_choice',
+        content: { text, question, options },
+        correct_answer: { answer },
+        explanation,
+        points,
+        is_active: 1
+      };
+
+      try {
+        const url = id ? '/api/admin/questions.php' : '/api/admin/questions.php';
+        const method = id ? 'PUT' : 'POST';
+        if (id) data.id = parseInt(id);
+
+        const response = await api.request(url, { method, body: JSON.stringify(data) });
+
+        if (response.success) {
+          closeModal();
+          loadQuestions(currentPage);
+          loadStats();
+        } else {
+          alert(response.error || 'Fehler beim Speichern');
+        }
+      } catch (error) {
+        alert('Fehler beim Speichern');
+      }
+    }
+
+    async function toggleQuestion(id) {
+      try {
+        const response = await api.request('/api/admin/questions.php', {
+          method: 'PATCH',
+          body: JSON.stringify({ id })
+        });
+        if (response.success) loadQuestions(currentPage);
+      } catch (error) {
+        alert('Fehler');
+      }
+    }
+
+    async function deleteQuestion(id) {
+      if (!confirm('Frage wirklich löschen?')) return;
+      try {
+        const response = await api.request('/api/admin/questions.php', {
+          method: 'DELETE',
+          body: JSON.stringify({ id })
+        });
+        if (response.success) {
+          loadQuestions(currentPage);
+          loadStats();
+        }
+      } catch (error) {
+        alert('Fehler beim Löschen');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('questionModal').classList.remove('visible');
+    }
+
+    function logout() {
+      api.logout();
+      api.clearTokens();
+      window.location.href = '/admin/login.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>

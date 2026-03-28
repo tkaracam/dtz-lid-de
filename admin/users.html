@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benutzer | Admin | DTZ-LiD.de</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f1f5f9;
+      --white: #ffffff;
+      --border: #e2e8f0;
+      --sidebar: #1e293b;
+      --sidebar-hover: #334155;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .sidebar { background: var(--sidebar); color: white; padding: 24px 0; position: fixed; width: 260px; height: 100vh; overflow-y: auto; }
+    .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid var(--sidebar-hover); margin-bottom: 16px; }
+    .sidebar-logo a { color: white; text-decoration: none; font-size: 20px; font-weight: 800; }
+    .sidebar-badge { display: inline-block; background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 8px; text-transform: uppercase; }
+    .nav-section { padding: 0 16px; margin-bottom: 24px; }
+    .nav-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; padding: 0 12px; margin-bottom: 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 6px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: all 0.2s; }
+    .nav-item:hover, .nav-item.active { background: var(--sidebar-hover); color: white; }
+    .nav-item-icon { width: 20px; text-align: center; }
+
+    .main { margin-left: 260px; padding: 32px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .header-title { font-size: 28px; font-weight: 800; }
+    .btn-logout { background: var(--error); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+
+    .search-box { display: flex; gap: 12px; margin-bottom: 24px; }
+    .search-input { flex: 1; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+    .search-input:focus { outline: none; border-color: var(--primary); }
+    .btn { padding: 12px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: var(--primary); color: white; }
+
+    .table-container { background: var(--white); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 16px; text-align: left; font-size: 14px; }
+    th { background: var(--bg); font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+    tr { border-bottom: 1px solid var(--border); }
+    tr:last-child { border-bottom: none; }
+    tr:hover { background: var(--bg); }
+
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge-trial { background: #fef3c7; color: #92400e; }
+    .badge-premium { background: #d1fae5; color: #065f46; }
+    .badge-free { background: #f3f4f6; color: #374151; }
+    .badge-expired { background: #fee2e2; color: #991b1b; }
+    .badge-admin { background: var(--primary); color: white; }
+
+    .actions { display: flex; gap: 8px; }
+    .btn-icon { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .btn-edit { background: var(--primary); color: white; }
+    .btn-delete { background: var(--error); color: white; }
+
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
+    .page-btn { padding: 8px 16px; border: 1px solid var(--border); background: var(--white); border-radius: 6px; cursor: pointer; }
+    .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .loading { text-align: center; padding: 60px; color: var(--text-muted); }
+    .empty { text-align: center; padding: 60px; color: var(--text-muted); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.visible { display: flex; }
+    .modal { background: var(--white); border-radius: 12px; padding: 32px; width: 100%; max-width: 500px; }
+    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .form-select, .form-input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+    .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+    .modal-actions .btn { flex: 1; }
+    .btn-secondary { background: var(--bg); color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <a href="/">DTZ-LiD<span class="sidebar-badge">Admin</span></a>
+      </div>
+      <nav>
+        <div class="nav-section">
+          <div class="nav-label">Hauptmenü</div>
+          <a href="/admin/dashboard.html" class="nav-item">
+            <span class="nav-item-icon">📊</span> Dashboard
+          </a>
+          <a href="/admin/questions.html" class="nav-item">
+            <span class="nav-item-icon">📝</span> Fragen
+          </a>
+          <a href="/admin/users.html" class="nav-item active">
+            <span class="nav-item-icon">👥</span> Benutzer
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">System</div>
+          <a href="/" class="nav-item">
+            <span class="nav-item-icon">🏠</span> Zurück zur Website
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="header">
+        <h1 class="header-title">Benutzer</h1>
+        <button class="btn-logout" onclick="logout()">Abmelden</button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="Suche nach Name oder E-Mail...">
+        <button class="btn btn-primary" onclick="searchUsers()">Suchen</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Benutzer</th>
+              <th>Level</th>
+              <th>Status</th>
+              <th>Streak</th>
+              <th>Registriert</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable">
+            <tr><td colspan="6" class="loading">Lade Benutzer...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </main>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h2 class="modal-title">Benutzer bearbeiten</h2>
+      <input type="hidden" id="editUserId">
+      <div class="form-group">
+        <label class="form-label">Abonnement</label>
+        <select class="form-select" id="editStatus">
+          <option value="free">Free</option>
+          <option value="trialing">Trial</option>
+          <option value="premium">Premium</option>
+          <option value="expired">Abgelaufen</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sprachniveau</label>
+        <select class="form-select" id="editLevel">
+          <option value="A1">A1</option>
+          <option value="A2">A2</option>
+          <option value="B1">B1</option>
+          <option value="B2">B2</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Abbrechen</button>
+        <button class="btn btn-primary" onclick="saveUser()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/api.js"></script>
+  <script>
+    let currentPage = 1;
+    let currentSearch = '';
+
+    async function init() {
+      const user = await api.me();
+      if (!user || !user.success) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      loadUsers();
+    }
+
+    async function loadUsers(page = 1) {
+      currentPage = page;
+      try {
+        const response = await api.request(`/api/admin/users.php?page=${page}&search=${currentSearch}`);
+        if (response.success) {
+          renderUsers(response.data.users);
+          renderPagination(response.data);
+        }
+      } catch (error) {
+        document.getElementById('usersTable').innerHTML = '<tr><td colspan="6" class="empty">Fehler beim Laden</td></tr>';
+      }
+    }
+
+    function renderUsers(users) {
+      if (!users || users.length === 0) {
+        document.getElementById('usersTable').innerHTML = '<tr><td colspan="6" class="empty">Keine Benutzer gefunden</td></tr>';
+        return;
+      }
+
+      document.getElementById('usersTable').innerHTML = users.map(user => `
+        <tr>
+          <td>
+            <div style="font-weight: 600;">${user.display_name}</div>
+            <div style="font-size: 13px; color: var(--text-muted);">${user.email}</div>
+            ${user.is_admin ? '<span class="badge badge-admin" style="margin-top: 4px;">Admin</span>' : ''}
+          </td>
+          <td><span class="badge badge-free">${user.level}</span></td>
+          <td><span class="badge badge-${user.subscription_status}">${user.subscription_status}</span></td>
+          <td>${user.streak_count || 0}</td>
+          <td>${new Date(user.created_at).toLocaleDateString('de-DE')}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-icon btn-edit" onclick="editUser(${user.id}, '${user.subscription_status}', '${user.level}')">✏️</button>
+              <button class="btn-icon btn-delete" onclick="deleteUser(${user.id})">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPagination(data) {
+      const totalPages = data.total_pages;
+      let html = '';
+      
+      html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="loadUsers(${currentPage - 1})">←</button>`;
+      
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="loadUsers(${i})">${i}</button>`;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += `<span style="padding: 8px;">...</span>`;
+        }
+      }
+      
+      html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="loadUsers(${currentPage + 1})">→</button>`;
+      
+      document.getElementById('pagination').innerHTML = html;
+    }
+
+    function searchUsers() {
+      currentSearch = document.getElementById('searchInput').value;
+      loadUsers(1);
+    }
+
+    function editUser(id, status, level) {
+      document.getElementById('editUserId').value = id;
+      document.getElementById('editStatus').value = status;
+      document.getElementById('editLevel').value = level;
+      document.getElementById('editModal').classList.add('visible');
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('visible');
+    }
+
+    async function saveUser() {
+      const id = document.getElementById('editUserId').value;
+      const status = document.getElementById('editStatus').value;
+      const level = document.getElementById('editLevel').value;
+
+      try {
+        const response = await api.request('/api/admin/users.php', {
+          method: 'PUT',
+          body: JSON.stringify({ user_id: parseInt(id), subscription_status: status, level })
+        });
+
+        if (response.success) {
+          closeModal();
+          loadUsers(currentPage);
+        } else {
+          alert(response.error || 'Fehler beim Speichern');
+        }
+      } catch (error) {
+        alert('Fehler beim Speichern');
+      }
+    }
+
+    async function deleteUser(id) {
+      if (!confirm('Benutzer wirklich löschen?')) return;
+
+      try {
+        const response = await api.request('/api/admin/users.php', {
+          method: 'DELETE',
+          body: JSON.stringify({ user_id: id })
+        });
+
+        if (response.success) {
+          loadUsers(currentPage);
+        } else {
+          alert(response.error || 'Fehler beim Löschen');
+        }
+      } catch (error) {
+        alert('Fehler beim Löschen');
+      }
+    }
+
+    function logout() {
+      api.logout();
+      api.clearTokens();
+      window.location.href = '/admin/login.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>
