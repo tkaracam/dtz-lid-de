@@ -918,7 +918,6 @@
       line-height: 1.2;
     }
 
-    .homework-reminder-toolbar {
       display: grid;
       gap: 8px;
       margin-bottom: 10px;
@@ -928,13 +927,11 @@
       background: #fbfdff;
     }
 
-    .homework-reminder-summary {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
 
-    .homework-reminder-chip {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -946,26 +943,21 @@
       background: #ffffff;
     }
 
-    .homework-reminder-chip strong {
       font-size: 0.82rem;
       color: #233e5e;
     }
 
-    .homework-reminder-filters {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 8px;
     }
 
-    .homework-reminder-filters .homework-reminder-filter-btn:nth-child(-n+2) {
       grid-column: span 3;
     }
 
-    .homework-reminder-filters .homework-reminder-filter-btn:nth-child(n+3) {
       grid-column: span 2;
     }
 
-    .homework-reminder-filter-btn {
       min-width: 0;
       padding: 6px 10px;
       font-size: 0.8rem;
@@ -977,18 +969,15 @@
       box-shadow: none;
     }
 
-    .homework-reminder-filter-btn .count {
       font-weight: 700;
       color: #1f3f66;
     }
 
-    .homework-reminder-filter-btn.is-active {
       background: linear-gradient(120deg, #179a87 0%, #3c8be8 100%);
       color: #ffffff;
       border-color: transparent;
     }
 
-    .homework-reminder-filter-btn.is-active .count {
       color: #ffffff;
     }
 
@@ -2507,7 +2496,6 @@
       transform: translateY(-1px);
     }
 
-    #fastHomeworksBtn {
       border-color: #f2b7c9;
       background: linear-gradient(120deg, #ff5f87, #ff8f66);
       color: #ffffff;
@@ -2573,7 +2561,6 @@
       color: #ffffff;
     }
 
-    #fastHomeworksBtn:hover,
     #fastTeacherNotesBtn:hover,
     #fastAttendanceBtn:hover,
     #fastArchiveBtn:hover,
@@ -2924,11 +2911,9 @@
         grid-template-columns: 1fr;
       }
 
-      .homework-reminder-summary {
         gap: 6px;
       }
 
-      .homework-reminder-filters {
         gap: 6px;
       }
 
@@ -3001,7 +2986,6 @@
     }
 
     #courseShortcutSection,
-    #jumpHomeworkBtn,
     #jumpAttendanceBtn,
     #jumpProgressBtn,
     #jumpCourseBuilderBtn,
@@ -3010,7 +2994,6 @@
     #jumpTeachersBtn,
     #jumpKursBtn,
     #jumpMod6Btn,
-    #fastHomeworksBtn,
     #fastAttendanceBtn,
     #fastProgressBtn,
     #fastTeacherGuideBtn,
@@ -3020,7 +3003,6 @@
     #fastTeachersBtn,
     #fastKursBtn,
     #fastMod6Btn,
-    #paneHomeworks,
     #paneAttendance,
     #paneProgress,
     #paneCourses,
@@ -3047,7 +3029,6 @@
         <button id="adminMenuToggleBtn" type="button" class="admin-menu-trigger" disabled>Menü</button>
         <div id="adminMenuDropdown" class="admin-menu-dropdown hidden">
           <button id="jumpSystemBtn" class="admin-menu-item" type="button">Systemstatus</button>
-          <button id="jumpHomeworkBtn" class="admin-menu-item" type="button">Hausaufgaben</button>
           <button id="jumpTeacherNotesBtn" class="admin-menu-item" type="button">Notiz senden</button>
           <button id="jumpAttendanceBtn" class="admin-menu-item archived-module hidden" type="button">Anwesenheit</button>
           <button id="jumpArchiveBtn" class="admin-menu-item" type="button">Mail Korrekturen</button>
@@ -3108,7 +3089,6 @@
           <p class="admin-fastlane-head">Schnellzugriff</p>
           <div class="admin-fastlane-actions">
             <button id="fastSystemBtn" type="button" class="admin-fastlane-btn">Systemstatus</button>
-            <button id="fastHomeworksBtn" type="button" class="admin-fastlane-btn">Hausaufgaben</button>
             <button id="fastTeacherNotesBtn" type="button" class="admin-fastlane-btn">Notiz senden</button>
             <button id="fastAttendanceBtn" type="button" class="admin-fastlane-btn">Anwesenheit</button>
             <button id="fastArchiveBtn" type="button" class="admin-fastlane-btn">Mail Korrekturen <span id="fastArchiveNotifyBadge" class="fastlane-notify-badge hidden">0</span></button>
@@ -3383,7 +3363,6 @@
                   </select>
                 </div>
                 <div class="actions">
-                  <button id="kursCreateHomeworkBtn" type="button">Hausaufgabe zuweisen</button>
                 </div>
                 <div id="kursHomeworkStatus" class="hidden"></div>
 
@@ -3426,223 +3405,6 @@
               </div>
             </details>
           </div>
-        </div>
-
-        <div id="paneHomeworks" class="admin-pane">
-        <div id="homeworksSection" class="bulk-wrap">
-          <h2 class="section-title" style="font-size: 1.35rem;">Hausaufgaben</h2>
-          <p class="section-subtitle">Aufgabenvorlage auswählen, Kurs/Gruppe oder ausgewählten Teilnehmenden zuweisen und Fortschritt verfolgen.</p>
-        </div>
-
-        <div id="homeworksAssignSection" class="bulk-wrap">
-          <details id="homeworksAssignDetails" class="fold-section">
-            <summary>+ Aufgabe zuweisen</summary>
-            <div class="fold-section-content">
-              <div class="docent-flow-steps" aria-hidden="true">
-                <span class="docent-flow-step">1. Vorlage wählen</span>
-                <span class="docent-flow-step">2. Kurs wählen</span>
-                <span class="docent-flow-step">3. Starten & veröffentlichen</span>
-              </div>
-              <div id="hwCourseWrap">
-                <label for="hwCourseId">Kurs / Gruppe auswählen</label>
-                <select id="hwCourseId">
-                  <option value="">Bitte zuerst Kurs auswählen</option>
-                </select>
-                <small class="muted">Wenn leer, wird automatisch der aktuell gewählte Kurs verwendet.</small>
-              </div>
-              <input id="hwTargetType" type="hidden" value="course">
-              <div id="hwMultiAssignBox">
-                <label for="hwTaskTemplatesMulti"><strong>Mehrfachauswahl</strong> · Aufgaben zusammen zuweisen</label>
-                <select id="hwTaskTemplatesMulti" class="hw-multi-source-select" multiple size="10">
-                  <option value="">Bitte Aufgaben wählen</option>
-                </select>
-                <div id="hwTaskTemplatesMultiChecks" class="hw-multi-checklist"></div>
-                <label class="hw-multi-check-item" style="margin-top:8px;">
-                  <input id="hwMockIncludeMailChk" type="checkbox">
-                  <span>MODELLTEST: Mail schreiben hinzufügen</span>
-                </label>
-                <div style="margin-top:8px;">
-                  <label for="hwMockMailTemplateId">MODELLTEST Mail-Thema</label>
-                  <select id="hwMockMailTemplateId">
-                    <option value="">Bitte Thema wählen</option>
-                  </select>
-                </div>
-                <div class="grid" style="margin-top:8px;">
-                  <div>
-                    <label for="hwStartsAt">Startzeit</label>
-                    <input id="hwStartsAt" type="datetime-local" required>
-                  </div>
-                  <div>
-                    <label for="hwDurationValue">Dauer</label>
-                    <input id="hwDurationValue" type="number" min="5" max="1440" value="60">
-                  </div>
-                  <div>
-                    <label for="hwDurationUnit">Einheit</label>
-                    <select id="hwDurationUnit">
-                      <option value="minutes" selected>Minuten</option>
-                      <option value="hours">Stunden</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="actions" style="margin-top:8px;">
-                  <button id="createHomeworkBatchBtn" type="button">Ausgewählte Aufgaben zuweisen</button>
-                </div>
-                <div id="hwBatchInlineStatus" class="muted" style="margin-top:8px;"></div>
-              </div>
-              <div id="hwA2GeneratorBox">
-                <select id="hwA2TopicsMulti" class="hw-multi-source-select" multiple size="6">
-                  <option value="perfekt">Perfekt</option>
-                  <option value="nebensatz">Nebensätze</option>
-                  <option value="modalverben">Modalverben</option>
-                  <option value="praepositionen">Präpositionen</option>
-                  <option value="trennbare-verben">Trennbare Verben</option>
-                  <option value="kasus">Kasus</option>
-                </select>
-                <div id="hwA2TopicsMultiChecks" class="hw-multi-checklist"></div>
-                <div class="grid" style="margin-top:8px;">
-                  <div>
-                    <label for="hwA2QuestionCount">Fragenzahl</label>
-                    <input id="hwA2QuestionCount" type="number" min="10" max="50" value="50">
-                  </div>
-                </div>
-                <div class="grid" style="margin-top:8px;">
-                  <div>
-                    <label for="hwA2StartsAt">Startzeit</label>
-                    <input id="hwA2StartsAt" type="datetime-local">
-                  </div>
-                  <div>
-                    <label for="hwA2DurationValue">Dauer</label>
-                    <input id="hwA2DurationValue" type="number" min="5" max="1440" value="60">
-                  </div>
-                  <div>
-                    <label for="hwA2DurationUnit">Einheit</label>
-                    <select id="hwA2DurationUnit">
-                      <option value="minutes" selected>Minuten</option>
-                      <option value="hours">Stunden</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="actions" style="margin-top:14px;">
-                  <button id="generateA2HomeworkBtn" type="button" class="ghost-btn">A2-Test generieren</button>
-                  <button id="assignA2HomeworkBtn" type="button">A2-Test als Hausaufgabe zuweisen</button>
-                </div>
-              </div>
-              <div id="homeworkStatus" class="hidden"></div>
-            </div>
-          </details>
-        </div>
-
-        <div id="homeworksListSection" class="bulk-wrap">
-          <h3 class="section-title" style="font-size: 1.2rem;">Aufgaben</h3>
-          <details id="homeworksListDetails" class="fold-section">
-            <summary>Zugewiesene Aufgaben</summary>
-            <div class="fold-section-content">
-              <div class="actions" style="margin-top: 0;">
-                <button id="refreshHomeworkBtn" type="button" class="ghost-btn">Aufgaben aktualisieren</button>
-              </div>
-              <div id="homeworkListWrap" style="margin-top:10px;"></div>
-            </div>
-          </details>
-        </div>
-
-        <div id="homeworkReminderPolicySection" class="bulk-wrap owner-only hidden">
-          <h3 class="section-title" style="font-size: 1.2rem;">Reminder-Politik</h3>
-          <details id="homeworkReminderPolicyDetails" class="fold-section">
-            <summary>Cooldown & Wiederholungen (pro Kurs / Vorlage)</summary>
-            <div class="fold-section-content">
-              <div class="grid">
-                <div>
-                  <label><strong>warn24</strong></label>
-                  <label class="hw-multi-check-item"><input id="rpWarn24Enabled" type="checkbox" checked><span>Aktiv</span></label>
-                  <label for="rpWarn24Cooldown">Cooldown (Stunden)</label>
-                  <input id="rpWarn24Cooldown" type="number" min="0" max="720" value="24">
-                  <label for="rpWarn24MaxPerDay">Max/Tag</label>
-                  <input id="rpWarn24MaxPerDay" type="number" min="0" max="48" value="1">
-                </div>
-                <div>
-                  <label><strong>warn2</strong></label>
-                  <label class="hw-multi-check-item"><input id="rpWarn2Enabled" type="checkbox" checked><span>Aktiv</span></label>
-                  <label for="rpWarn2Cooldown">Cooldown (Stunden)</label>
-                  <input id="rpWarn2Cooldown" type="number" min="0" max="720" value="2">
-                  <label for="rpWarn2MaxPerDay">Max/Tag</label>
-                  <input id="rpWarn2MaxPerDay" type="number" min="0" max="48" value="2">
-                </div>
-                <div>
-                  <label><strong>expired</strong></label>
-                  <label class="hw-multi-check-item"><input id="rpExpiredEnabled" type="checkbox" checked><span>Aktiv</span></label>
-                  <label for="rpExpiredCooldown">Cooldown (Stunden)</label>
-                  <input id="rpExpiredCooldown" type="number" min="0" max="720" value="24">
-                  <label for="rpExpiredMaxPerDay">Max/Tag</label>
-                  <input id="rpExpiredMaxPerDay" type="number" min="0" max="48" value="1">
-                </div>
-              </div>
-              <div style="margin-top:10px;">
-                <label for="rpCourseOverrides"><strong>Kurs-Overrides</strong> (eine Zeile = `kurs_id|level|enabled|cooldown_h|max_per_day`)</label>
-                <textarea id="rpCourseOverrides" class="bulk-preview" rows="5" placeholder="bamf123|warn2|1|1|3"></textarea>
-              </div>
-              <div style="margin-top:10px;">
-                <label for="rpTemplateOverrides"><strong>Vorlagen-Overrides</strong> (eine Zeile = `template_id|level|enabled|cooldown_h|max_per_day`)</label>
-                <textarea id="rpTemplateOverrides" class="bulk-preview" rows="5" placeholder="dtz-hoeren-teil1-fragenpaket|warn24|1|12|2"></textarea>
-              </div>
-              <div class="actions" style="margin-top:10px;">
-                <button id="loadReminderPolicyBtn" type="button" class="ghost-btn">Policy laden</button>
-                <button id="previewReminderPolicyBtn" type="button" class="ghost-btn">Policy Vorschau</button>
-                <button id="saveReminderPolicyBtn" type="button">Policy speichern</button>
-                <button id="dryRunReminderPolicyBtn" type="button" class="ghost-btn">Dry-Run Simulation</button>
-              </div>
-              <pre id="homeworkReminderPolicyPreview" class="bulk-preview" style="margin-top:10px; white-space:pre-wrap;"></pre>
-              <pre id="homeworkReminderDryRunPreview" class="bulk-preview" style="margin-top:10px; white-space:pre-wrap;"></pre>
-              <div id="homeworkReminderPolicyStatus" class="hidden"></div>
-            </div>
-          </details>
-        </div>
-
-        <div id="trainingSetSection" class="bulk-wrap">
-          <h3 class="section-title" style="font-size: 1.2rem;">AI Generator</h3>
-          <details class="fold-section">
-            <summary>Set-Generator (telif-safe)</summary>
-            <div class="fold-section-content">
-              <p class="section-subtitle">Erzeugt zufällige Trainingssets aus der internen Vorlagenbank. Export als JSON möglich.</p>
-              <div class="grid">
-                <div>
-                  <label for="trainingSetCount">Anzahl Aufgaben</label>
-                  <input id="trainingSetCount" type="number" min="1" max="40" value="20">
-                </div>
-                <div>
-                  <label for="trainingSetIncludeExplanation">Erklärungen im Export</label>
-                  <select id="trainingSetIncludeExplanation">
-                    <option value="1" selected>Ja</option>
-                    <option value="0">Nein</option>
-                  </select>
-                </div>
-              </div>
-              <div class="actions">
-                <button id="generateLesenTeil1Btn" type="button">Lesen Teil 1</button>
-                <button id="generateLesenTeil2Btn" type="button">Lesen Teil 2</button>
-                <button id="generateLesenTeil3Btn" type="button">Lesen Teil 3</button>
-                <button id="generateLesenTeil4Btn" type="button">Lesen Teil 4</button>
-                <button id="generateLesenTeil5Btn" type="button">Lesen Teil 5</button>
-              </div>
-              <div class="actions" style="margin-top:8px;">
-                <button id="generateHoerenTeil1Btn" type="button">Hören Teil 1</button>
-                <button id="generateHoerenTeil2Btn" type="button">Hören Teil 2</button>
-                <button id="generateHoerenTeil3Btn" type="button">Hören Teil 3</button>
-                <button id="generateHoerenTeil4Btn" type="button">Hören Teil 4</button>
-              </div>
-              <div class="actions" style="margin-top:8px;">
-                <button id="generateLesenSetBtn" type="button">Lesen-Set generieren</button>
-                <button id="downloadLesenSetBtn" type="button" class="ghost-btn" disabled>Lesen-Set JSON</button>
-              </div>
-              <div class="actions" style="margin-top:8px;">
-                <button id="generateHoerenSetBtn" type="button">Hören-Set generieren</button>
-                <button id="downloadHoerenSetBtn" type="button" class="ghost-btn" disabled>Hören-Set JSON</button>
-              </div>
-              <div id="trainingSetStatus" class="hidden"></div>
-              <div id="trainingSetMeta" class="section-subtitle" style="margin-top:8px;"></div>
-              <textarea id="trainingSetPreview" class="bulk-preview" readonly placeholder="Hier erscheint eine Vorschau des zuletzt generierten Sets."></textarea>
-            </div>
-          </details>
-        </div>
         </div>
 
         <div id="paneTeacherNotes" class="admin-pane">
