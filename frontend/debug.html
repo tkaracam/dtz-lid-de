@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - DTZ</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a2e; color: #fff; }
+        .box { background: rgba(255,255,255,0.1); padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .error { color: #ef4444; }
+        .success { color: #22c55e; }
+        pre { overflow-x: auto; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Panel</h1>
+    
+    <div class="box">
+        <h3>1. API Base URL</h3>
+        <div id="api-base"></div>
+    </div>
+    
+    <div class="box">
+        <h3>2. Database Init Test</h3>
+        <button onclick="testInit()">Init Database</button>
+        <pre id="init-result"></pre>
+    </div>
+    
+    <div class="box">
+        <h3>3. Questions API Test</h3>
+        <button onclick="testQuestions()">Load Questions</button>
+        <pre id="questions-result"></pre>
+    </div>
+    
+    <div class="box">
+        <h3>4. Direct DB Test (PHP)</h3>
+        <button onclick="testPHP()">Test PHP Connection</button>
+        <pre id="php-result"></pre>
+    </div>
+
+    <script>
+        // Show API base
+        const isLocal = window.location.hostname === 'localhost';
+        const API_BASE = isLocal ? 'http://localhost:8080/api' : 'https://www.dtz-lid.de/api';
+        document.getElementById('api-base').textContent = API_BASE;
+        
+        async function testInit() {
+            const result = document.getElementById('init-result');
+            result.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/init-database.php?secret=init2024`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                const text = await response.text();
+                result.innerHTML = `<span class="${response.ok ? 'success' : 'error'}">Status: ${response.status}</span>\n\n${text}`;
+            } catch (e) {
+                result.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+            }
+        }
+        
+        async function testQuestions() {
+            const result = document.getElementById('questions-result');
+            result.textContent = 'Loading...';
+            
+            try {
+                const url = `${API_BASE}/questions.php?module=lesen&teil=1&limit=2`;
+                console.log('Fetching:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                const text = await response.text();
+                console.log('Response:', text);
+                
+                result.innerHTML = `<span class="${response.ok ? 'success' : 'error'}">Status: ${response.status}</span>\n\n${text}`;
+            } catch (e) {
+                result.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+            }
+        }
+        
+        async function testPHP() {
+            const result = document.getElementById('php-result');
+            result.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/questions-debug.php`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                const text = await response.text();
+                result.innerHTML = `<span class="${response.ok ? 'success' : 'error'}">Status: ${response.status}</span>\n\n${text}`;
+            } catch (e) {
+                result.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>
