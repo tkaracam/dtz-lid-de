@@ -413,5 +413,18 @@
         <p>&copy; 2024 DTZ Learning Plattform. Alle Rechte vorbehalten.</p>
     </footer>
 <script src="frontend/js/app.js"></script>
+<script>
+    // Clear old service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            for (const reg of regs) reg.unregister();
+        });
+        if ('caches' in window) {
+            caches.keys().then(keys => {
+                for (const key of keys) caches.delete(key);
+            });
+        }
+    }
+</script>
 </body>
 </html>
