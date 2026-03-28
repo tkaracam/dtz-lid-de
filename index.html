@@ -3,325 +3,805 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DTZ-LiD.de</title>
+  <title>DTZ-LiD.de | Online Vorbereitung für Deutschtest</title>
+  <meta name="description" content="Bereite dich kostenlos auf den DTZ (Deutsch-Test für Zuwanderer) und LiD (Leben in Deutschland) vor. Mit AI-Korrektur, Übungen und Simulationen.">
   <style>
     :root {
-      --ora-bg: #f6fbff;
-      --ora-surface-soft: #f8fcff;
-      --ora-text: #1f3142;
-      --ora-muted: #587089;
-      --ora-stroke: #d8e7f5;
-      --ora-accent-a: #ff8a57;
-      --ora-accent-b: #ff5f7f;
-      --ora-shadow: 0 16px 36px rgba(35, 71, 108, 0.12);
-      --ora-menu-text: #2b445b;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #f97316;
+      --accent: #10b981;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #ffffff;
+      --bg-soft: #f8fafc;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
     }
-    * { box-sizing: border-box; }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
     body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ora-text);
-      font-family: "Sora", sans-serif;
-      background:
-        radial-gradient(40rem 22rem at -8% -8%, rgba(255, 152, 112, 0.2), transparent 62%),
-        radial-gradient(38rem 20rem at 108% 6%, rgba(54, 213, 255, 0.13), transparent 58%),
-        #f6fbff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
     }
-    .page-shell {
-      width: min(1120px, 92vw);
-      margin: 0 auto;
-      padding: calc(env(safe-area-inset-top, 0px) + 90px) 0 60px;
-    }
-    .top-nav {
+    
+    /* Navigation */
+    .nav {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      width: 100%;
-      max-width: none;
-      z-index: 1004;
-      border-top: 1px solid var(--ora-stroke);
-      border-bottom: 1px solid var(--ora-stroke);
-      border-left: 0;
-      border-right: 0;
-      border-radius: 0;
-      padding: calc(env(safe-area-inset-top, 0px) + 14px) clamp(22px, 3.2vw, 38px) 14px clamp(10px, 1.4vw, 18px);
-      background: #ffffff;
-      box-shadow: none;
-      backdrop-filter: none;
+      z-index: 1000;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
     }
-    .nav-brand {
-      font-family: "Space Grotesk", sans-serif;
-      font-weight: 700;
-      font-size: 1.08rem;
-      letter-spacing: 0.01em;
-      color: #1f3347;
+    
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       text-decoration: none;
-      white-space: nowrap;
     }
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-      position: relative;
-    }
-    .nav-quick {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-    }
+    
     .nav-links {
-      position: fixed;
-      top: 0;
-      right: -100vw;
-      height: 100vh;
-      max-height: 100dvh;
-      width: min(360px, 88vw);
-      padding: 92px 24px 24px;
-      background: #ffffff;
-      border-left: 1px solid rgba(146, 181, 220, 0.2);
-      box-shadow: -22px 0 48px rgba(0, 0, 0, 0.25);
-      z-index: 1001;
       display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      overflow-y: auto;
-      transition: right 0.28s ease;
+      align-items: center;
+      gap: 2rem;
     }
+    
     .nav-link {
+      color: var(--text-muted);
       text-decoration: none;
-      color: var(--ora-menu-text);
-      border: 1px solid var(--ora-stroke);
-      background: var(--ora-surface-soft);
-      padding: 9px 12px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      line-height: 1.2;
-      width: 100%;
-      text-align: left;
-      display: block;
-      box-shadow: none;
-      margin-bottom: 8px;
+      font-weight: 500;
+      transition: color 0.2s;
     }
-    .nav-links .menu-cta {
-      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
-      color: #210f1a;
-      border-color: transparent;
-      font-weight: 700;
+    
+    .nav-link:hover {
+      color: var(--primary);
     }
-    .nav-toggle {
-      display: block;
+    
+    .nav-cta {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    
+    .btn-secondary {
+      color: var(--text);
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-soft);
+    }
+    
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37,99,235,0.4);
+    }
+    
+    .btn-large {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+    }
+    
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 1.5rem 4rem;
+      background: 
+        radial-gradient(ellipse at top right, rgba(37,99,235,0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(249,115,22,0.1) 0%, transparent 50%),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
       position: relative;
-      z-index: 1002;
-      pointer-events: auto;
-      background: transparent;
-      color: #2e4760;
-      border: 0;
-      font-family: "Space Grotesk", sans-serif;
-      font-weight: 700;
-      font-size: 0.95rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 8px 0;
-      margin-right: 10px;
+      overflow: hidden;
     }
-    .nav-toggle::after {
-      content: "";
-      display: block;
-      margin-top: 3px;
-      height: 2px;
-      width: 100%;
-      background: linear-gradient(90deg, var(--ora-accent-a), #36d5ff);
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: 10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
     }
-    .quick-btn {
-      text-decoration: none;
-      color: var(--ora-menu-text);
-      border: 1px solid var(--ora-stroke);
-      background: var(--ora-surface-soft);
-      padding: 6px 8px;
-      border-radius: 10px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      line-height: 1;
+    
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 10%;
+      right: 5%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite reverse;
     }
-    .quick-btn-primary,
-    .quick-btn-primary:hover {
-      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
-      color: #210f1a;
-      border-color: transparent;
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
     }
-    .top-nav.open .nav-links { right: 0; display: flex; }
-    .lang-switch { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-    .lang-toggle-btn {
-      text-align: left; font-size: 0.9rem; font-weight: 700; border: 1px solid #d5e6f6;
-      border-radius: 10px; padding: 9px 12px; display: flex; align-items: center;
-      justify-content: space-between; background: #f8fcff; color: var(--ora-menu-text);
-      width: 100%; cursor: pointer; font-family: "Sora", sans-serif;
+    
+    .hero-content {
+      max-width: 800px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
     }
-    .lang-toggle-btn::after { content: "▾"; font-size: 0.92rem; color: #537391; }
-    .lang-switch-group.is-open .lang-toggle-btn::after { content: "▴"; }
-    .lang-switch-list { display: none; flex-direction: column; gap: 10px; }
-    .lang-switch-group.is-open .lang-switch-list { display: flex; }
-    .lang-switch-list a {
-      text-align: left; font-size: 0.9rem; font-weight: 700; border: 1px solid #d5e6f6;
-      border-radius: 10px; padding: 9px 12px; display: flex; align-items: center;
-      background: #f8fcff; color: var(--ora-menu-text); text-decoration: none;
-    }
-    .home-panel {
-      margin-top: 20px;
-      border-radius: 16px;
-      border: 1px solid var(--ora-stroke);
-      background: linear-gradient(160deg, #ffffff, #f5faff);
-      padding: 22px;
-      box-shadow: var(--ora-shadow);
-    }
-    .home-panel h1 { margin: 0; font-size: 1rem; color: var(--ora-muted); letter-spacing: 0.08em; text-transform: uppercase; }
-    .home-buttons {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .home-btn {
-      min-height: 58px;
-      border-radius: 12px;
-      border: 1px solid #cfe2f2;
-      background: #ffffff;
-      color: #1f3347;
+    
+    .hero-badge {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      font: inherit;
-      font-weight: 700;
-      font-size: 0.96rem;
-      letter-spacing: 0.02em;
-      cursor: pointer;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(16,185,129,0.1);
+      color: var(--accent);
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
     }
-    .home-btn:hover {
-      border-color: #b8d5ec;
-      background: #f8fcff;
-    }
-    .portal-btn {
-      margin-top: 12px;
-      width: 100%;
-      min-height: 58px;
-      border-radius: 12px;
-      border: 1px solid transparent;
-      background: linear-gradient(95deg, var(--ora-accent-a), var(--ora-accent-b));
-      color: #210f1a;
-      display: inline-flex;
+    
+    .hero-badge::before {
+      content: '✓';
+      width: 18px;
+      height: 18px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
       align-items: center;
       justify-content: center;
-      text-decoration: none;
-      font: inherit;
-      font-weight: 700;
-      font-size: 0.96rem;
-      letter-spacing: 0.02em;
-      cursor: pointer;
+      font-size: 0.75rem;
     }
-    .site-footer {
-      margin-top: 26px;
-      border-top: 1px solid var(--ora-stroke);
-      background: transparent;
-      padding-top: 18px;
-      color: var(--ora-muted);
+    
+    .hero-title {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, var(--text) 0%, #475569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .hero-title span {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    .stat {
       text-align: center;
     }
-    .footer-links { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    
+    /* Modules Section */
+    .modules {
+      padding: 6rem 1.5rem;
+      background: var(--bg-soft);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    
+    .section-tag {
+      display: inline-block;
+      padding: 0.375rem 1rem;
+      background: rgba(37,99,235,0.1);
+      color: var(--primary);
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+    
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .module-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .module-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
+    }
+    
+    .module-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    
+    .module-card:nth-child(1) .module-icon { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .module-card:nth-child(2) .module-icon { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .module-card:nth-child(3) .module-icon { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+    .module-card:nth-child(4) .module-icon { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+    .module-card:nth-child(5) .module-icon { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); }
+    
+    .module-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .module-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    
+    /* Features Section */
+    .features {
+      padding: 6rem 1.5rem;
+      background: white;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .feature {
+      display: flex;
+      gap: 1rem;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: var(--bg-soft);
+      transition: all 0.2s;
+    }
+    
+    .feature:hover {
+      background: white;
+      box-shadow: var(--shadow);
+    }
+    
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 0.75rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    
+    .feature-content h3 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    
+    .feature-content p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    
+    /* How it Works */
+    .how-it-works {
+      padding: 6rem 1.5rem;
+      background: linear-gradient(180deg, var(--bg-soft) 0%, white 100%);
+    }
+    
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 3rem;
+    }
+    
+    .step {
+      flex: 1;
+      min-width: 250px;
+      max-width: 300px;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+    }
+    
+    .step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5rem;
+      color: var(--border);
+    }
+    
+    @media (max-width: 900px) {
+      .step:not(:last-child)::after {
+        display: none;
+      }
+    }
+    
+    .step-number {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      box-shadow: 0 10px 30px rgba(37,99,235,0.3);
+    }
+    
+    .step-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .step-desc {
+      color: var(--text-muted);
+    }
+    
+    /* CTA Section */
+    .cta {
+      padding: 5rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.5;
+    }
+    
+    .cta-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      color: white;
+    }
+    
+    .cta-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+    
+    .cta-subtitle {
+      font-size: 1.125rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+    }
+    
+    .btn-white {
+      background: white;
+      color: var(--primary);
+      font-size: 1rem;
+      padding: 1rem 2rem;
+    }
+    
+    .btn-white:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    /* Footer */
+    .footer {
+      padding: 3rem 1.5rem;
+      background: var(--text);
+      color: white;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    
+    .footer-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, white, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+    
     .footer-link {
-      color: #35506a; border: 1px solid #cfe2f2; border-radius: 999px; padding: 6px 10px;
-      font-size: 0.82rem; background: #ffffff; text-decoration: none;
+      color: #94a3b8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .footer-link:hover {
+      color: white;
+    }
+    
+    .footer-copy {
+      width: 100%;
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #334155;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+    
+    /* Mobile Menu */
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .mobile-toggle {
+        display: block;
+      }
+      
+      .hero-stats {
+        gap: 1.5rem;
+      }
+      
+      .stat-value {
+        font-size: 1.5rem;
+      }
+      
+      .steps {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .footer-content {
+        flex-direction: column;
+        text-align: center;
+      }
     }
   </style>
-  <script defer src="/assets/site-shell.js"></script>
 </head>
 <body>
-  <div class="page-shell">
-    <nav id="memberTopNav" class="top-nav">
-      <a class="nav-brand" href="./member.html?mode=login">DTZ-LiD</a>
-      <div class="nav-right">
-        <div class="nav-quick">
-          <a class="quick-btn" href="./member.html?mode=login">Anmelden</a>
-          <a class="quick-btn quick-btn-primary" href="./register.html">Registrieren</a>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="./index.html" class="nav-logo">DTZ-LiD.de</a>
+      <div class="nav-links">
+        <a href="#module" class="nav-link">Module</a>
+        <a href="#features" class="nav-link">Funktionen</a>
+        <a href="#how" class="nav-link">So geht's</a>
+      </div>
+      <div class="nav-cta">
+        <a href="./member.html?mode=login" class="btn btn-secondary">Anmelden</a>
+        <a href="./register.html" class="btn btn-primary">Kostenlos registrieren</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">100% Kostenlos</div>
+      <h1 class="hero-title">
+        Bereite dich auf <span>DTZ & LiD</span> vor
+      </h1>
+      <p class="hero-subtitle">
+        Der beste Weg, um dich auf den Deutsch-Test für Zuwanderer (B1) und 
+        den Test "Leben in Deutschland" vorzubereiten. Mit KI-gestützter Korrektur.
+      </p>
+      <div class="hero-cta">
+        <a href="./register.html" class="btn btn-primary btn-large">Jetzt starten</a>
+        <a href="#module" class="btn btn-secondary btn-large">Module entdecken</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-value">5</div>
+          <div class="stat-label">Module</div>
         </div>
-        <div class="nav-links">
-          <a class="nav-link" href="./index.html">Kaffee</a>
-          <a class="nav-link" href="./index.html">Katina</a>
-          <a class="nav-link" href="./index.html">Tarot</a>
-          <a class="nav-link" href="./member.html?mode=login">Anmelden</a>
-          <a class="nav-link menu-cta" href="./register.html">Registrieren</a>
-          <div class="lang-switch lang-switch-group" id="memberLangGroup">
-            <button type="button" class="lang-toggle-btn" id="memberLangToggleBtn" aria-expanded="false">🌐 Sprachen</button>
-            <div class="lang-switch-list" id="memberLangList" hidden>
-              <a href="./index.html?lang=tr">🇹🇷 Türkisch</a>
-              <a href="./index.html?lang=en">🇬🇧 Englisch</a>
-              <a href="./index.html?lang=de">🇩🇪 Deutsch</a>
-            </div>
+        <div class="stat">
+          <div class="stat-value">∞</div>
+          <div class="stat-label">Übungen</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">KI</div>
+          <div class="stat-label">Korrektur</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modules Section -->
+  <section class="modules" id="module">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Module</span>
+        <h2 class="section-title">Alle Prüfungsteile abdecken</h2>
+        <p class="section-subtitle">
+          Übe gezielt jeden Bereich der DTZ-Prüfung und bereite dich optimal vor.
+        </p>
+      </div>
+      <div class="modules-grid">
+        <a href="./dtz.html" class="module-card">
+          <div class="module-icon">📖</div>
+          <h3 class="module-title">Lesen</h3>
+          <p class="module-desc">Textverständnis und Lesekompetenz üben</p>
+        </a>
+        <a href="./dtz.html" class="module-card">
+          <div class="module-icon">🎧</div>
+          <h3 class="module-title">Hören</h3>
+          <p class="module-desc">Hörverständnis mit Audio-Übungen</p>
+        </a>
+        <a href="./dtz.html" class="module-card">
+          <div class="module-icon">✍️</div>
+          <h3 class="module-title">Schreiben</h3>
+          <p class="module-desc">Briefe schreiben mit KI-Korrektur</p>
+        </a>
+        <a href="./dtz.html" class="module-card">
+          <div class="module-icon">🗣️</div>
+          <h3 class="module-title">Sprechen</h3>
+          <p class="module-desc">Mündliche Kommunikation trainieren</p>
+        </a>
+        <a href="./l.html" class="module-card">
+          <div class="module-icon">🇩🇪</div>
+          <h3 class="module-title">Leben in Deutschland</h3>
+          <p class="module-desc">300 Fragen zur Orientierungskurs-Prüfung</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Funktionen</span>
+        <h2 class="section-title">Warum DTZ-LiD.de?</h2>
+        <p class="section-subtitle">
+          Moderne Tools und intelligente Features für deinen Erfolg.
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feature">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-content">
+            <h3>KI-Korrektur</h3>
+            <p>Deine Texte werden sofort von KI analysiert und korrigiert mit detailliertem Feedback.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📊</div>
+          <div class="feature-content">
+            <h3>Statistiken</h3>
+            <p>Verfolge deinen Lernfortschritt mit detaillierten Auswertungen und Statistiken.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🎯</div>
+          <div class="feature-content">
+            <h3>Simulations-Modus</h3>
+            <p>Prüfungsähnliche Bedingungen mit Zeitlimit für optimale Vorbereitung.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📱</div>
+          <div class="feature-content">
+            <h3>Mobile optimiert</h3>
+            <p>Lerne unterwegs auf Smartphone, Tablet oder Computer – überall verfügbar.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-content">
+            <h3>Sofortiges Feedback</h3>
+            <p>Direkte Ergebnisse nach jeder Übung, keine Wartezeiten.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔒</div>
+          <div class="feature-content">
+            <h3>Kostenlos & Sicher</h3>
+            <p>Alle Funktionen kostenlos nutzbar. Deine Daten sind geschützt.</p>
           </div>
         </div>
       </div>
-      <button id="memberNavToggleBtn" class="nav-toggle" type="button" aria-label="Navigation öffnen">Menu</button>
-    </nav>
+    </div>
+  </section>
 
-    <main>
-      <section class="home-panel">
-        <div class="home-buttons">
-          <button class="home-btn" type="button">A1</button>
-          <button class="home-btn" type="button">A2</button>
-          <button class="home-btn" type="button">B1</button>
-          <button class="home-btn" type="button">TEST</button>
-          <a class="home-btn" href="./dtz.html">DTZ</a>
-          <button class="home-btn" type="button">LiD</button>
-        </div>
-        <a class="portal-btn" href="./portal.html">PORTAL</a>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="footer-links">
-        <a class="footer-link" href="./agb.html">AGB</a>
+  <!-- How it Works -->
+  <section class="how-it-works" id="how">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">So funktioniert's</span>
+        <h2 class="section-title">In 3 Schritten zur Prüfung</h2>
+        <p class="section-subtitle">
+          Starte jetzt und bereite dich effektiv auf deine Prüfung vor.
+        </p>
       </div>
-    </footer>
-  </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Kostenlos registrieren</h3>
+          <p class="step-desc">Erstelle in wenigen Sekunden deinen Account – kostenlos und unverbindlich.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Module üben</h3>
+          <p class="step-desc">Wähle die Bereiche, die du verbessern möchtest, und starte mit den Übungen.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Prüfung bestehen</h3>
+          <p class="step-desc">Gehe mit dem nötigen Selbstvertrauen in die Prüfung und bestehe sie.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <script>
-    const memberNavToggleBtn = document.getElementById("memberNavToggleBtn");
-    if (memberNavToggleBtn) {
-      memberNavToggleBtn.addEventListener("click", () => {
-        const nav = document.getElementById("memberTopNav");
-        if (!nav) return;
-        nav.classList.toggle("open");
-      });
-    }
-    const memberLangToggleBtn = document.getElementById("memberLangToggleBtn");
-    const memberLangGroup = document.getElementById("memberLangGroup");
-    const memberLangList = document.getElementById("memberLangList");
-    if (memberLangToggleBtn && memberLangGroup && memberLangList) {
-      memberLangToggleBtn.addEventListener("click", () => {
-        const nextOpen = !memberLangGroup.classList.contains("is-open");
-        memberLangGroup.classList.toggle("is-open", nextOpen);
-        memberLangList.hidden = !nextOpen;
-        memberLangToggleBtn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
-      });
-    }
-    document.addEventListener("click", event => {
-      const nav = document.getElementById("memberTopNav");
-      if (!nav || !nav.classList.contains("open")) return;
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (!nav.contains(target)) {
-        nav.classList.remove("open");
-      }
-    });
-  </script>
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="cta-content">
+      <h2 class="cta-title">Bereit für die Prüfung?</h2>
+      <p class="cta-subtitle">
+        Tausende Lernende haben mit DTZ-LiD.de ihre Prüfung bestanden.<br>
+        Starte auch du jetzt – komplett kostenlos.
+      </p>
+      <a href="./register.html" class="btn btn-white btn-large">Jetzt kostenlos registrieren</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo">DTZ-LiD.de</div>
+      <div class="footer-links">
+        <a href="./agb.html" class="footer-link">AGB</a>
+        <a href="./member.html?mode=login" class="footer-link">Anmelden</a>
+        <a href="./register.html" class="footer-link">Registrieren</a>
+      </div>
+      <div class="footer-copy">
+        © 2025 DTZ-LiD.de – Online Vorbereitung für DTZ & LiD
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
