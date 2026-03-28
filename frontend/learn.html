@@ -583,16 +583,21 @@
         
         async function loadQuestions() {
             try {
-                const response = await fetch(`${API_BASE}/questions/session.php?module=${currentModule}&teil=${currentTeil}`, {
-                    headers: { 'Authorization': `Bearer ${getToken()}` }
-                });
+                const response = await fetch(`${API_BASE}/questions.php?module=${currentModule}&teil=${currentTeil}&limit=20`);
                 
                 const data = await response.json();
                 
-                if (data.success) {
-                    questions = data.questions;
+                if (data.success && data.questions && data.questions.length > 0) {
+                    questions = data.questions.map(q => ({
+                        id: q.id,
+                        question_text: q.content?.question || q.content?.text || 'Frage',
+                        options: q.content?.options || ['A', 'B', 'C', 'D'],
+                        correct: q.correct_answer,
+                        explanation: q.explanation,
+                        content: q.content
+                    }));
                 } else {
-                    // Fallback: generate mock questions
+                    console.log('No questions from API, using fallback');
                     generateMockQuestions();
                 }
             } catch (err) {
@@ -628,11 +633,15 @@
             selectedAnswer = null;
             
             // Update question text
-            document.getElementById('question-text').textContent = q.question_text || q.content?.question || 'Frage lädt...';
+            const questionText = q.question_text || q.content?.question || q.content?.text || 'Frage lädt...';
+            document.getElementById('question-text').textContent = questionText;
             
             // Update options
             const optionsDiv = document.getElementById('answer-options');
-            const options = q.options || (q.content ? JSON.parse(q.content).options : ['A', 'B', 'C', 'D']);
+            let options = q.options || q.content?.options;
+            if (!options || !Array.isArray(options)) {
+                options = ['A', 'B', 'C', 'D'];
+            }
             
             optionsDiv.innerHTML = options.map((opt, idx) => `
                 <div class="answer-option" onclick="selectAnswer('${String.fromCharCode(65 + idx)}', this)">
