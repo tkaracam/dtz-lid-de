@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTZ Lernen - Basit</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .module-select { margin-bottom: 20px; }
+        select, button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 10px;
+        }
+        button {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            cursor: pointer;
+        }
+        .question-box {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .option {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .loading { text-align: center; padding: 40px; }
+        .error { color: #ef4444; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 DTZ Lernen</h1>
+        
+        <div class="module-select">
+            <select id="module">
+                <option value="">Modül seç...</option>
+                <option value="lesen">Lesen (Okuma)</option>
+                <option value="hoeren">Hören (Dinleme)</option>
+                <option value="schreiben">Schreiben (Yazma)</option>
+                <option value="sprechen">Sprechen (Konuşma)</option>
+            </select>
+            
+            <select id="teil">
+                <option value="">Teil seç...</option>
+                <option value="1">Teil 1</option>
+                <option value="2">Teil 2</option>
+                <option value="3">Teil 3</option>
+                <option value="4">Teil 4</option>
+                <option value="5">Teil 5</option>
+            </select>
+            
+            <button onclick="loadQuestions()">Soruları Yükle</button>
+        </div>
+        
+        <div id="content">
+            <div class="loading">Modül ve Teil seçip "Soruları Yükle" butonuna tıklayın</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8080/api' 
+            : 'https://www.dtz-lid.de/api';
+        
+        let currentQuestions = [];
+        let currentIndex = 0;
+        
+        async function loadQuestions() {
+            const module = document.getElementById('module').value;
+            const teil = document.getElementById('teil').value;
+            const content = document.getElementById('content');
+            
+            if (!module) {
+                content.innerHTML = '<div class="error">Lütfen modül seçin</div>';
+                return;
+            }
+            
+            content.innerHTML = '<div class="loading">Yükleniyor...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/questions.php?module=${module}&teil=${teil}&limit=5`);
+                const data = await response.json();
+                
+                if (data.success && data.questions && data.questions.length > 0) {
+                    currentQuestions = data.questions;
+                    currentIndex = 0;
+                    showQuestion();
+                } else {
+                    content.innerHTML = '<div class="error">Soru bulunamadı veya henüz eklenmemiş.</div>';
+                }
+            } catch (error) {
+                content.innerHTML = `<div class="error">Hata: ${error.message}</div>`;
+            }
+        }
+        
+        function showQuestion() {
+            const content = document.getElementById('content');
+            
+            if (currentIndex >= currentQuestions.length) {
+                content.innerHTML = '<div class="loading">🎉 Tüm sorular tamamlandı!</div>';
+                return;
+            }
+            
+            const q = currentQuestions[currentIndex];
+            const questionText = q.content?.question || q.content?.text || 'Soru metni';
+            const options = q.content?.options || ['A', 'B', 'C', 'D'];
+            
+            let optionsHtml = options.map((opt, idx) => 
+                `<div class="option" onclick="checkAnswer('${String.fromCharCode(65 + idx)}')">${opt}</div>`
+            ).join('');
+            
+            content.innerHTML = `
+                <div class="question-box">
+                    <div style="margin-bottom: 10px; color: #94a3b8;">
+                        Soru ${currentIndex + 1} / ${currentQuestions.length}
+                    </div>
+                    <div class="question-text">${questionText}</div>
+                    ${optionsHtml}
+                </div>
+            `;
+        }
+        
+        function checkAnswer(answer) {
+            const q = currentQuestions[currentIndex];
+            const correct = q.correct_answer?.answer || q.correct_answer;
+            
+            if (answer === correct) {
+                alert('✅ Doğru!');
+            } else {
+                alert(`❌ Yanlış! Doğru cevap: ${correct}`);
+            }
+            
+            currentIndex++;
+            showQuestion();
+        }
+    </script>
+</body>
+</html>

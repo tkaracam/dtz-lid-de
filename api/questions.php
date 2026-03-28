@@ -3,10 +3,6 @@
  * Get questions for learning/practice
  */
 
-require_once __DIR__ . '/../src/Database/Database.php';
-
-use DTZ\Database\Database;
-
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
@@ -22,12 +18,23 @@ if (empty($module)) {
 }
 
 try {
-    $db = Database::getInstance();
+    // Direct database connection for reliability
+    $dbPath = '/var/www/html/database/dtz_production.db';
+    
+    // Fallback to local path if not found
+    if (!file_exists($dbPath)) {
+        $dbPath = __DIR__ . '/../database/dtz_learning.db';
+    }
+    
+    $pdo = new PDO("sqlite:$dbPath", null, null, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
     
     // Build query
     $sql = "SELECT id, module, teil, level, question_type, content, correct_answer, explanation, difficulty, points 
             FROM question_pools 
-            WHERE module = ? AND is_active = 1";
+            WHERE module = ?";
     $params = [$module];
     
     if (!empty($teil)) {
@@ -38,7 +45,9 @@ try {
     $sql .= " ORDER BY RANDOM() LIMIT ?";
     $params[] = $limit;
     
-    $questions = $db->select($sql, $params);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $questions = $stmt->fetchAll();
     
     // Parse JSON content
     foreach ($questions as &$q) {
