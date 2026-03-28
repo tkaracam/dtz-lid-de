@@ -28,8 +28,15 @@ class Database {
                     PDO::ATTR_EMULATE_PREPARES => false,
                 ]);
             } else {
-                // SQLite default
-                $dbPath = $_ENV['DB_PATH'] ?? __DIR__ . '/../../database/dtz_learning.db';
+                // SQLite - try multiple paths
+                $dbPath = $_ENV['DB_PATH'] ?? '/var/www/html/database/dtz_production.db';
+                
+                // Ensure directory exists
+                $dbDir = dirname($dbPath);
+                if (!is_dir($dbDir)) {
+                    @mkdir($dbDir, 0775, true);
+                }
+                
                 $dsn = "sqlite:$dbPath";
                 
                 $this->pdo = new PDO($dsn, null, null, [
@@ -37,9 +44,54 @@ class Database {
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                     PDO::ATTR_EMULATE_PREPARES => false,
                 ]);
+                
+                // Set permissions
+                if (file_exists($dbPath)) {
+                    chmod($dbPath, 0664);
+                }
+                
+                // Initialize tables if they don't exist
+                $this->initializeTables();
             }
         } catch (PDOException $e) {
             throw new \Exception('Database connection failed: ' . $e->getMessage());
+        }
+    }
+    
+    private function initializeTables(): void {
+        try {
+            // Check if users table exists
+            $result = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='users'");
+            if ($result->fetch()) {
+                return; // Tables already exist
+            }
+            
+            // Create users table
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                display_name VARCHAR(100) NOT NULL,
+                name VARCHAR(100),
+                level VARCHAR(2) DEFAULT 'A2' CHECK (level IN ('A1', 'A2', 'B1', 'B2')),
+                role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+                subscription_status VARCHAR(20) DEFAULT 'free' 
+                    CHECK (subscription_status IN ('free', 'trialing', 'premium', 'expired', 'canceled')),
+                trial_ends_at TIMESTAMP,
+                is_active BOOLEAN DEFAULT 1,
+                daily_goal INTEGER DEFAULT 10,
+                streak_count INTEGER DEFAULT 0,
+                last_activity_at TIMESTAMP,
+                email_verified_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+            
+            // Create indexes
+            $this->pdo->exec("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)");
+            
+        } catch (PDOException $e) {
+            error_log('Table initialization error: ' . $e->getMessage());
         }
     }
     
