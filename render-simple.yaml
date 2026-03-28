@@ -1,0 +1,30 @@
+# Alternative: Simple Web Service (non-Docker)
+# Use this if Docker builds keep failing
+
+services:
+  - type: web
+    name: dtz-lernplattform-simple
+    runtime: python
+    repo: https://github.com/tkaracam/dtz-lid-de
+    branch: main
+    plan: free
+    buildCommand: |
+      # Install PHP
+      apt-get update && apt-get install -y php8.2 php8.2-cli php8.2-sqlite3 php8.2-mbstring curl
+      # Install Composer
+      curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+      # Install dependencies
+      composer install --no-dev --optimize-autoloader
+    startCommand: |
+      # Create database directory
+      mkdir -p database
+      chmod 775 database
+      # Start PHP built-in server
+      php -S 0.0.0.0:8080 -t .
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/database
+      sizeGB: 1
