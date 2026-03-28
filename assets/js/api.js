@@ -2,7 +2,9 @@
  * DTZ-LID API Client
  */
 
-const API_BASE_URL = '';
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:8080/api' 
+  : '/api';
 
 class DTZApi {
   constructor() {
