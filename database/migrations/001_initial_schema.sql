@@ -113,6 +113,7 @@ CREATE TABLE IF NOT EXISTS question_pools (
     usage_count INTEGER DEFAULT 0,
     correct_rate DECIMAL(5,2), -- % başarı oranı (cache)
     avg_time_seconds INTEGER, -- Ortalama cevaplama süresi
+    last_used_at TIMESTAMP, -- Son kullanım tarihi
     
     -- Durum
     is_active BOOLEAN DEFAULT 1,
