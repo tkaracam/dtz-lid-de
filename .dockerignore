@@ -1,6 +1,73 @@
+# Git
 .git
 .gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+DEPLOYMENT.md
+RENDER_DEPLOY.md
+APPSTORE_*.md
+
+# Docker files (not needed in image)
+Dockerfile
+docker-compose.yml
+.dockerignore
+docker/
+
+# Environment files
+.env
+.env.example
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
 .DS_Store
-node_modules
-vendor
+
+# Dependencies (will be installed)
+vendor/
+node_modules/
+
+# Logs
+logs/
 *.log
+
+# Testing
+phpunit.xml
+phpunit.xml.dist
+tests/
+coverage/
+
+# Build artifacts
+build/
+dist/
+
+# Database (will be mounted)
+database/*.db
+!database/.gitkeep
+
+# Storage (will be mounted)
+storage/
+!storage/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+cache/
+
+# CI/CD
+templates/github-workflows/
+.github/
+
+# Resources (icons, etc)
+resources/
+
+# Local development tools
+tools/
+!tools/process-writing.php
