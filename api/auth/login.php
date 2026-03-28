@@ -37,7 +37,7 @@ try {
     $db = Database::getInstance();
     
     $user = $db->selectOne(
-        "SELECT id, email, display_name as name, password_hash, level, role FROM users WHERE email = ? AND is_active = TRUE",
+        "SELECT id, email, display_name as name, password_hash, level, role FROM users WHERE email = ?",
         [$email]
     );
     

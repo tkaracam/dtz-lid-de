@@ -152,17 +152,40 @@
     
     <script src="js/config.js"></script>
     <script>
+        // Check if API_BASE is defined
+        if (typeof API_BASE === 'undefined') {
+            console.error('API_BASE is not defined! Check if config.js loaded correctly.');
+            window.API_BASE = window.location.hostname === 'localhost' 
+                ? 'http://localhost:8080/api' 
+                : '/api';
+        }
+        
         document.getElementById('register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const errorEl = document.getElementById('error');
             const successEl = document.getElementById('success');
             
             errorEl.classList.remove('show');
             successEl.classList.remove('show');
+            
+            // Client-side validation
+            if (!name || !email || !password) {
+                errorEl.textContent = 'Bitte füllen Sie alle Felder aus';
+                errorEl.classList.add('show');
+                return;
+            }
+            
+            if (password.length < 8) {
+                errorEl.textContent = 'Passwort muss mindestens 8 Zeichen lang sein';
+                errorEl.classList.add('show');
+                return;
+            }
+            
+            console.log('Registering with:', { name, email, apiBase: API_BASE });
             
             try {
                 const response = await fetch(`${API_BASE}/auth/register.php`, {
@@ -184,7 +207,8 @@
                     errorEl.classList.add('show');
                 }
             } catch (err) {
-                errorEl.textContent = 'Verbindungsfehler';
+                console.error('Registration error:', err);
+                errorEl.textContent = 'Verbindungsfehler: ' + err.message;
                 errorEl.classList.add('show');
             }
         });

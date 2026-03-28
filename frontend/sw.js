@@ -3,7 +3,7 @@
  * Provides offline functionality and caching
  */
 
-const CACHE_NAME = 'dtz-learning-v1';
+const CACHE_NAME = 'dtz-learning-v2';
 const STATIC_CACHE = 'dtz-static-v1';
 const DYNAMIC_CACHE = 'dtz-dynamic-v1';
 

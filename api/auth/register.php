@@ -59,7 +59,6 @@ try {
     $userId = $db->insert('users', [
         'email' => $email,
         'display_name' => $name,
-        'name' => $name,
         'password_hash' => $passwordHash,
         'subscription_status' => 'trialing',
         'trial_ends_at' => date('Y-m-d H:i:s', strtotime('+7 days'))
@@ -72,6 +71,7 @@ try {
     ]);
     
 } catch (Exception $e) {
+    error_log('Registration error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Registrierung fehlgeschlagen']);
+    echo json_encode(['error' => 'Registrierung fehlgeschlagen: ' . $e->getMessage()]);
 }
