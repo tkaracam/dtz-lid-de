@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: dtz-lernplattform
+    name: dtz-plattform-de
     runtime: docker
     repo: https://github.com/tkaracam/dtz-lid-de
     branch: main
@@ -10,6 +10,8 @@ services:
         value: production
       - key: APP_DEBUG
         value: "false"
+      - key: APP_URL
+        value: https://www.dtz-lid.de
       - key: DB_DRIVER
         value: sqlite
       - key: DB_PATH
@@ -26,5 +28,8 @@ services:
       name: database
       mountPath: /var/www/html/database
       sizeGB: 1
+    domains:
+      - www.dtz-lid.de
+      - dtz-lid.de
     healthCheckPath: /api/health.php
     autoDeploy: true

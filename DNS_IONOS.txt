@@ -1,0 +1,72 @@
+═══════════════════════════════════════════════════════════
+   IONOS DNS AYARLARI - dtz-lid.de
+═══════════════════════════════════════════════════════════
+
+RENDER SERVIS URL: dtz-plattform-de.onrender.com
+
+───────────────────────────────────────────────────────────
+1. CNAME KAYDI (www için)
+───────────────────────────────────────────────────────────
+
+Hostname:     www
+Typ:          CNAME
+Wert:         dtz-plattform-de.onrender.com
+TTL:          3600
+
+───────────────────────────────────────────────────────────
+2. URL YÖNLENDİRME (Root domain için)
+───────────────────────────────────────────────────────────
+
+IONOS'ta root domain (@) CNAME desteklemez.
+Bu yüzden yönlendirme kullanacağız:
+
+IONOS Panel → dtz-lid.de → Weiterleitung (Yönlendirme)
+
+Typ:          HTTP/HTTPS Weiterleitung
+Von:          dtz-lid.de
+Zu:           https://www.dtz-lid.de
+
+───────────────────────────────────────────────────────────
+ALTERNATİF: Cloudflare Kullan (Önerilen)
+───────────────────────────────────────────────────────────
+
+IONOS nameserver'larını Cloudflare'a değiştir:
+
+1. Cloudflare.com'da hesap oluştur
+2. Site ekle: dtz-lid.de
+3. IONOS'ta nameserver'ları değiştir:
+   - lara.ns.cloudflare.com
+   - greg.ns.cloudflare.com
+
+Cloudflare DNS Ayarları:
+
+Tip:    CNAME
+Name:   www
+Target: dtz-plattform-de.onrender.com
+
+Tip:    CNAME  
+Name:   @ (root)
+Target: dtz-plattform-de.onrender.com
+
+───────────────────────────────────────────────────────────
+3. RENDER AYARLARI
+───────────────────────────────────────────────────────────
+
+Render Dashboard → Settings → Custom Domains:
+
+[+] dtz-lid.de
+[+] www.dtz-lid.de
+
+Render otomatik SSL sertifikası oluşturacak.
+
+───────────────────────────────────────────────────────────
+4. KONTROL
+───────────────────────────────────────────────────────────
+
+DNS yayılımı için bekle: 5-15 dakika
+
+Test et:
+https://www.dtz-lid.de
+https://dtz-lid.de → www'ye yönlendirmeli
+
+═══════════════════════════════════════════════════════════
