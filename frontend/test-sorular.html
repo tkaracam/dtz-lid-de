@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTZ Sorular - Test</title>
+    <style>
+        body { font-family: Arial; background: #1a1a2e; color: white; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .soru { background: rgba(255,255,255,0.1); padding: 20px; margin: 20px 0; border-radius: 10px; }
+        .secenek { background: rgba(255,255,255,0.05); padding: 12px; margin: 8px 0; border-radius: 8px; cursor: pointer; }
+        .secenek:hover { background: rgba(255,255,255,0.15); }
+        .dogru { background: #22c55e !important; }
+        .yanlis { background: #ef4444 !important; }
+        button { background: #6366f1; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px; }
+        .gizli { display: none; }
+        .metin { background: rgba(0,0,0,0.3); padding: 15px; margin: 15px 0; border-radius: 8px; white-space: pre-line; }
+        .ses-btn { background: #f59e0b; color: black; padding: 10px 20px; border-radius: 8px; cursor: pointer; display: inline-block; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>📚 DTZ Sorular</h1>
+    <p>Modül seçin:</p>
+    
+    <button onclick="goster('lesen')">📖 Lesen (Okuma)</button>
+    <button onclick="goster('hoeren')">🎧 Hören (Dinleme)</button>
+    
+    <div id="lesen-sorular" class="gizli">
+        <h2>Lesen Teil 1 - Anzeigen</h2>
+        
+        <div class="soru">
+            <div class="metin">WOHNUNG GESUCHT
+
+Familie Müller sucht ab 01.06. eine 3- bis 4-Zimmer-Wohnung in Köln-Ehrenfeld. Die Wohnung sollte mindestens 80 m² groß sein und einen Balkon haben. Wichtig: Die Wohnung muss barrierefrei sein.
+
+Tel.: 0176-12345678 (ab 18 Uhr)</div>
+            <p><strong>Soru 1:</strong> Was sucht die Familie Müller?</p>
+            <div class="secenek" onclick="kontrol(this, 'B')">A) Eine 2-Zimmer-Wohnung</div>
+            <div class="secenek" onclick="kontrol(this, 'B')">B) Eine barrierefreie 3-4 Zimmer-Wohnung mit Balkon ✅</div>
+            <div class="secenek" onclick="kontrol(this, 'B')">C) Ein Haus mit Garten</div>
+            <div class="secenek" onclick="kontrol(this, 'B')">D) Eine möblierte Wohnung</div>
+            <p id="cevap-1" style="color: #94a3b8; margin-top: 10px;"></p>
+        </div>
+        
+        <div class="soru">
+            <div class="metin">Sprachkurs Deutsch A2
+Intensivkurs 4 Wochen
+Montag bis Freitag: 9:00 - 12:00 Uhr
+
+Kosten: Kostenlos für Asylbewerber und Geduldete</div>
+            <p><strong>Soru 2:</strong> Was kostet der Deutschkurs?</p>
+            <div class="secenek" onclick="kontrol(this, 'C')">A) 100 Euro</div>
+            <div class="secenek" onclick="kontrol(this, 'C')">B) 200 Euro</div>
+            <div class="secenek" onclick="kontrol(this, 'C')">C) Kostenlos für Berechtigte ✅</div>
+            <div class="secenek" onclick="kontrol(this, 'C')">D) 50 Euro</div>
+            <p id="cevap-2" style="color: #94a3b8; margin-top: 10px;"></p>
+        </div>
+    </div>
+    
+    <div id="hoeren-sorular" class="gizli">
+        <h2>Hören Teil 1 - Ansagen</h2>
+        
+        <div class="soru">
+            <div class="ses-btn" onclick="sesCal('Guten Tag. Sie haben das Bürgeramt erreicht. Unsere Öffnungszeiten sind montags und mittwochs von 8 bis 12 Uhr und dienstags von 14 bis 18 Uhr.')">🔊 Audio Dinle</div>
+            <p><strong>Soru 1:</strong> Wann ist das Bürgerbüro geöffnet?</p>
+            <div class="secenek" onclick="kontrol(this, 'A')">A) Mo+Mi 8-12 und Di 14-18 ✅</div>
+            <div class="secenek" onclick="kontrol(this, 'A')">B) Mo-Fr 8-16</div>
+            <div class="secenek" onclick="kontrol(this, 'A')">C) Nur dienstags</div>
+            <div class="secenek" onclick="kontrol(this, 'A')">D) Täglich</div>
+            <p id="cevap-h1" style="color: #94a3b8; margin-top: 10px;"></p>
+        </div>
+        
+        <div class="soru">
+            <div class="ses-btn" onclick="sesCal('Sie haben die Arztpraxis Dr. Weber erreicht. Bitte hinterlassen Sie Ihre Nachricht nach dem Signal. Nennen Sie Ihren Namen, Ihre Telefonnummer und den Grund Ihres Anrufs.')">🔊 Audio Dinle</div>
+            <p><strong>Soru 2:</strong> Was soll der Anrufer tun?</p>
+            <div class="secenek" onclick="kontrol(this, 'B')">A) Sofort kommen</div>
+            <div class="secenek" onclick="kontrol(this, 'B')">B) Nachricht mit Name, Telefon und Grund hinterlassen ✅</div>
+            <div class="secenek" onclick="kontrol(this, 'B')">C) Morgen anrufen</div>
+            <div class="secenek" onclick="kontrol(this, 'B')">D) Online buchen</div>
+            <p id="cevap-h2" style="color: #94a3b8; margin-top: 10px;"></p>
+        </div>
+        
+        <div class="soru">
+            <div class="ses-btn" onclick="sesCal('Mann: Was machst du am Wochenende? Frau: Ich arbeite Samstag bis 22 Uhr. Aber Sonntag fahre ich mit den Kindern in den Zoo.')">🔊 Audio Dinle</div>
+            <p><strong>Soru 3:</strong> Was macht die Frau am Wochenende?</p>
+            <div class="secenek" onclick="kontrol(this, 'A')">A) Samstag arbeiten, Sonntag Zoo ✅</div>
+            <div class="secenek" onclick="kontrol(this, 'A')">B) Ganze Woche arbeiten</div>
+            <div class="secenek" onclick="kontrol(this, 'A')">C) Zu Hause bleiben</div>
+            <div class="secenek" onclick="kontrol(this, 'A')">D) Umziehen</div>
+            <p id="cevap-h3" style="color: #94a3b8; margin-top: 10px;"></p>
+        </div>
+    </div>
+    
+    <script>
+        let aktifSoru = 0;
+        
+        function goster(modul) {
+            document.getElementById('lesen-sorular').className = 'gizli';
+            document.getElementById('hoeren-sorular').className = 'gizli';
+            document.getElementById(modul + '-sorular').className = '';
+        }
+        
+        function kontrol(element, dogruCevap) {
+            // Tüm seçenekleri pasif yap
+            const parent = element.parentElement;
+            const secenekler = parent.querySelectorAll('.secenek');
+            secenekler.forEach(s => s.style.pointerEvents = 'none');
+            
+            // Doğru cevabı bul ve yeşil yap
+            secenekler.forEach(s => {
+                if (s.getAttribute('onclick').includes("'" + dogruCevap + "'")) {
+                    s.classList.add('dogru');
+                }
+            });
+            
+            // Tıklanan yanlışsa kırmızı yap
+            if (!element.classList.contains('dogru')) {
+                element.classList.add('yanlis');
+            }
+        }
+        
+        function sesCal(metin) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const ses = new SpeechSynthesisUtterance(metin);
+                ses.lang = 'de-DE';
+                ses.rate = 0.9;
+                window.speechSynthesis.speak(ses);
+            } else {
+                alert('Ses çalma desteklenmiyor');
+            }
+        }
+    </script>
+</body>
+</html>
