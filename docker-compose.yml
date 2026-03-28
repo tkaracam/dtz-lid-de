@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # Main Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: dtz-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_DRIVER=sqlite
+      - DB_PATH=/var/www/html/database/dtz_production.db
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AZURE_TTS_KEY=${AZURE_TTS_KEY:-}
+      - AZURE_TTS_REGION=${AZURE_TTS_REGION:-westeurope}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - APP_ENV=production
+      - APP_DEBUG=false
+    volumes:
+      # Persist database
+      - ./database:/var/www/html/database
+      # Persist storage
+      - ./storage:/var/www/html/storage
+      # Logs
+      - ./logs:/var/log/apache2
+    networks:
+      - dtz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Alternative: PostgreSQL Database
+  # Uncomment if you want to use PostgreSQL instead of SQLite
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: dtz-db
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: dtz_learning
+  #     POSTGRES_USER: dtz_user
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_password_here}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./database/migrations:/docker-entrypoint-initdb.d
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - dtz-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U dtz_user -d dtz_learning"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # Redis Cache (optional - for session storage and caching)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: dtz-redis
+  #   restart: unless-stopped
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - dtz-network
+
+  # Nginx Reverse Proxy (optional - for production)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: dtz-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+  #     - ./frontend:/var/www/html/frontend:ro
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - dtz-network
+
+networks:
+  dtz-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

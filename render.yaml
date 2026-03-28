@@ -1,22 +1,56 @@
+# Render.com Deployment Configuration
+# Docs: https://render.com/docs/blueprint-spec
+
 services:
+  # Web Service
   - type: web
-    name: dtz-plattform
-    env: docker
-    plan: starter
-    autoDeploy: true
-    healthCheckPath: /index.html
-    disk:
-      name: dtz-storage
-      mountPath: /var/data
-      sizeGB: 1
+    name: dtz-lernplattform
+    runtime: docker
+    repo: https://github.com/tkaracam/dtz-lid-de
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: DB_DRIVER
+        value: sqlite
+      - key: DB_PATH
+        value: /var/www/html/database/dtz_production.db
+      - key: JWT_SECRET
+        generateValue: true
       - key: OPENAI_API_KEY
         sync: false
-      - key: OPENAI_MODEL
-        value: gpt-4.1-mini
-      - key: ADMIN_PANEL_USERNAME
-        value: admin
-      - key: ADMIN_PANEL_PASSWORD
+      - key: AZURE_TTS_KEY
         sync: false
-      - key: BSK_MODULE_ENABLED
-        value: "0"
+      - key: AZURE_TTS_REGION
+        value: westeurope
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+    disk:
+      name: database
+      mountPath: /var/www/html/database
+      sizeGB: 1
+    healthCheckPath: /api/health.php
+    autoDeploy: true
+
+# Alternative: PostgreSQL Database on Render
+# - type: pserv
+#   name: dtz-postgres
+#   runtime: docker
+#   dockerfilePath: ./docker/postgres/Dockerfile
+#   envVars:
+#     - key: POSTGRES_DB
+#       value: dtz_learning
+#     - key: POSTGRES_USER
+#       value: dtz_user
+#     - key: POSTGRES_PASSWORD
+#       generateValue: true
+#   disk:
+#     name: postgres-data
+#     mountPath: /var/lib/postgresql/data
+#     sizeGB: 10
