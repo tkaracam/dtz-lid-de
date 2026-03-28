@@ -1,15 +1,10 @@
-# Render.com Deployment Configuration
-# Docs: https://render.com/docs/blueprint-spec
-
 services:
-  # Web Service
   - type: web
     name: dtz-lernplattform
     runtime: docker
     repo: https://github.com/tkaracam/dtz-lid-de
     branch: main
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    plan: free
     envVars:
       - key: APP_ENV
         value: production
@@ -27,30 +22,9 @@ services:
         sync: false
       - key: AZURE_TTS_REGION
         value: westeurope
-      - key: STRIPE_SECRET_KEY
-        sync: false
-      - key: STRIPE_WEBHOOK_SECRET
-        sync: false
     disk:
       name: database
       mountPath: /var/www/html/database
       sizeGB: 1
     healthCheckPath: /api/health.php
     autoDeploy: true
-
-# Alternative: PostgreSQL Database on Render
-# - type: pserv
-#   name: dtz-postgres
-#   runtime: docker
-#   dockerfilePath: ./docker/postgres/Dockerfile
-#   envVars:
-#     - key: POSTGRES_DB
-#       value: dtz_learning
-#     - key: POSTGRES_USER
-#       value: dtz_user
-#     - key: POSTGRES_PASSWORD
-#       generateValue: true
-#   disk:
-#     name: postgres-data
-#     mountPath: /var/lib/postgresql/data
-#     sizeGB: 10
