@@ -7,116 +7,411 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="DTZ Learning">
-    <meta name="description" content="Interaktive Lernplattform für den Deutsch-Test für Zuwanderer (DTZ)">
-    
-    <!-- No caching -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
+    <meta name="description" content="Interaktive Lernplattform für den Deutsch-Test für Zuwanderer (DTZ) - Hören, Lesen, Schreiben, Sprechen üben">
     <title>DTZ Lernplattform - Deutsch-Test für Zuwanderer</title>
-    
-    <link rel="manifest" href="/manifest.json?v=2">
+    <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
-    <link rel="stylesheet" href="frontend/css/styles.css?v=2">
-    <link rel="stylesheet" href="frontend/css/mobile.css?v=2">
-    
+    <link rel="stylesheet" href="frontend/css/styles.css">
+    <link rel="stylesheet" href="frontend/css/mobile.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
             color: #f1f5f9;
         }
-        .hero { min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
         .navbar {
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 1.5rem 3rem;
             background: rgba(30, 30, 50, 0.7);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
         .logo {
-            font-size: 1.5rem; font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 700;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .nav-links { display: flex; gap: 2rem; align-items: center; }
-        .nav-links a { color: #f1f5f9; text-decoration: none; font-weight: 500; }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #f1f5f9;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #8b5cf6;
+        }
+        
         .btn-nav {
             padding: 0.75rem 1.5rem;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white; border: none; border-radius: 50px;
-            font-weight: 600; cursor: pointer; text-decoration: none;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
+        
+        .btn-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 92, 255, 0.4);
+        }
+        
         .hero-content {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            padding: 3rem; gap: 4rem; max-width: 1400px; margin: 0 auto;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            gap: 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        .hero-text { flex: 1; }
+        
+        .hero-text {
+            flex: 1;
+        }
+        
         .hero-text h1 {
-            font-size: 3.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 1.5rem;
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
             background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .hero-text p { font-size: 1.25rem; color: #94a3b8; margin-bottom: 2rem; }
-        .hero-buttons { display: flex; gap: 1rem; }
-        .btn {
-            padding: 1rem 2rem; border-radius: 50px; font-weight: 600;
-            text-decoration: none; transition: transform 0.3s;
+        
+        .hero-text p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
         }
-        .btn:hover { transform: translateY(-2px); }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
         .btn-primary {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(124, 92, 255, 0.4);
+        }
+        
         .btn-secondary {
-            border: 2px solid rgba(255,255,255,0.2); color: white;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
             background: transparent;
+            color: #f1f5f9;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        @media (max-width: 768px) {
-            .hero-content { flex-direction: column; text-align: center; padding: 2rem; }
-            .hero-text h1 { font-size: 2.5rem; }
-            .navbar { padding: 1rem 1.5rem; }
-            .nav-links { display: none; }
+        
+        .btn-secondary:hover {
+            border-color: #8b5cf6;
+            background: rgba(124, 92, 255, 0.1);
+        }
+        
+        .hero-visual {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .module-card {
+            background: rgba(30, 30, 50, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-5px);
+            border-color: #8b5cf6;
+            box-shadow: 0 20px 40px rgba(124, 92, 255, 0.2);
+        }
+        
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .module-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .module-desc {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+        
+        .features {
+            padding: 5rem 3rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(30, 30, 50, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-desc {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+        
+        .cta-section {
+            padding: 5rem 3rem;
+            text-align: center;
+        }
+        
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-section p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        
+        footer {
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #64748b;
+        }
+        
+        @media (max-width: 1024px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+            
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="hero">
         <nav class="navbar">
-            <div class="logo">DTZ Lernplattform</div>
+            <div class="logo">🎓 DTZ Learning</div>
             <div class="nav-links">
-                <a href="frontend/login.html">Anmelden</a>
-                <a href="frontend/register.html" class="btn-nav">Registrieren</a>
+                <a href="#modules">Module</a>
+                <a href="#features">Funktionen</a>
+                <a href="frontend/login.html" class="btn-nav">Anmelden</a>
             </div>
         </nav>
         
         <div class="hero-content">
             <div class="hero-text">
-                <h1>Bereite dich optimal auf den DTZ vor</h1>
-                <p>Interaktive Übungen für Hören, Lesen, Schreiben und Sprechen. Mit KI-gestütztem Feedback!</p>
+                <h1>Bereite dich auf den DTZ vor!</h1>
+                <p>Der Deutsch-Test für Zuwanderer (DTZ) ist ein wichtiger Schritt auf deinem Weg in Deutschland. Übe mit unserer interaktiven Plattform alle Module: Hören, Lesen, Schreiben und Sprechen.</p>
                 <div class="hero-buttons">
-                    <a href="frontend/register.html" class="btn btn-primary">Kostenlos starten</a>
-                    <a href="frontend/login.html" class="btn btn-secondary">Anmelden</a>
+                    <a href="frontend/register.html" class="btn-primary">🚀 Kostenlos starten</a>
+                    <a href="frontend/modelltest.html" class="btn-secondary">📝 Modelltest</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual" id="modules">
+                <div class="modules-grid">
+                    <a href="frontend/learn.html?module=hoeren" class="module-card">
+                        <div class="module-icon">🎧</div>
+                        <div class="module-name">Hören</div>
+                        <div class="module-desc">4 Teile • 20 Fragen</div>
+                    </a>
+                    <a href="frontend/learn.html?module=lesen" class="module-card">
+                        <div class="module-icon">📖</div>
+                        <div class="module-name">Lesen</div>
+                        <div class="module-desc">5 Teile • 25 Fragen</div>
+                    </a>
+                    <a href="frontend/writing.html" class="module-card">
+                        <div class="module-icon">✍️</div>
+                        <div class="module-name">Schreiben</div>
+                        <div class="module-desc">2 Teile • 25 Punkte</div>
+                    </a>
+                    <a href="frontend/learn.html?module=sprechen" class="module-card">
+                        <div class="module-icon">🗣️</div>
+                        <div class="module-name">Sprechen</div>
+                        <div class="module-desc">3 Teile • Übungen</div>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
     
-    <script>
-        // Clear any old service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(regs => {
-                for (const reg of regs) reg.unregister();
-            });
-            if ('caches' in window) {
-                caches.keys().then(keys => {
-                    for (const key of keys) caches.delete(key);
-                });
-            }
-        }
-    </script>
+    <section class="features" id="features">
+        <div class="features-container">
+            <h2>Warum DTZ Learning?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">DTZ Format</div>
+                    <div class="feature-desc">Alle Aufgaben entsprechen dem originalen DTZ-Prüfungsformat</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-title">KI-Feedback</div>
+                    <div class="feature-desc">Erhalte sofortige Korrekturen für deine Schreibübungen</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Fortschrittsanalyse</div>
+                    <div class="feature-desc">Verfolge deine Leistung mit detaillierten Statistiken</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔊</div>
+                    <div class="feature-title">Audio-Übungen</div>
+                    <div class="feature-desc">Übe das Hörenverstehen mit authentischen Audioaufnahmen</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta-section">
+        <h2>Bereit für den Test?</h2>
+        <p>Starte jetzt deine Vorbereitung mit einem kostenlosen Modelltest</p>
+        <a href="frontend/modelltest.html" class="btn-primary">📝 Modelltest starten</a>
+    </section>
+    
+    <footer>
+        <p>&copy; 2024 DTZ Learning Plattform. Alle Rechte vorbehalten.</p>
+    </footer>
+<script src="frontend/js/app.js"></script>
 </body>
 </html>
