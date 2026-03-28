@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DTZ Lernplattform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+        }
+        
+        .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 92, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            font-size: 1.75rem;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text);
+        }
+        
+        .action-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+        
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .action-desc {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">DTZ Learning</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link active">📊 Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="learn.html" class="nav-link">📚 Lernen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="modelltest.html" class="nav-link">📝 Modelltest</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="writing.html" class="nav-link">✍️ Schreiben</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="progress.html" class="nav-link">📈 Fortschritt</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" onclick="logout()" class="nav-link">🚪 Abmelden</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Dashboard</h1>
+                <div class="user-menu">
+                    <span id="user-name">...</span>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-questions">0</div>
+                    <div class="stat-label">Fragen beantwortet</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="streak">0</div>
+                    <div class="stat-label">Tage Serie</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Richtigkeit</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="tests">0</div>
+                    <div class="stat-label">Modelltests</div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Schnellzugriff</h2>
+            <div class="quick-actions">
+                <a href="learn.html" class="action-card">
+                    <div class="action-icon">🎯</div>
+                    <div class="action-title">Lernen fortsetzen</div>
+                    <div class="action-desc">Wo Sie aufgehört haben</div>
+                </a>
+                <a href="modelltest.html" class="action-card">
+                    <div class="action-icon">📝</div>
+                    <div class="action-title">Modelltest starten</div>
+                    <div class="action-desc">Vollständige Prüfungssimulation</div>
+                </a>
+            </div>
+            
+            <h2 class="section-title">Letzte Aktivitäten</h2>
+            <div class="card" id="activities">
+                <p style="color: var(--text-muted);">Keine Aktivitäten vorhanden</p>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkAuth();
+        
+        // Load user data
+        const user = getUser();
+        if (user) {
+            document.getElementById('user-name').textContent = user.name || user.email;
+        }
+        
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/user/stats.php`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('stat-questions').textContent = data.stats.total_questions || 0;
+                    document.getElementById('streak').textContent = data.stats.streak || 0;
+                    document.getElementById('accuracy').textContent = (data.stats.accuracy || 0) + '%';
+                    document.getElementById('tests').textContent = data.stats.modelltests || 0;
+                }
+            } catch (err) {
+                console.error('Failed to load stats:', err);
+            }
+        }
+        
+        loadStats();
+    </script>
+</body>
+</html>

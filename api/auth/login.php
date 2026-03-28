@@ -3,91 +3,71 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../src/Database/Database.php';
 require_once __DIR__ . '/../../src/Auth/JWT.php';
-require_once __DIR__ . '/../../src/Models/User.php';
-require_once __DIR__ . '/../../src/Models/Session.php';
-require_once __DIR__ . '/../../src/Auth/AuthController.php';
 
-use DTZ\Auth\AuthController;
+use DTZ\Database\Database;
+use DTZ\Auth\JWT;
 
-// CORS headers
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 
-// Handle preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
-// Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Nur POST erlaubt']);
     exit;
 }
 
-// Rate limiting (stricter for login)
-$ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-$rateFile = sys_get_temp_dir() . '/dtz_login_' . md5($ip) . '.json';
-$rateLimit = 10; // 10 attempts per 5 minutes
-
-$rateData = ['count' => 0, 'time' => time()];
-if (file_exists($rateFile)) {
-    $rateData = json_decode(file_get_contents($rateFile), true);
-}
-
-if (time() - $rateData['time'] > 300) { // 5 minutes
-    $rateData = ['count' => 0, 'time' => time()];
-}
-
-$rateData['count']++;
-file_put_contents($rateFile, json_encode($rateData));
-
-if ($rateData['count'] > $rateLimit) {
-    http_response_code(429);
-    echo json_encode(['error' => 'Zu viele Anmeldeversuche. Bitte versuchen Sie es später erneut.']);
-    exit;
-}
-
-// Get input
 $input = json_decode(file_get_contents('php://input'), true);
+$email = $input['email'] ?? '';
+$password = $input['password'] ?? '';
 
-if (!$input) {
+if (empty($email) || empty($password)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Ungültiges JSON']);
+    echo json_encode(['error' => 'E-Mail und Passwort erforderlich']);
     exit;
 }
 
-// Process login
 try {
-    $auth = new AuthController();
-    $result = $auth->login($input);
+    $db = Database::getInstance();
     
-    if (!$result['success']) {
+    $user = $db->selectOne(
+        "SELECT id, email, display_name as name, password_hash, level, role FROM users WHERE email = ? AND is_active = TRUE",
+        [$email]
+    );
+    
+    if (!$user || !password_verify($password, $user['password_hash'])) {
         http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'error' => $result['error']
-        ]);
+        echo json_encode(['error' => 'Ungültige Anmeldedaten']);
         exit;
     }
     
-    // Reset rate limit on success
-    if (file_exists($rateFile)) {
-        unlink($rateFile);
-    }
+    // Generate JWT token
+    $jwt = new JWT($_ENV['JWT_SECRET'] ?? 'dtz-learning-secret-key-change-in-production');
+    $token = $jwt->generate([
+        'sub' => $user['id'],
+        'email' => $user['email'],
+        'role' => $user['role']
+    ]);
     
-    http_response_code(200);
     echo json_encode([
         'success' => true,
-        'user' => $result['user'],
-        'tokens' => $result['tokens']
+        'access_token' => $token,
+        'user' => [
+            'id' => $user['id'],
+            'email' => $user['email'],
+            'name' => $user['name'],
+            'level' => $user['level'],
+            'role' => $user['role']
+        ]
     ]);
     
 } catch (Exception $e) {
-    error_log('Login error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Ein Fehler ist aufgetreten']);
+    echo json_encode(['error' => 'Anmeldefehler']);
 }

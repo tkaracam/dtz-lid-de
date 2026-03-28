@@ -5,88 +5,80 @@ namespace DTZ\Services;
 
 /**
  * Azure Text-to-Speech Service
- * Generates realistic German audio for DTZ listening exercises
+ * Uses Azure Cognitive Services Speech API
  */
-class AzureTTSService
-{
+class AzureTTSService {
     private string $subscriptionKey;
     private string $region;
-    private string $endpoint;
+    private string $baseUrl;
     
     // Voice mapping for different scenarios
     private array $voices = [
-        'phone' => 'de-DE-KatjaNeural',        // Clear, professional (phone calls)
-        'announcement' => 'de-DE-ConradNeural', // Official tone (announcements)
-        'conversation' => 'de-DE-AmalaNeural',  // Natural, friendly (conversations)
-        'interview' => 'de-DE-KillianNeural',   // Male voice (interviews)
-        'news' => 'de-DE-SeraphinaNeural',      // News reader style
+        'phone' => 'de-DE-KatjaNeural',      // Friendly female for phone calls
+        'announcement' => 'de-DE-ConradNeural', // Clear male for announcements
+        'conversation' => 'de-DE-AmalaNeural',  // Natural female for conversations
+        'interview' => 'de-DE-KillianNeural',   // Professional male for interviews
+        'news' => 'de-DE-SeraphinaMultilingualNeural', // News-style
+        'default' => 'de-DE-KatjaNeural'
     ];
     
-    public function __construct()
-    {
-        $this->subscriptionKey = $_ENV['AZURE_TTS_KEY'] ?? '';
-        $this->region = $_ENV['AZURE_TTS_REGION'] ?? 'westeurope';
-        $this->endpoint = "https://{$this->region}.tts.speech.microsoft.com/";
-        
-        if (empty($this->subscriptionKey)) {
-            throw new \RuntimeException('Azure TTS key not configured');
-        }
+    public function __construct(string $subscriptionKey, string $region = 'westeurope') {
+        $this->subscriptionKey = $subscriptionKey;
+        $this->region = $region;
+        $this->baseUrl = "https://{$region}.tts.speech.microsoft.com";
     }
     
     /**
-     * Generate audio for text
+     * Generate speech from text
+     * 
+     * @param string $text Text to speak
+     * @param string $scenario Voice scenario (phone, announcement, conversation, interview, news)
+     * @param float $speed Speech rate (0.5 = slow, 1.0 = normal, 1.5 = fast)
+     * @return array ['success' => bool, 'audio' => string (base64), 'format' => string]
      */
-    public function generateAudio(
-        string $text,
-        string $scenario = 'conversation',
-        ?string $customVoice = null
-    ): array {
+    public function generateSpeech(string $text, string $scenario = 'default', float $speed = 1.0): array {
+        if (empty($this->subscriptionKey)) {
+            return ['success' => false, 'error' => 'Azure key not configured'];
+        }
         
-        $voice = $customVoice ?? ($this->voices[$scenario] ?? 'de-DE-KatjaNeural');
+        $voice = $this->voices[$scenario] ?? $this->voices['default'];
         
-        // Build SSML for better control
-        $ssml = $this->buildSSML($text, $voice, $scenario);
+        // Build SSML
+        $ssml = $this->buildSSML($text, $voice, $speed);
         
-        // Call Azure TTS API
-        $audioData = $this->callAzureTTS($ssml);
+        // Call Azure API
+        $result = $this->callTTSAPI($ssml);
         
-        // Save to storage
-        $fileInfo = $this->saveAudio($audioData, $text);
+        if ($result === null) {
+            return ['success' => false, 'error' => 'TTS API call failed'];
+        }
         
         return [
             'success' => true,
-            'file_url' => $fileInfo['url'],
-            'file_path' => $fileInfo['path'],
-            'duration_seconds' => $this->estimateDuration($text),
+            'audio' => base64_encode($result),
+            'format' => 'audio/mp3',
             'voice' => $voice,
             'scenario' => $scenario
         ];
     }
     
     /**
-     * Build SSML with prosody control
+     * Build SSML (Speech Synthesis Markup Language)
      */
-    private function buildSSML(string $text, string $voice, string $scenario): string
-    {
-        // Scenario-specific prosody settings
-        $prosodySettings = [
-            'phone' => 'rate="0%" pitch="0%"',      // Normal
-            'announcement' => 'rate="-10%" pitch="-5%"', // Slower, deeper
-            'conversation' => 'rate="0%" pitch="0%"',     // Natural
-            'interview' => 'rate="0%" pitch="0%"',
-            'news' => 'rate="-5%" pitch="0%"',
-        ];
-        
-        $prosody = $prosodySettings[$scenario] ?? 'rate="0%" pitch="0%"';
-        
+    private function buildSSML(string $text, string $voice, float $rate): string {
         // Escape special XML characters
-        $escapedText = htmlspecialchars($text, ENT_XML1, 'UTF-8');
+        $text = htmlspecialchars($text, ENT_XML1, 'UTF-8');
+        
+        // Convert rate to percentage
+        $ratePercent = round(($rate - 1) * 100);
+        $rateAttr = $ratePercent >= 0 ? "+{$ratePercent}%" : "{$ratePercent}%";
         
         return <<<SSML
+<?xml version="1.0" encoding="UTF-8"?>
 <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="de-DE">
     <voice name="{$voice}">
-        <prosody {$prosody}>
-            {$escapedText}
+        <prosody rate="{$rateAttr}" pitch="0%">
+            {$text}
         </prosody>
     </voice>
 </speak>
@@ -96,136 +88,79 @@ SSML;
     /**
      * Call Azure TTS API
      */
-    private function callAzureTTS(string $ssml): string
-    {
-        $url = $this->endpoint . 'cognitiveservices/v1';
+    private function callTTSAPI(string $ssml): ?string {
+        $url = "{$this->baseUrl}/cognitiveservices/v1";
         
         $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $ssml,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/ssml+xml',
-                'X-Microsoft-OutputFormat: audio-24khz-160kbitrate-mono-mp3',
-                'Ocp-Apim-Subscription-Key: ' . $this->subscriptionKey
-            ],
-            CURLOPT_TIMEOUT => 60,
+        
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $ssml);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/ssml+xml',
+            'X-Microsoft-OutputFormat: audio-16khz-128kbitrate-mono-mp3',
+            'Ocp-Apim-Subscription-Key: ' . $this->subscriptionKey,
+            'User-Agent: DTZ-Learning-Platform'
         ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         
         $response = curl_exec($ch);
-        $error = curl_error($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
         
-        if ($error) {
-            throw new \RuntimeException('Azure TTS request failed: ' . $error);
+        if (curl_errno($ch)) {
+            error_log('Azure TTS curl error: ' . curl_error($ch));
+            curl_close($ch);
+            return null;
         }
         
+        curl_close($ch);
+        
         if ($httpCode !== 200) {
-            throw new \RuntimeException('Azure TTS error: HTTP ' . $httpCode);
+            error_log("Azure TTS API error: HTTP {$httpCode}");
+            return null;
         }
         
         return $response;
     }
     
     /**
-     * Save audio to storage
+     * Get available voices
      */
-    private function saveAudio(string $audioData, string $text): array
-    {
-        // Generate unique filename based on text hash
-        $hash = md5($text);
-        $filename = "audio_{$hash}_" . time() . '.mp3';
-        
-        // Local storage path
-        $uploadDir = __DIR__ . '/../../public/uploads/audio/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-        
-        $filePath = $uploadDir . $filename;
-        file_put_contents($filePath, $audioData);
-        
-        // Public URL
-        $fileUrl = '/uploads/audio/' . $filename;
-        
-        return [
-            'path' => $filePath,
-            'url' => $fileUrl,
-            'filename' => $filename,
-            'size_bytes' => strlen($audioData)
+    public function getVoices(): array {
+        return $this->voices;
+    }
+    
+    /**
+     * Test Azure connection
+     */
+    public function testConnection(): bool {
+        $result = $this->generateSpeech('Hallo', 'default', 1.0);
+        return $result['success'] ?? false;
+    }
+    
+    /**
+     * Generate speech for Hören Teil 1-4 scenarios
+     */
+    public function generateForHoeren(int $teil, string $text): array {
+        $scenarioMap = [
+            1 => 'phone',         // Telefonansagen
+            2 => 'conversation',  // Gespräche
+            3 => 'interview',     // Interviews
+            4 => 'announcement'   // Durchsagen/Information
         ];
-    }
-    
-    /**
-     * Estimate audio duration (rough calculation)
-     */
-    private function estimateDuration(string $text): int
-    {
-        // Average speaking rate: ~130 words per minute
-        $wordCount = str_word_count($text);
-        $duration = ceil(($wordCount / 130) * 60);
-        return max(1, $duration);
-    }
-    
-    /**
-     * Generate audio for a question and save to database
-     */
-    public function generateForQuestion(
-        string $questionId,
-        string $text,
-        string $scenario
-    ): array {
         
-        // Check if audio already exists
-        $db = \DTZ\Database\Database::getInstance();
-        $existing = $db->selectOne(
-            "SELECT id, file_url FROM audio_files WHERE text_hash = ?",
-            [md5($text)]
-        );
+        $scenario = $scenarioMap[$teil] ?? 'default';
         
-        if ($existing) {
-            return [
-                'success' => true,
-                'file_url' => $existing['file_url'],
-                'cached' => true
-            ];
-        }
-        
-        // Generate new audio
-        $result = $this->generateAudio($text, $scenario);
-        
-        if ($result['success']) {
-            // Save to database
-            $db->insert('audio_files', [
-                'question_id' => $questionId,
-                'provider' => 'azure',
-                'voice_id' => $result['voice'],
-                'text_content' => $text,
-                'text_hash' => md5($text),
-                'scenario' => $scenario,
-                'file_url' => $result['file_url'],
-                'file_path' => $result['file_path'],
-                'file_size_bytes' => $result['size_bytes'] ?? 0,
-                'duration_seconds' => $result['duration_seconds']
-            ]);
-        }
-        
-        return $result;
-    }
-    
-    /**
-     * Get list of available voices
-     */
-    public function getAvailableVoices(): array
-    {
-        return [
-            ['id' => 'de-DE-KatjaNeural', 'name' => 'Katja', 'gender' => 'female', 'style' => 'clear'],
-            ['id' => 'de-DE-ConradNeural', 'name' => 'Conrad', 'gender' => 'male', 'style' => 'formal'],
-            ['id' => 'de-DE-AmalaNeural', 'name' => 'Amala', 'gender' => 'female', 'style' => 'natural'],
-            ['id' => 'de-DE-KillianNeural', 'name' => 'Killian', 'gender' => 'male', 'style' => 'friendly'],
-            ['id' => 'de-DE-SeraphinaNeural', 'name' => 'Seraphina', 'gender' => 'female', 'style' => 'news'],
+        // Adjust speed based on teil
+        $speedMap = [
+            1 => 1.0,  // Normal
+            2 => 0.9,  // Slightly slower for conversations
+            3 => 0.85, // Slower for interviews
+            4 => 1.0   // Normal for announcements
         ];
+        
+        $speed = $speedMap[$teil] ?? 1.0;
+        
+        return $this->generateSpeech($text, $scenario, $speed);
     }
 }

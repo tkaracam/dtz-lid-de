@@ -1,0 +1,10 @@
+# Allow access to all files
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+
+# Protect sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

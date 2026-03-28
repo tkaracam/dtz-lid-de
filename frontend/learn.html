@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lernen - DTZ Lernplattform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+        }
+        
+        .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 92, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.75rem;
+        }
+        
+        .module-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .module-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .module-btn:hover, .module-btn.active {
+            border-color: var(--accent);
+            background: rgba(124, 92, 255, 0.1);
+        }
+        
+        .module-btn .icon {
+            font-size: 1.5rem;
+        }
+        
+        .teil-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .teil-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .teil-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .teil-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .teil-number {
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .teil-level {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .teil-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .teil-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .teil-progress {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            min-width: 50px;
+            text-align: right;
+        }
+        
+        .question-area {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 2rem;
+            display: none;
+        }
+        
+        .question-area.active {
+            display: block;
+        }
+        
+        .audio-player {
+            background: rgba(124, 92, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .audio-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .audio-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .answer-option {
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .answer-option:hover {
+            border-color: var(--accent);
+            background: rgba(124, 92, 255, 0.1);
+        }
+        
+        .answer-option.selected {
+            border-color: var(--accent);
+            background: rgba(124, 92, 255, 0.2);
+        }
+        
+        .answer-option.correct {
+            border-color: #2ed573;
+            background: rgba(46, 213, 115, 0.2);
+        }
+        
+        .answer-option.wrong {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.2);
+        }
+        
+        .feedback-box {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .feedback-box.show {
+            display: block;
+        }
+        
+        .feedback-box.correct {
+            background: rgba(46, 213, 115, 0.1);
+            border-left: 4px solid #2ed573;
+        }
+        
+        .feedback-box.wrong {
+            background: rgba(255, 71, 87, 0.1);
+            border-left: 4px solid #ff4757;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        .btn-nav {
+            padding: 0.75rem 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-nav:hover {
+            border-color: var(--accent);
+        }
+        
+        .btn-check {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 92, 255, 0.3);
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .teil-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">DTZ Learning</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="learn.html" class="nav-link active">📚 Lernen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="modelltest.html" class="nav-link">📝 Modelltest</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="writing.html" class="nav-link">✍️ Schreiben</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="progress.html" class="nav-link">📈 Fortschritt</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" onclick="logout()" class="nav-link">🚪 Abmelden</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>📚 Lernen</h1>
+            </div>
+            
+            <div class="module-selector" id="module-selector">
+                <button class="module-btn" data-module="hoeren" onclick="selectModule('hoeren')">
+                    <span class="icon">🎧</span>
+                    <span>Hören</span>
+                </button>
+                <button class="module-btn" data-module="lesen" onclick="selectModule('lesen')">
+                    <span class="icon">📖</span>
+                    <span>Lesen</span>
+                </button>
+                <button class="module-btn" data-module="sprechen" onclick="selectModule('sprechen')">
+                    <span class="icon">🗣️</span>
+                    <span>Sprechen</span>
+                </button>
+            </div>
+            
+            <div class="stats-bar" id="stats-bar" style="display: none;">
+                <div class="stat-item">
+                    <span class="stat-label">Frage:</span>
+                    <span class="stat-value" id="current-q">1</span>
+                    <span class="stat-label">/</span>
+                    <span class="stat-value" id="total-q">10</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Richtig:</span>
+                    <span class="stat-value" id="correct-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Serie:</span>
+                    <span class="stat-value" id="streak-count">0</span>
+                    <span>🔥</span>
+                </div>
+            </div>
+            
+            <div class="teil-grid" id="teil-grid">
+                <!-- Teile will be loaded here -->
+            </div>
+            
+            <div class="question-area" id="question-area">
+                <div class="audio-player" id="audio-player" style="display: none;">
+                    <button class="audio-btn" onclick="playAudio()">▶️</button>
+                    <div>
+                        <div style="font-weight: 600;">🎧 Audio abspielen</div>
+                        <div style="font-size: 0.875rem; color: var(--text-muted);">Klicken Sie zum Hören</div>
+                    </div>
+                </div>
+                
+                <div class="question-text" id="question-text"></div>
+                
+                <div class="answer-options" id="answer-options"></div>
+                
+                <div class="feedback-box" id="feedback-box">
+                    <div id="feedback-text"></div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn-nav" onclick="previousQuestion()">← Zurück</button>
+                    <button class="btn-check" onclick="checkAnswer()">Überprüfen</button>
+                    <button class="btn-nav" onclick="nextQuestion()">Weiter →</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkAuth();
+        
+        let currentModule = null;
+        let currentTeil = null;
+        let currentQuestion = 0;
+        let questions = [];
+        let selectedAnswer = null;
+        let correctCount = 0;
+        let streak = 0;
+        let answered = false;
+        
+        const moduleInfo = {
+            hoeren: {
+                name: 'Hören',
+                icon: '🎧',
+                teile: [
+                    { num: 1, name: 'Telefonansagen', desc: 'Anrufbeantworter, Durchsagen', level: 'A2', questions: 5 },
+                    { num: 2, name: 'Alltagsgespräche', desc: 'Gespräche im Alltag', level: 'A2', questions: 5 },
+                    { num: 3, name: 'Interviews', desc: 'Berufs- und Arbeitsgespräche', level: 'B1', questions: 5 },
+                    { num: 4, name: 'Information', desc: 'Rundfunk, Nachrichten', level: 'B1', questions: 5 }
+                ]
+            },
+            lesen: {
+                name: 'Lesen',
+                icon: '📖',
+                teile: [
+                    { num: 1, name: 'Anzeigen', desc: 'Kleinanzeigen, Aushänge', level: 'A2', questions: 5 },
+                    { num: 2, name: 'Alltagstexte', desc: 'Briefe, E-Mails, Hinweise', level: 'A2', questions: 5 },
+                    { num: 3, name: 'Arbeitswelttexte', desc: 'Stellenanzeigen, Verträge', level: 'B1', questions: 5 },
+                    { num: 4, name: 'Komplexe Texte', desc: 'Zeitungsartikel, Informationen', level: 'B1', questions: 5 },
+                    { num: 5, name: 'Mehrere Texte', desc: 'Vergleichen, Zuordnen', level: 'B1', questions: 5 }
+                ]
+            },
+            sprechen: {
+                name: 'Sprechen',
+                icon: '🗣️',
+                teile: [
+                    { num: 1, name: 'Sich vorstellen', desc: 'Über sich selbst sprechen', level: 'A2', questions: 4 },
+                    { num: 2, name: 'Thema erzählen', desc: 'Bildbeschreibung, Geschichte', level: 'B1', questions: 4 },
+                    { num: 3, name: 'Diskussion', desc: 'Meinung äußern, argumentieren', level: 'B1', questions: 4 }
+                ]
+            }
+        };
+        
+        // Check URL params for module
+        const urlParams = new URLSearchParams(window.location.search);
+        const moduleParam = urlParams.get('module');
+        if (moduleParam && moduleInfo[moduleParam]) {
+            selectModule(moduleParam);
+        }
+        
+        function selectModule(module) {
+            currentModule = module;
+            currentTeil = null;
+            currentQuestion = 0;
+            
+            // Update UI
+            document.querySelectorAll('.module-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.module === module) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Show teile
+            const info = moduleInfo[module];
+            const grid = document.getElementById('teil-grid');
+            
+            grid.innerHTML = info.teile.map(teil => `
+                <div class="teil-card" onclick="selectTeil(${teil.num})">
+                    <div class="teil-header">
+                        <span class="teil-number">Teil ${teil.num}</span>
+                        <span class="teil-level">${teil.level}</span>
+                    </div>
+                    <div class="teil-title">${teil.name}</div>
+                    <div class="teil-desc">${teil.desc}</div>
+                    <div class="teil-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0/${teil.questions}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('question-area').classList.remove('active');
+            document.getElementById('stats-bar').style.display = 'none';
+        }
+        
+        async function selectTeil(teilNum) {
+            currentTeil = teilNum;
+            currentQuestion = 0;
+            correctCount = 0;
+            streak = 0;
+            
+            // Load questions from API
+            await loadQuestions();
+            
+            // Show question area
+            document.getElementById('teil-grid').innerHTML = '';
+            document.getElementById('question-area').classList.add('active');
+            document.getElementById('stats-bar').style.display = 'flex';
+            
+            updateStats();
+            showQuestion();
+        }
+        
+        async function loadQuestions() {
+            try {
+                const response = await fetch(`${API_BASE}/questions/session.php?module=${currentModule}&teil=${currentTeil}`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    questions = data.questions;
+                } else {
+                    // Fallback: generate mock questions
+                    generateMockQuestions();
+                }
+            } catch (err) {
+                console.error('Failed to load questions:', err);
+                generateMockQuestions();
+            }
+        }
+        
+        function generateMockQuestions() {
+            // Generate sample questions based on module and teil
+            const count = moduleInfo[currentModule].teile.find(t => t.num === currentTeil).questions;
+            questions = [];
+            
+            for (let i = 0; i < count; i++) {
+                questions.push({
+                    id: i,
+                    question_text: `Beispielfrage ${i + 1} für ${currentModule} Teil ${currentTeil}`,
+                    options: ['Antwort A', 'Antwort B', 'Antwort C', 'Antwort D'],
+                    correct: 'A',
+                    explanation: 'Das ist die Erklärung zur richtigen Antwort.'
+                });
+            }
+        }
+        
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                showResults();
+                return;
+            }
+            
+            const q = questions[currentQuestion];
+            answered = false;
+            selectedAnswer = null;
+            
+            // Update question text
+            document.getElementById('question-text').textContent = q.question_text || q.content?.question || 'Frage lädt...';
+            
+            // Update options
+            const optionsDiv = document.getElementById('answer-options');
+            const options = q.options || (q.content ? JSON.parse(q.content).options : ['A', 'B', 'C', 'D']);
+            
+            optionsDiv.innerHTML = options.map((opt, idx) => `
+                <div class="answer-option" onclick="selectAnswer('${String.fromCharCode(65 + idx)}', this)">
+                    ${opt}
+                </div>
+            `).join('');
+            
+            // Show/hide audio player
+            document.getElementById('audio-player').style.display = 
+                currentModule === 'hoeren' ? 'flex' : 'none';
+            
+            // Hide feedback
+            document.getElementById('feedback-box').classList.remove('show');
+            
+            updateStats();
+        }
+        
+        function selectAnswer(answer, element) {
+            if (answered) return;
+            
+            selectedAnswer = answer;
+            
+            // Update UI
+            document.querySelectorAll('.answer-option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+        
+        function checkAnswer() {
+            if (!selectedAnswer || answered) return;
+            
+            answered = true;
+            const q = questions[currentQuestion];
+            const correct = q.correct || q.correct_answer?.answer || 'A';
+            
+            // Show correct/wrong
+            document.querySelectorAll('.answer-option').forEach((el, idx) => {
+                const letter = String.fromCharCode(65 + idx);
+                if (letter === correct) {
+                    el.classList.add('correct');
+                } else if (letter === selectedAnswer && selectedAnswer !== correct) {
+                    el.classList.add('wrong');
+                }
+            });
+            
+            // Show feedback
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            if (selectedAnswer === correct) {
+                feedbackBox.className = 'feedback-box correct show';
+                feedbackText.innerHTML = '<strong>✓ Richtig!</strong><br>' + (q.explanation || 'Gut gemacht!');
+                correctCount++;
+                streak++;
+            } else {
+                feedbackBox.className = 'feedback-box wrong show';
+                feedbackText.innerHTML = '<strong>✗ Falsch</strong><br>Richtig wäre: ' + correct + '<br>' + (q.explanation || '');
+                streak = 0;
+            }
+            
+            updateStats();
+        }
+        
+        function nextQuestion() {
+            if (!answered) return;
+            currentQuestion++;
+            showQuestion();
+        }
+        
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('current-q').textContent = Math.min(currentQuestion + 1, questions.length);
+            document.getElementById('total-q').textContent = questions.length;
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('streak-count').textContent = streak;
+        }
+        
+        function showResults() {
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            
+            document.getElementById('question-area').innerHTML = `
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">${percentage >= 60 ? '🎉' : '💪'}</div>
+                    <h2>Teil abgeschlossen!</h2>
+                    <p style="font-size: 1.5rem; margin: 1.5rem 0;">
+                        Du hast <strong>${correctCount}/${questions.length}</strong> richtig beantwortet
+                    </p>
+                    <p style="font-size: 2rem; color: var(--accent); font-weight: 700;">${percentage}%</p>
+                    <p style="color: var(--text-muted); margin: 1rem 0;">
+                        ${percentage >= 80 ? 'Sehr gut! Du bist bereit für die Prüfung.' : 
+                          percentage >= 60 ? 'Gut gemacht! Noch etwas üben.' : 
+                          'Übe weiter! Schau dir die Erklärungen an.'}
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                        <a href="learn.html?module=${currentModule}" class="btn-nav" style="text-decoration: none; display: inline-block;">
+                            ← Anderen Teil wählen
+                        </a>
+                        <a href="learn.html" class="btn-check" style="text-decoration: none; display: inline-block;">
+                            Anderes Modul
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function playAudio() {
+            // Demo audio or use speech synthesis
+            if ('speechSynthesis' in window) {
+                const text = `Beispielaudio für ${currentModule} Teil ${currentTeil}, Frage ${currentQuestion + 1}`;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'de-DE';
+                speechSynthesis.speak(utterance);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelltest - DTZ Lernplattform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .timer-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .timer {
+            font-size: 1.5rem;
+            font-weight: 600;
+            font-family: monospace;
+        }
+        
+        .timer.warning {
+            color: #ff4757;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .module-indicator {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .module-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s;
+        }
+        
+        .module-dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+        
+        .module-dot.completed {
+            background: #2ed573;
+        }
+        
+        .audio-player {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .audio-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .audio-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(124, 92, 255, 0.4);
+        }
+        
+        .audio-btn.playing {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .audio-info {
+            flex: 1;
+        }
+        
+        .audio-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .audio-status {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .audio-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .audio-progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        .test-content {
+            margin-top: 80px;
+        }
+        
+        .question-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .question-number {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .answer-option {
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .answer-option:hover {
+            border-color: var(--accent);
+            background: rgba(124, 92, 255, 0.1);
+        }
+        
+        .answer-option.selected {
+            border-color: var(--accent);
+            background: rgba(124, 92, 255, 0.2);
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            background: var(--input-bg);
+            color: var(--text);
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .btn-submit-module {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 2rem;
+        }
+        
+        .btn-submit-module:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 92, 255, 0.3);
+        }
+        
+        .start-screen, .result-screen {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        
+        .start-screen h1, .result-screen h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .info-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .info-card h3 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-start {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(124, 92, 255, 0.4);
+        }
+        
+        .score-display {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+        
+        .score-display.passed {
+            color: #2ed573;
+        }
+        
+        .score-display.failed {
+            color: #ff4757;
+        }
+        
+        .module-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .module-score {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .module-score.weak {
+            border-color: #ff4757;
+        }
+        
+        .module-score.good {
+            border-color: #2ed573;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.5s ease;
+        }
+        
+        .recommendations {
+            text-align: left;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .recommendation {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .recommendation:last-child {
+            border-bottom: none;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-high {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .badge-info {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .badge-success {
+            background: #2ed573;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .info-grid, .module-breakdown {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="start-screen" class="start-screen">
+            <h1>DTZ Modelltest</h1>
+            <p>Vollständige Prüfungssimulation mit Zeitbegrenzung</p>
+            
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>🎧 Hören</h3>
+                    <p>4 Teile • 30 Minuten</p>
+                </div>
+                <div class="info-card">
+                    <h3>📖 Lesen</h3>
+                    <p>5 Teile • 45 Minuten</p>
+                </div>
+                <div class="info-card">
+                    <h3>✍️ Schreiben</h3>
+                    <p>2 Teile • 30 Minuten</p>
+                </div>
+                <div class="info-card">
+                    <h3>🗣️ Sprechen</h3>
+                    <p>3 Teile • 15 Minuten</p>
+                </div>
+            </div>
+            
+            <p><strong>Gesamtdauer:</strong> 120 Minuten</p>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                Der Test kann nicht unterbrochen werden. Stellen Sie sicher, dass Sie genügend Zeit haben.
+            </p>
+            
+            <br><br>
+            <button class="btn-start" onclick="startTest()">Test starten</button>
+        </div>
+        
+        <!-- Test Interface -->
+        <div id="test-interface" style="display: none;">
+            <div class="timer-bar">
+                <div class="module-indicator">
+                    <span id="current-module-name">Hören</span>
+                    <div class="module-dot" data-module="hoeren"></div>
+                    <div class="module-dot" data-module="lesen"></div>
+                    <div class="module-dot" data-module="schreiben"></div>
+                    <div class="module-dot" data-module="sprechen"></div>
+                </div>
+                <div class="timer" id="timer">30:00</div>
+            </div>
+            
+            <div class="test-content" id="questions-container">
+                <!-- Questions loaded here -->
+            </div>
+            
+            <!-- Audio Player (shown for Hören module) -->
+            <div id="audio-player" class="audio-player" style="display: none; max-width: 900px; margin: 0 auto 1.5rem;">
+                <button class="audio-btn" id="audio-btn" onclick="playAudioForCurrentQuestion()">▶️</button>
+                <div class="audio-info">
+                    <div class="audio-title">🎧 Audio abspielen</div>
+                    <div class="audio-status" id="audio-status">Bereit</div>
+                    <div class="audio-progress">
+                        <div class="audio-progress-bar" id="audio-progress"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="max-width: 900px; margin: 0 auto; padding: 0 2rem 2rem;">
+                <button class="btn-submit-module" onclick="submitModule()">
+                    Teil abschließen & weiter
+                </button>
+            </div>
+        </div>
+        
+        <!-- Result Screen -->
+        <div id="result-screen" class="result-screen" style="display: none;">
+            <h1>Test Ergebnis</h1>
+            <div id="score-display" class="score-display">--</div>
+            <p id="level-estimate">Geschätztes Niveau: --</p>
+            
+            <div class="module-breakdown" id="module-breakdown">
+                <!-- Module scores -->
+            </div>
+            
+            <div class="recommendations" id="recommendations">
+                <h3>Empfehlungen</h3>
+                <div id="recommendations-list"></div>
+            </div>
+            
+            <br><br>
+            <button class="btn-start" onclick="location.reload()">Neuer Test</button>
+        </div>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        let attemptId = null;
+        let currentModule = null;
+        let timerInterval = null;
+        let endTime = null;
+        let answers = {};
+        let currentAudio = null;
+        let audioPlaying = false;
+        
+        // Check auth on load
+        checkAuth();
+        
+        // Audio functions
+        async function playAudio(text, scenario = 'default') {
+            if (audioPlaying && currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+                audioPlaying = false;
+                updateAudioButton(false);
+                return;
+            }
+            
+            const token = localStorage.getItem('access_token');
+            const btn = document.getElementById('audio-btn');
+            const statusEl = document.getElementById('audio-status');
+            
+            try {
+                statusEl.textContent = 'Laden...';
+                btn.disabled = true;
+                
+                const response = await fetch(`${API_BASE}/tts/generate.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        scenario: scenario,
+                        teil: currentModule === 'hoeren' ? 1 : null
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.demo) {
+                        // Demo mode - use speech synthesis as fallback
+                        if ('speechSynthesis' in window) {
+                            const utterance = new SpeechSynthesisUtterance(text);
+                            utterance.lang = 'de-DE';
+                            utterance.onstart = () => {
+                                audioPlaying = true;
+                                updateAudioButton(true);
+                                statusEl.textContent = 'Wiedergabe...';
+                            };
+                            utterance.onend = () => {
+                                audioPlaying = false;
+                                updateAudioButton(false);
+                                statusEl.textContent = 'Bereit';
+                            };
+                            speechSynthesis.speak(utterance);
+                            currentAudio = { pause: () => speechSynthesis.cancel() };
+                        } else {
+                            alert('Demo modu: Ses çalma desteklenmiyor');
+                        }
+                    } else if (data.audio) {
+                        // Play Azure TTS audio
+                        const audioBlob = new Blob([Uint8Array.from(atob(data.audio), c => c.charCodeAt(0))], { type: 'audio/mp3' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        currentAudio = new Audio(audioUrl);
+                        
+                        currentAudio.onplay = () => {
+                            audioPlaying = true;
+                            updateAudioButton(true);
+                            statusEl.textContent = 'Wiedergabe...';
+                        };
+                        
+                        currentAudio.onended = () => {
+                            audioPlaying = false;
+                            updateAudioButton(false);
+                            statusEl.textContent = 'Bereit';
+                            URL.revokeObjectURL(audioUrl);
+                        };
+                        
+                        currentAudio.onerror = () => {
+                            audioPlaying = false;
+                            updateAudioButton(false);
+                            statusEl.textContent = 'Fehler';
+                        };
+                        
+                        currentAudio.play();
+                    }
+                } else {
+                    statusEl.textContent = 'Fehler';
+                    alert('Ses yüklenemedi: ' + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                statusEl.textContent = 'Fehler';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        function updateAudioButton(playing) {
+            const btn = document.getElementById('audio-btn');
+            if (playing) {
+                btn.innerHTML = '⏸️';
+                btn.classList.add('playing');
+            } else {
+                btn.innerHTML = '▶️';
+                btn.classList.remove('playing');
+            }
+        }
+        
+        async function startTest() {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/modelltest/start.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    attemptId = data.attempt_id;
+                    currentModule = data.current_module;
+                    loadModule(data.questions, data.time_limits[currentModule]);
+                    
+                    document.getElementById('start-screen').style.display = 'none';
+                    document.getElementById('test-interface').style.display = 'block';
+                } else if (data.attempt_id) {
+                    // Resume existing
+                    attemptId = data.attempt_id;
+                    loadTestStatus();
+                } else {
+                    alert(data.error || 'Fehler beim Starten');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Verbindungsfehler');
+            }
+        }
+        
+        async function loadTestStatus() {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/modelltest/status.php?id=${attemptId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.attempt.status === 'completed') {
+                        showResults(data.attempt.id);
+                        return;
+                    }
+                    
+                    currentModule = data.attempt.current_module;
+                    loadModule(data.questions, data.attempt.module_end_time);
+                    
+                    document.getElementById('start-screen').style.display = 'none';
+                    document.getElementById('test-interface').style.display = 'block';
+                    
+                    // Restore previous answers if any
+                    // (would need to track answers per module)
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        
+        function loadModule(questions, moduleEndTime) {
+            answers = {};
+            endTime = new Date(moduleEndTime);
+            
+            // Update module indicator
+            document.querySelectorAll('.module-dot').forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.dataset.module === currentModule) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Update module name
+            const moduleNames = {
+                'hoeren': '🎧 Hören',
+                'lesen': '📖 Lesen',
+                'schreiben': '✍️ Schreiben',
+                'sprechen': '🗣️ Sprechen'
+            };
+            document.getElementById('current-module-name').textContent = moduleNames[currentModule];
+            
+            // Show/hide audio player for Hören module
+            const audioPlayer = document.getElementById('audio-player');
+            if (currentModule === 'hoeren') {
+                audioPlayer.style.display = 'flex';
+            } else {
+                audioPlayer.style.display = 'none';
+                if (currentAudio) {
+                    currentAudio.pause();
+                    audioPlaying = false;
+                    updateAudioButton(false);
+                }
+            }
+            
+            // Render questions
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            
+            questions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.innerHTML = `
+                    <div class="question-number">Frage ${idx + 1} <span style="color: var(--text-muted);">(${q.points || 5} Punkte)</span></div>
+                    <div class="question-text">${q.question_text}</div>
+                    <div id="answers-${q.id}"></div>
+                `;
+                
+                const answersContainer = card.querySelector(`#answers-${q.id}`);
+                
+                if (q.question_type === 'multiple_choice' && q.options) {
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'answer-options';
+                    
+                    q.options.forEach(opt => {
+                        const option = document.createElement('div');
+                        option.className = 'answer-option';
+                        option.textContent = opt;
+                        option.onclick = () => selectAnswer(q.id, opt, option);
+                        optionsDiv.appendChild(option);
+                    });
+                    
+                    answersContainer.appendChild(optionsDiv);
+                } else {
+                    const input = document.createElement('textarea');
+                    input.className = 'answer-input';
+                    input.placeholder = 'Ihre Antwort...';
+                    input.onchange = (e) => answers[q.id] = e.target.value;
+                    answersContainer.appendChild(input);
+                }
+                
+                container.appendChild(card);
+            });
+            
+            // Start timer
+            startTimer();
+        }
+        
+        function selectAnswer(questionId, value, element) {
+            answers[questionId] = value;
+            
+            // Visual feedback
+            const container = element.parentElement;
+            container.querySelectorAll('.answer-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+        
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const remaining = Math.max(0, endTime - now);
+                
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                
+                const timerEl = document.getElementById('timer');
+                timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Warning when less than 5 minutes
+                if (remaining < 300000) {
+                    timerEl.classList.add('warning');
+                }
+                
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    submitModule();
+                }
+            }, 1000);
+        }
+        
+        function playAudioForCurrentQuestion() {
+            // Get current question text or generate sample text
+            const questions = document.querySelectorAll('.question-text');
+            let text = '';
+            
+            if (questions.length > 0) {
+                // Combine all question texts for audio
+                text = Array.from(questions).map(q => q.textContent).join('. ');
+            }
+            
+            if (!text) {
+                text = 'Sehr geehrte Damen und Herren, willkommen zum Hören-Teil des DTZ Tests.';
+            }
+            
+            // Map teil to scenario
+            const scenarioMap = {
+                'hoeren': 'phone',
+                'lesen': 'default',
+                'schreiben': 'default',
+                'sprechen': 'conversation'
+            };
+            
+            playAudio(text, scenarioMap[currentModule] || 'default');
+        }
+        
+        async function submitModule() {
+            clearInterval(timerInterval);
+            
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/modelltest/answer.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        attempt_id: attemptId,
+                        module: currentModule,
+                        answers: answers
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.completed) {
+                    showResults(attemptId);
+                } else if (data.success) {
+                    // Load next module
+                    loadTestStatus();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Fehler beim Speichern');
+            }
+        }
+        
+        async function showResults(attemptId) {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/modelltest/result.php?id=${attemptId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('test-interface').style.display = 'none';
+                    document.getElementById('result-screen').style.display = 'block';
+                    
+                    const result = data.result;
+                    
+                    // Overall score
+                    const scoreEl = document.getElementById('score-display');
+                    scoreEl.textContent = `${result.overall.percentage}%`;
+                    scoreEl.className = 'score-display ' + (result.overall.passed ? 'passed' : 'failed');
+                    
+                    document.getElementById('level-estimate').textContent = 
+                        `Geschätztes Niveau: ${result.overall.estimated_level}`;
+                    
+                    // Module breakdown
+                    const breakdown = document.getElementById('module-breakdown');
+                    breakdown.innerHTML = '';
+                    
+                    const moduleNames = {
+                        'hoeren': 'Hören',
+                        'lesen': 'Lesen',
+                        'schreiben': 'Schreiben',
+                        'sprechen': 'Sprechen'
+                    };
+                    
+                    for (const [key, mod] of Object.entries(result.modules)) {
+                        const div = document.createElement('div');
+                        div.className = 'module-score ' + mod.strength;
+                        div.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>${moduleNames[key]}</strong>
+                                <span>${mod.percentage}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${mod.percentage}%"></div>
+                            </div>
+                            <div style="margin-top: 0.25rem; color: var(--text-muted); font-size: 0.9rem;">
+                                ${mod.score} / ${mod.max} Punkte
+                            </div>
+                        `;
+                        breakdown.appendChild(div);
+                    }
+                    
+                    // Recommendations
+                    const recsList = document.getElementById('recommendations-list');
+                    recsList.innerHTML = '';
+                    
+                    result.recommendations.forEach(rec => {
+                        const badgeClass = rec.priority === 'high' ? 'badge-high' : 
+                                          rec.priority === 'info' ? 'badge-info' : 'badge-success';
+                        const badgeText = rec.priority === 'high' ? 'WICHTIG' : 
+                                         rec.priority === 'info' ? 'INFO' : 'TIPP';
+                        
+                        const div = document.createElement('div');
+                        div.className = 'recommendation';
+                        div.innerHTML = `
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                            ${rec.message}
+                        `;
+                        recsList.appendChild(div);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

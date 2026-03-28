@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Fortschritt - DTZ Lernplattform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+        }
+        
+        .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 92, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            font-size: 1.75rem;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .stat-change {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .stat-change.positive {
+            color: #2ed573;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .chart-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+        
+        .skill-analysis {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .skill-item:last-child {
+            border-bottom: none;
+        }
+        
+        .skill-name {
+            width: 120px;
+            font-weight: 600;
+        }
+        
+        .skill-bar {
+            flex: 1;
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .skill-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        
+        .skill-fill.hoeren { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+        .skill-fill.lesen { background: linear-gradient(90deg, #2ed573, #1dd1a1); }
+        .skill-fill.schreiben { background: linear-gradient(90deg, #ffa502, #ff6348); }
+        .skill-fill.sprechen { background: linear-gradient(90deg, #ff4757, #ff6b81); }
+        
+        .skill-score {
+            width: 60px;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .skill-status {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-strong {
+            background: #2ed573;
+            color: white;
+        }
+        
+        .status-weak {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .status-ok {
+            background: #ffa502;
+            color: #000;
+        }
+        
+        .recommendations {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .recommendations h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .recommendation-item {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid;
+        }
+        
+        .recommendation-item.high {
+            background: rgba(255, 71, 87, 0.1);
+            border-color: #ff4757;
+        }
+        
+        .recommendation-item.medium {
+            background: rgba(255, 165, 2, 0.1);
+            border-color: #ffa502;
+        }
+        
+        .recommendation-item.low {
+            background: rgba(46, 213, 115, 0.1);
+            border-color: #2ed573;
+        }
+        
+        .recommendation-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .recommendation-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">DTZ Learning</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="learn.html" class="nav-link">📚 Lernen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="modelltest.html" class="nav-link">📝 Modelltest</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="writing.html" class="nav-link">✍️ Schreiben</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="progress.html" class="nav-link active">📈 Fortschritt</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" onclick="logout()" class="nav-link">🚪 Abmelden</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>📈 Mein Fortschritt</h1>
+                <span id="current-date"></span>
+            </div>
+            
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-questions">0</div>
+                    <div class="stat-label">Fragen beantwortet</div>
+                    <div class="stat-change positive">+12 diese Woche</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="accuracy-rate">0%</div>
+                    <div class="stat-label">Richtigkeitsrate</div>
+                    <div class="stat-change positive">+5% vs. letzte Woche</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="study-streak">0</div>
+                    <div class="stat-label">Tage Serie</div>
+                    <div class="stat-change positive">🔥 Weiter so!</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="modelltests">0</div>
+                    <div class="stat-label">Modelltests</div>
+                    <div class="stat-change positive">Bester: B1</div>
+                </div>
+            </div>
+            
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3>📊 Aktivität der letzten 30 Tage</h3>
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <h3>📈 Modul-Fortschritt</h3>
+                    <div class="chart-container">
+                        <canvas id="moduleChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card full-width">
+                    <h3>🎯 Fähigkeiten-Analyse</h3>
+                    <div class="skill-analysis" id="skill-analysis">
+                        <!-- Skills will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <h3>📅 Wochenvergleich</h3>
+                    <div class="chart-container">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <h3>⏱️ Zeitverteilung</h3>
+                    <div class="chart-container">
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendations">
+                <h3>💡 Persönliche Empfehlungen</h3>
+                <div id="recommendations-list">
+                    <!-- Recommendations will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkAuth();
+        
+        // Set current date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('de-DE', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Sample data - in real app, this would come from API
+        const sampleData = {
+            totalQuestions: 245,
+            accuracyRate: 72,
+            streak: 12,
+            modelltests: 5,
+            skills: {
+                hoeren: { score: 78, accuracy: 75 },
+                lesen: { score: 82, accuracy: 80 },
+                schreiben: { score: 65, accuracy: 60 },
+                sprechen: { score: 70, accuracy: 68 }
+            },
+            activity: [5, 8, 12, 15, 10, 8, 20, 18, 15, 12, 8, 10, 15, 20, 25, 18, 15, 12, 10, 8, 15, 20, 22, 18, 15, 12, 10, 15, 18, 20],
+            weekly: [45, 52, 48, 60, 55, 62, 58]
+        };
+        
+        // Update stats
+        document.getElementById('total-questions').textContent = sampleData.totalQuestions;
+        document.getElementById('accuracy-rate').textContent = sampleData.accuracyRate + '%';
+        document.getElementById('study-streak').textContent = sampleData.streak;
+        document.getElementById('modelltests').textContent = sampleData.modelltests;
+        
+        // Activity Chart
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        new Chart(activityCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 30}, (_, i) => `${i + 1}.`),
+                datasets: [{
+                    label: 'Fragen pro Tag',
+                    data: sampleData.activity,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        
+        // Module Progress Chart
+        const moduleCtx = document.getElementById('moduleChart').getContext('2d');
+        new Chart(moduleCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Hören', 'Lesen', 'Schreiben', 'Sprechen'],
+                datasets: [{
+                    label: 'Fähigkeiten',
+                    data: [
+                        sampleData.skills.hoeren.score,
+                        sampleData.skills.lesen.score,
+                        sampleData.skills.schreiben.score,
+                        sampleData.skills.sprechen.score
+                    ],
+                    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                    borderColor: '#8b5cf6',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#8b5cf6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        angleLines: { color: 'rgba(255,255,255,0.1)' },
+                        pointLabels: {
+                            color: '#fff',
+                            font: { size: 12 }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Weekly Comparison Chart
+        const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+        new Chart(weeklyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+                datasets: [{
+                    label: 'Diese Woche',
+                    data: sampleData.weekly,
+                    backgroundColor: '#8b5cf6',
+                    borderRadius: 6
+                }, {
+                    label: 'Letzte Woche',
+                    data: [40, 45, 50, 48, 52, 45, 50],
+                    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        labels: { color: '#fff' }
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        
+        // Time Distribution Chart
+        const timeCtx = document.getElementById('timeChart').getContext('2d');
+        new Chart(timeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Hören', 'Lesen', 'Schreiben', 'Sprechen'],
+                datasets: [{
+                    data: [30, 35, 20, 15],
+                    backgroundColor: [
+                        '#6366f1',
+                        '#2ed573',
+                        '#ffa502',
+                        '#ff4757'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#fff' }
+                    }
+                }
+            }
+        });
+        
+        // Render Skills Analysis
+        function renderSkills() {
+            const skillsDiv = document.getElementById('skill-analysis');
+            const skills = [
+                { name: 'Hören', key: 'hoeren', icon: '🎧' },
+                { name: 'Lesen', key: 'lesen', icon: '📖' },
+                { name: 'Schreiben', key: 'schreiben', icon: '✍️' },
+                { name: 'Sprechen', key: 'sprechen', icon: '🗣️' }
+            ];
+            
+            skillsDiv.innerHTML = skills.map(skill => {
+                const data = sampleData.skills[skill.key];
+                let status = 'ok';
+                let statusText = 'OK';
+                if (data.score >= 75) {
+                    status = 'strong';
+                    statusText = 'Stark';
+                } else if (data.score < 60) {
+                    status = 'weak';
+                    statusText = 'Schwach';
+                }
+                
+                return `
+                    <div class="skill-item">
+                        <span class="skill-name">${skill.icon} ${skill.name}</span>
+                        <div class="skill-bar">
+                            <div class="skill-fill ${skill.key}" style="width: ${data.score}%"></div>
+                        </div>
+                        <span class="skill-score">${data.score}%</span>
+                        <span class="skill-status">
+                            <span class="status-badge status-${status}">${statusText}</span>
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        renderSkills();
+        
+        // Render Recommendations
+        function renderRecommendations() {
+            const recDiv = document.getElementById('recommendations-list');
+            const recommendations = [
+                {
+                    priority: 'high',
+                    title: 'Schreiben verbessern',
+                    desc: 'Ihre Schreibfähigkeiten sind unter 70%. Üben Sie mehr Briefe zu schreiben und achten Sie auf die 4 Bewertungskriterien.'
+                },
+                {
+                    priority: 'medium',
+                    title: 'Lesen üben',
+                    desc: 'Lesen Sie täglich deutsche Nachrichten oder einfache Bücher. Das wird Ihr Verständnis verbessern.'
+                },
+                {
+                    priority: 'low',
+                    title: 'Weiter so!',
+                    desc: 'Ihre Hörfähigkeiten sind sehr gut. Behalten Sie Ihren Lernrhythmus bei.'
+                }
+            ];
+            
+            recDiv.innerHTML = recommendations.map(rec => `
+                <div class="recommendation-item ${rec.priority}">
+                    <div class="recommendation-title">${rec.title}</div>
+                    <div class="recommendation-desc">${rec.desc}</div>
+                </div>
+            `).join('');
+        }
+        
+        renderRecommendations();
+        
+        // Load real data from API
+        async function loadProgressData() {
+            try {
+                const response = await fetch(`${API_BASE}/user/stats.php`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update with real data
+                    document.getElementById('total-questions').textContent = data.stats.total_questions || 0;
+                    document.getElementById('accuracy-rate').textContent = (data.stats.accuracy || 0) + '%';
+                    document.getElementById('modelltests').textContent = data.stats.modelltests || 0;
+                    document.getElementById('study-streak').textContent = data.stats.streak || 0;
+                }
+            } catch (err) {
+                console.error('Failed to load progress data:', err);
+            }
+        }
+        
+        loadProgressData();
+    </script>
+</body>
+</html>

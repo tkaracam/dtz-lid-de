@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragen verwalten - Admin</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+        }
+        
+        .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-badge {
+            background: linear-gradient(135deg, #ff4757, #ff6348);
+            color: white;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 92, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.75rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filters select, .filters input {
+            width: auto;
+            min-width: 150px;
+        }
+        
+        .data-table {
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+        }
+        
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .data-table th {
+            background: rgba(124, 92, 255, 0.1);
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-module {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .badge-level {
+            background: rgba(124, 92, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .btn-icon {
+            padding: 0.5rem;
+            border: none;
+            background: none;
+            color: var(--text);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background: rgba(124, 92, 255, 0.2);
+        }
+        
+        .btn-icon.delete:hover {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            border-color: var(--accent);
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination button.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal h2 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .option-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .option-row input[type="radio"] {
+            width: auto;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .modal-actions button {
+            flex: 1;
+        }
+        
+        @media (max-width: 1024px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                DTZ <span class="admin-badge">ADMIN</span>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="users.html" class="nav-link">👥 Benutzer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="questions.html" class="nav-link active">❓ Fragen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="writing.html" class="nav-link">✍️ Schreiben</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" onclick="logout()" class="nav-link">🚪 Abmelden</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Fragen verwalten</h1>
+                <button class="btn btn-primary" onclick="showCreateModal()">➕ Neue Frage</button>
+            </div>
+            
+            <div class="filters">
+                <select class="input" id="filter-module" onchange="loadQuestions()">
+                    <option value="">Alle Module</option>
+                    <option value="hoeren">Hören</option>
+                    <option value="lesen">Lesen</option>
+                    <option value="schreiben">Schreiben</option>
+                    <option value="sprechen">Sprechen</option>
+                </select>
+                <select class="input" id="filter-level" onchange="loadQuestions()">
+                    <option value="">Alle Level</option>
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                </select>
+            </div>
+            
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Modul</th>
+                            <th>Teil</th>
+                            <th>Level</th>
+                            <th>Typ</th>
+                            <th>Punkte</th>
+                            <th>Schwierigkeit</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questions-table">
+                        <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Laden...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination" id="pagination"></div>
+        </main>
+    </div>
+    
+    <!-- Create/Edit Modal -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal">
+            <h2 id="modal-title">Neue Frage</h2>
+            <input type="hidden" id="edit-id">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Modul</label>
+                    <select class="input" id="edit-module">
+                        <option value="hoeren">Hören</option>
+                        <option value="lesen">Lesen</option>
+                        <option value="schreiben">Schreiben</option>
+                        <option value="sprechen">Sprechen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Teil</label>
+                    <input type="number" class="input" id="edit-teil" min="1" max="5" value="1">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Level</label>
+                    <select class="input" id="edit-level">
+                        <option value="A1">A1</option>
+                        <option value="A2" selected>A2</option>
+                        <option value="B1">B1</option>
+                        <option value="B2">B2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fragentyp</label>
+                    <select class="input" id="edit-type">
+                        <option value="multiple_choice">Multiple Choice</option>
+                        <option value="text_input">Text Input</option>
+                        <option value="matching">Matching</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Frage</label>
+                <textarea class="input" id="edit-question" rows="3" placeholder="Fragentext hier eingeben..."></textarea>
+            </div>
+            
+            <div id="options-section">
+                <div class="form-group">
+                    <label>Optionen</label>
+                    <div class="options-list" id="options-list">
+                        <div class="option-row">
+                            <input type="radio" name="correct" value="0" checked>
+                            <input type="text" class="input" placeholder="Option A" id="opt-0">
+                        </div>
+                        <div class="option-row">
+                            <input type="radio" name="correct" value="1">
+                            <input type="text" class="input" placeholder="Option B" id="opt-1">
+                        </div>
+                        <div class="option-row">
+                            <input type="radio" name="correct" value="2">
+                            <input type="text" class="input" placeholder="Option C" id="opt-2">
+                        </div>
+                        <div class="option-row">
+                            <input type="radio" name="correct" value="3">
+                            <input type="text" class="input" placeholder="Option D" id="opt-3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Punkte</label>
+                    <input type="number" class="input" id="edit-points" value="5" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label>Schwierigkeit (1-10)</label>
+                    <input type="number" class="input" id="edit-difficulty" value="5" min="1" max="10">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="edit-active" checked> Aktiv
+                </label>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()" style="background: var(--glass-bg);">Abbrechen</button>
+                <button class="btn btn-primary" onclick="saveQuestion()">Speichern</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        const user = getUser();
+        if (!user || user.role !== 'admin') {
+            window.location.href = 'login.html';
+        }
+        
+        let currentPage = 1;
+        
+        async function loadQuestions(page = 1) {
+            currentPage = page;
+            const module = document.getElementById('filter-module').value;
+            const level = document.getElementById('filter-level').value;
+            
+            let url = `${API_BASE}/admin/questions.php?page=${page}`;
+            if (module) url += `&module=${module}`;
+            if (level) url += `&level=${level}`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderQuestions(data.questions);
+                    renderPagination(data.page, data.pages);
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('questions-table').innerHTML = 
+                    '<tr><td colspan="8" style="text-align: center; color: #ff4757;">Verbindungsfehler</td></tr>';
+            }
+        }
+        
+        function renderQuestions(questions) {
+            const tbody = document.getElementById('questions-table');
+            
+            if (questions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Keine Fragen gefunden</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = questions.map(q => `
+                <tr>
+                    <td>${q.id}</td>
+                    <td><span class="badge badge-module">${q.module}</span></td>
+                    <td>${q.teil}</td>
+                    <td><span class="badge badge-level">${q.level}</span></td>
+                    <td>${q.question_type}</td>
+                    <td>${q.points}</td>
+                    <td>${q.difficulty}/10</td>
+                    <td>
+                        <button class="btn-icon" onclick="editQuestion(${q.id})">✏️</button>
+                        <button class="btn-icon delete" onclick="deleteQuestion(${q.id})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function renderPagination(current, total) {
+            const div = document.getElementById('pagination');
+            if (total <= 1) {
+                div.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            html += `<button ${current === 1 ? 'disabled' : ''} onclick="loadQuestions(${current - 1})">←</button>`;
+            
+            for (let i = 1; i <= total; i++) {
+                if (i === 1 || i === total || (i >= current - 1 && i <= current + 1)) {
+                    html += `<button class="${i === current ? 'active' : ''}" onclick="loadQuestions(${i})">${i}</button>`;
+                } else if (i === current - 2 || i === current + 2) {
+                    html += `<span>...</span>`;
+                }
+            }
+            
+            html += `<button ${current === total ? 'disabled' : ''} onclick="loadQuestions(${current + 1})">→</button>`;
+            div.innerHTML = html;
+        }
+        
+        function showCreateModal() {
+            document.getElementById('modal-title').textContent = 'Neue Frage';
+            document.getElementById('edit-id').value = '';
+            document.getElementById('edit-module').value = 'hoeren';
+            document.getElementById('edit-teil').value = 1;
+            document.getElementById('edit-level').value = 'A2';
+            document.getElementById('edit-type').value = 'multiple_choice';
+            document.getElementById('edit-question').value = '';
+            document.getElementById('edit-points').value = 5;
+            document.getElementById('edit-difficulty').value = 5;
+            document.getElementById('edit-active').checked = true;
+            
+            // Clear options
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`opt-${i}`).value = '';
+            }
+            
+            document.getElementById('edit-modal').classList.add('active');
+        }
+        
+        async function editQuestion(id) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/questions.php?id=${id}`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const q = data.question;
+                    document.getElementById('modal-title').textContent = 'Frage bearbeiten';
+                    document.getElementById('edit-id').value = q.id;
+                    document.getElementById('edit-module').value = q.module;
+                    document.getElementById('edit-teil').value = q.teil;
+                    document.getElementById('edit-level').value = q.level;
+                    document.getElementById('edit-type').value = q.question_type;
+                    document.getElementById('edit-question').value = q.content?.question || '';
+                    document.getElementById('edit-points').value = q.points;
+                    document.getElementById('edit-difficulty').value = q.difficulty;
+                    document.getElementById('edit-active').checked = q.is_active;
+                    
+                    // Fill options
+                    if (q.content?.options) {
+                        q.content.options.forEach((opt, i) => {
+                            if (document.getElementById(`opt-${i}`)) {
+                                document.getElementById(`opt-${i}`).value = opt;
+                            }
+                        });
+                    }
+                    
+                    document.getElementById('edit-modal').classList.add('active');
+                }
+            } catch (err) {
+                alert('Fehler beim Laden');
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+        }
+        
+        async function saveQuestion() {
+            const id = document.getElementById('edit-id').value;
+            const isEdit = !!id;
+            
+            // Build options array
+            const options = [];
+            let correctAnswer = '';
+            for (let i = 0; i < 4; i++) {
+                const optValue = document.getElementById(`opt-${i}`).value.trim();
+                if (optValue) {
+                    options.push(optValue);
+                    if (document.querySelector(`input[name="correct"][value="${i}"]`).checked) {
+                        correctAnswer = optValue.charAt(0); // A, B, C, or D
+                    }
+                }
+            }
+            
+            const data = {
+                module: document.getElementById('edit-module').value,
+                teil: parseInt(document.getElementById('edit-teil').value),
+                level: document.getElementById('edit-level').value,
+                question_type: document.getElementById('edit-type').value,
+                content: {
+                    question: document.getElementById('edit-question').value,
+                    options: options
+                },
+                correct_answer: { answer: correctAnswer },
+                points: parseInt(document.getElementById('edit-points').value),
+                difficulty: parseInt(document.getElementById('edit-difficulty').value),
+                is_active: document.getElementById('edit-active').checked ? 1 : 0
+            };
+            
+            if (isEdit) {
+                data.id = parseInt(id);
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/questions.php`, {
+                    method: isEdit ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal();
+                    loadQuestions(currentPage);
+                } else {
+                    alert('Fehler: ' + result.error);
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        }
+        
+        async function deleteQuestion(id) {
+            if (!confirm('Frage wirklich deaktivieren?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/questions.php?id=${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadQuestions(currentPage);
+                } else {
+                    alert('Fehler: ' + result.error);
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        }
+        
+        // Close modal on outside click
+        document.getElementById('edit-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('edit-modal')) {
+                closeModal();
+            }
+        });
+        
+        // Load on start
+        loadQuestions();
+    </script>
+</body>
+</html>

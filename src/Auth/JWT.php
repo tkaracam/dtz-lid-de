@@ -3,98 +3,55 @@ declare(strict_types=1);
 
 namespace DTZ\Auth;
 
-/**
- * Simple JWT Implementation
- * No external dependencies required
- */
-class JWT
-{
+class JWT {
     private string $secret;
-    private string $algorithm = 'HS256';
+    private int $expiration;
     
-    public function __construct(string $secret)
-    {
-        if (strlen($secret) < 32) {
-            throw new \InvalidArgumentException('JWT secret must be at least 32 characters');
-        }
+    public function __construct(string $secret, int $expiration = 86400) {
         $this->secret = $secret;
+        $this->expiration = $expiration;
     }
     
-    /**
-     * Generate JWT token
-     */
-    public function generate(array $payload, int $ttl = 3600): string
-    {
-        $header = [
-            'typ' => 'JWT',
-            'alg' => $this->algorithm
-        ];
+    public function generate(array $payload): string {
+        $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
         
         $time = time();
         $payload['iat'] = $time;
-        $payload['exp'] = $time + $ttl;
-        $payload['jti'] = bin2hex(random_bytes(16)); // Unique token ID
+        $payload['exp'] = $time + $this->expiration;
         
-        $headerEncoded = $this->base64UrlEncode(json_encode($header));
-        $payloadEncoded = $this->base64UrlEncode(json_encode($payload));
+        $payloadEncoded = json_encode($payload);
         
-        $signature = hash_hmac('sha256', "$headerEncoded.$payloadEncoded", $this->secret, true);
-        $signatureEncoded = $this->base64UrlEncode($signature);
+        $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
+        $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payloadEncoded));
         
-        return "$headerEncoded.$payloadEncoded.$signatureEncoded";
+        $signature = hash_hmac('sha256', "$base64Header.$base64Payload", $this->secret, true);
+        $base64Signature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+        
+        return "$base64Header.$base64Payload.$base64Signature";
     }
     
-    /**
-     * Validate and decode JWT token
-     */
-    public function decode(string $token): ?array
-    {
+    public function verify(string $token): ?array {
         $parts = explode('.', $token);
         
         if (count($parts) !== 3) {
             return null;
         }
         
-        [$headerEncoded, $payloadEncoded, $signatureEncoded] = $parts;
+        [$base64Header, $base64Payload, $base64Signature] = $parts;
         
-        // Verify signature
-        $signature = hash_hmac('sha256', "$headerEncoded.$payloadEncoded", $this->secret, true);
-        $expectedSignature = $this->base64UrlEncode($signature);
+        $signature = hash_hmac('sha256', "$base64Header.$base64Payload", $this->secret, true);
+        $expectedSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
         
-        if (!hash_equals($expectedSignature, $signatureEncoded)) {
+        if (!hash_equals($expectedSignature, $base64Signature)) {
             return null;
         }
         
-        // Decode payload
-        $payload = json_decode($this->base64UrlDecode($payloadEncoded), true);
+        $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $base64Payload)), true);
         
-        if (!$payload) {
-            return null;
-        }
-        
-        // Check expiration
-        if (isset($payload['exp']) && $payload['exp'] < time()) {
+        if (!$payload || ($payload['exp'] ?? 0) < time()) {
             return null;
         }
         
         return $payload;
-    }
-    
-    /**
-     * Generate refresh token
-     */
-    public function generateRefreshToken(int $userId): string
-    {
-        return bin2hex(random_bytes(32));
-    }
-    
-    private function base64UrlEncode(string $data): string
-    {
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
-    }
-    
-    private function base64UrlDecode(string $data): string
-    {
-        return base64_decode(strtr($data, '-_', '+/') . str_repeat('=', 3 - (3 + strlen($data)) % 4));
     }
 }

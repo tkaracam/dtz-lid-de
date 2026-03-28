@@ -2,88 +2,76 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../src/Database/Database.php';
-require_once __DIR__ . '/../../src/Auth/JWT.php';
-require_once __DIR__ . '/../../src/Models/User.php';
-require_once __DIR__ . '/../../src/Models/Session.php';
-require_once __DIR__ . '/../../src/Auth/AuthController.php';
 
-use DTZ\Auth\AuthController;
+use DTZ\Database\Database;
 
-// CORS headers
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 
-// Handle preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
-// Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Nur POST erlaubt']);
     exit;
 }
 
-// Rate limiting (simple)
-$ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-$rateFile = sys_get_temp_dir() . '/dtz_rate_' . md5($ip) . '.json';
-$rateLimit = 5; // requests per minute
-
-$rateData = ['count' => 0, 'time' => time()];
-if (file_exists($rateFile)) {
-    $rateData = json_decode(file_get_contents($rateFile), true);
-}
-
-if (time() - $rateData['time'] > 60) {
-    $rateData = ['count' => 0, 'time' => time()];
-}
-
-$rateData['count']++;
-file_put_contents($rateFile, json_encode($rateData));
-
-if ($rateData['count'] > $rateLimit) {
-    http_response_code(429);
-    echo json_encode(['error' => 'Zu viele Anfragen. Bitte warten Sie einen Moment.']);
-    exit;
-}
-
-// Get input
 $input = json_decode(file_get_contents('php://input'), true);
+$email = $input['email'] ?? '';
+$password = $input['password'] ?? '';
+$name = $input['name'] ?? '';
 
-if (!$input) {
+if (empty($email) || empty($password) || empty($name)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Ungültiges JSON']);
+    echo json_encode(['error' => 'Alle Felder sind erforderlich']);
     exit;
 }
 
-// Process registration
+if (strlen($password) < 8) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Passwort muss mindestens 8 Zeichen lang sein']);
+    exit;
+}
+
 try {
-    $auth = new AuthController();
-    $result = $auth->register($input);
+    $db = Database::getInstance();
     
-    if (!$result['success']) {
-        http_response_code(422);
-        echo json_encode([
-            'success' => false,
-            'errors' => $result['errors']
-        ]);
+    // Check if email exists
+    $existing = $db->selectOne(
+        "SELECT id FROM users WHERE email = ?",
+        [$email]
+    );
+    
+    if ($existing) {
+        http_response_code(409);
+        echo json_encode(['error' => 'E-Mail bereits registriert']);
         exit;
     }
     
-    http_response_code(201);
+    // Create user
+    $passwordHash = password_hash($password, PASSWORD_ARGON2ID);
+    
+    $userId = $db->insert('users', [
+        'email' => $email,
+        'display_name' => $name,
+        'name' => $name,
+        'password_hash' => $passwordHash,
+        'subscription_status' => 'trialing',
+        'trial_ends_at' => date('Y-m-d H:i:s', strtotime('+7 days'))
+    ]);
+    
     echo json_encode([
         'success' => true,
-        'message' => $result['message'],
-        'user' => $result['user'],
-        'tokens' => $result['tokens']
+        'message' => 'Registrierung erfolgreich',
+        'user_id' => $userId
     ]);
     
 } catch (Exception $e) {
-    error_log('Registration error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Ein Fehler ist aufgetreten']);
+    echo json_encode(['error' => 'Registrierung fehlgeschlagen']);
 }

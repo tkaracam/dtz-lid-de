@@ -1,15 +1,12 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../src/Database/Database.php';
-require_once __DIR__ . '/../../src/Auth/JWT.php';
-require_once __DIR__ . '/../../src/Models/User.php';
 require_once __DIR__ . '/../../src/Auth/AuthController.php';
+require_once __DIR__ . '/../../src/Database/Database.php';
 
 use DTZ\Auth\AuthController;
 use DTZ\Database\Database;
 
-// CORS
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -26,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-// Auth
+// Auth check
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 $token = '';
 if (preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
@@ -48,9 +45,9 @@ if (!$user) {
     exit;
 }
 
-$submissionId = $_GET['id'] ?? '';
+$submissionId = $_GET['id'] ?? 0;
 
-if (empty($submissionId)) {
+if (!$submissionId) {
     http_response_code(400);
     echo json_encode(['error' => 'ID erforderlich']);
     exit;
@@ -59,40 +56,48 @@ if (empty($submissionId)) {
 try {
     $db = Database::getInstance();
     
-    $submission = $db->selectOne(
-        "SELECT 
-            id, task_type, task_prompt, original_text, word_count,
-            final_feedback, final_score, status, approved_at
-         FROM writing_submissions 
-         WHERE id = ? AND user_id = ? AND status = 'approved'",
-        [$submissionId, $user['id']]
-    );
+    // Check if admin - can view any submission
+    // Regular user - can only view own submission
+    $isAdmin = ($user['role'] === 'admin');
+    
+    if ($isAdmin) {
+        $submission = $db->selectOne(
+            "SELECT ws.*, u.display_name as user_name, u.email as user_email
+             FROM writing_submissions ws
+             JOIN users u ON ws.user_id = u.id
+             WHERE ws.id = ?",
+            [$submissionId]
+        );
+    } else {
+        $submission = $db->selectOne(
+            "SELECT * FROM writing_submissions WHERE id = ? AND user_id = ?",
+            [$submissionId, $user['id']]
+        );
+    }
     
     if (!$submission) {
         http_response_code(404);
-        echo json_encode(['error' => 'Feedback noch nicht verfügbar']);
+        echo json_encode(['error' => 'Einsendung nicht gefunden']);
         exit;
     }
     
-    $feedback = json_decode($submission['final_feedback'] ?? '{}', true);
+    // Decode JSON fields
+    if ($submission['ai_feedback']) {
+        $submission['ai_feedback'] = json_decode($submission['ai_feedback'], true);
+    }
+    if ($submission['admin_feedback']) {
+        $submission['admin_feedback'] = json_decode($submission['admin_feedback'], true);
+    }
+    if ($submission['final_feedback']) {
+        $submission['final_feedback'] = json_decode($submission['final_feedback'], true);
+    }
     
-    http_response_code(200);
     echo json_encode([
         'success' => true,
-        'submission' => [
-            'id' => $submission['id'],
-            'task_type' => $submission['task_type'],
-            'task_prompt' => $submission['task_prompt'],
-            'original_text' => $submission['original_text'],
-            'word_count' => $submission['word_count'],
-            'score' => $submission['final_score'],
-            'approved_at' => $submission['approved_at']
-        ],
-        'feedback' => $feedback
+        'submission' => $submission
     ]);
     
 } catch (Exception $e) {
-    error_log('Writing feedback error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['error' => 'Fehler beim Laden']);
 }

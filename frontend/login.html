@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DTZ Lernplattform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .auth-box {
+            width: 100%;
+            max-width: 420px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .auth-box h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+        }
+        
+        .auth-box p {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .btn-full {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+        }
+        
+        .auth-links {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+        }
+        
+        .auth-links a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        .error-message {
+            color: #ff4757;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo svg {
+            width: 64px;
+            height: 64px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="logo">
+                <svg viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="32" r="30" stroke="url(#grad)" stroke-width="2"/>
+                    <path d="M20 32h24M32 20v24" stroke="url(#grad)" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="64" y2="64">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h1>Willkommen zurück</h1>
+            <p>Melden Sie sich an, um fortzufahren</p>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label>E-Mail</label>
+                    <input type="email" class="input" id="email" required placeholder="ihre@email.de">
+                </div>
+                
+                <div class="form-group">
+                    <label>Passwort</label>
+                    <input type="password" class="input" id="password" required placeholder="••••••••">
+                </div>
+                
+                <div class="error-message" id="error"></div>
+                
+                <button type="submit" class="btn btn-primary btn-full">Anmelden</button>
+            </form>
+            
+            <div class="auth-links">
+                Noch kein Konto? <a href="register.html">Registrieren</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Redirect if already logged in
+        if (isAuthenticated()) {
+            window.location.href = 'dashboard.html';
+        }
+        
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('error');
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    setToken(data.access_token);
+                    setUser(data.user);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorEl.textContent = data.error || 'Anmeldung fehlgeschlagen';
+                    errorEl.classList.add('show');
+                }
+            } catch (err) {
+                errorEl.textContent = 'Verbindungsfehler';
+                errorEl.classList.add('show');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,107 +1,138 @@
 <?php
 declare(strict_types=1);
 
-// This includes auth check
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/../../src/Auth/AuthController.php';
+require_once __DIR__ . '/../../src/Database/Database.php';
 
-require_once __DIR__ . '/../../src/Models/Admin.php';
+use DTZ\Auth\AuthController;
+use DTZ\Database\Database;
 
-use DTZ\Models\Admin;
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS');
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
+// Auth check
+$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+$token = '';
+if (preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
+    $token = $matches[1];
+}
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Nicht autorisiert']);
+    exit;
+}
+
+$auth = new AuthController();
+$user = $auth->me($token);
+
+if (!$user || $user['role'] !== 'admin') {
+    http_response_code(403);
+    echo json_encode(['error' => 'Admin erforderlich']);
+    exit;
+}
+
+$db = Database::getInstance();
 $method = $_SERVER['REQUEST_METHOD'];
 
 try {
-    $adminModel = new Admin();
-    
     switch ($method) {
         case 'GET':
             // List users
-            $page = (int) ($_GET['page'] ?? 1);
-            $perPage = (int) ($_GET['per_page'] ?? 20);
+            $page = max(1, intval($_GET['page'] ?? 1));
+            $limit = min(100, max(1, intval($_GET['limit'] ?? 20)));
+            $offset = ($page - 1) * $limit;
             $search = $_GET['search'] ?? '';
             
-            $result = $adminModel->getUsers($page, $perPage, $search);
+            $where = '';
+            $params = [];
+            if ($search) {
+                $where = "WHERE email LIKE ? OR display_name LIKE ?";
+                $params = ["%$search%", "%$search%"];
+            }
             
-            http_response_code(200);
+            $users = $db->select(
+                "SELECT id, email, display_name, level, subscription_status, is_active, created_at, last_activity_at 
+                 FROM users $where 
+                 ORDER BY created_at DESC 
+                 LIMIT ? OFFSET ?",
+                array_merge($params, [$limit, $offset])
+            );
+            
+            $total = $db->selectOne(
+                "SELECT COUNT(*) as c FROM users $where",
+                $params
+            )['c'];
+            
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'users' => $users,
+                'total' => $total,
+                'page' => $page,
+                'pages' => ceil($total / $limit)
             ]);
             break;
             
         case 'PUT':
             // Update user
             $input = json_decode(file_get_contents('php://input'), true);
+            $userId = $input['id'] ?? 0;
             
-            if (empty($input['user_id'])) {
+            if (!$userId) {
                 http_response_code(400);
-                echo json_encode(['error' => 'User-ID erforderlich']);
+                echo json_encode(['error' => 'ID erforderlich']);
                 exit;
             }
             
-            // Prevent self-demotion if super admin
-            if ($input['user_id'] == $adminUser['id'] && isset($input['is_admin']) && !$input['is_admin']) {
-                if (!$adminModel->isSuperAdmin($adminUser['id'])) {
-                    http_response_code(403);
-                    echo json_encode(['error' => 'Du kannst deinen eigenen Admin-Status nicht entfernen']);
-                    exit;
+            $allowedFields = ['display_name', 'level', 'subscription_status', 'is_active', 'daily_goal'];
+            $updateData = [];
+            foreach ($allowedFields as $field) {
+                if (isset($input[$field])) {
+                    $updateData[$field] = $input[$field];
                 }
             }
             
-            $success = $adminModel->updateUser($input['user_id'], $input);
-            
-            if ($success) {
-                http_response_code(200);
-                echo json_encode(['success' => true, 'message' => 'Benutzer aktualisiert']);
-            } else {
+            if (empty($updateData)) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Aktualisierung fehlgeschlagen']);
+                echo json_encode(['error' => 'Keine Daten zum Aktualisieren']);
+                exit;
             }
+            
+            $db->update('users', $updateData, 'id = ?', [$userId]);
+            
+            echo json_encode(['success' => true, 'message' => 'Benutzer aktualisiert']);
             break;
             
         case 'DELETE':
             // Delete user
-            $input = json_decode(file_get_contents('php://input'), true);
+            $userId = $_GET['id'] ?? 0;
             
-            if (empty($input['user_id'])) {
+            if (!$userId) {
                 http_response_code(400);
-                echo json_encode(['error' => 'User-ID erforderlich']);
+                echo json_encode(['error' => 'ID erforderlich']);
                 exit;
             }
             
             // Prevent self-deletion
-            if ($input['user_id'] == $adminUser['id']) {
+            if ($userId == $user['id']) {
                 http_response_code(403);
-                echo json_encode(['error' => 'Du kannst dich nicht selbst löschen']);
+                echo json_encode(['error' => 'Eigener Account kann nicht gelöscht werden']);
                 exit;
             }
             
-            // Only super admin can delete admins
-            $targetUser = $adminModel->getUsers(1, 1, '');
-            if ($adminModel->isAdmin($input['user_id']) && !$adminModel->isSuperAdmin($adminUser['id'])) {
-                http_response_code(403);
-                echo json_encode(['error' => 'Nur Super-Admins können andere Admins löschen']);
-                exit;
-            }
+            $db->delete('users', 'id = ?', [$userId]);
             
-            $success = $adminModel->deleteUser($input['user_id']);
-            
-            if ($success) {
-                http_response_code(200);
-                echo json_encode(['success' => true, 'message' => 'Benutzer gelöscht']);
-            } else {
-                http_response_code(400);
-                echo json_encode(['error' => 'Löschung fehlgeschlagen']);
-            }
+            echo json_encode(['success' => true, 'message' => 'Benutzer gelöscht']);
             break;
-            
-        default:
-            http_response_code(405);
-            echo json_encode(['error' => 'Methode nicht erlaubt']);
     }
-    
 } catch (Exception $e) {
-    error_log('Admin users error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Ein Fehler ist aufgetreten']);
+    echo json_encode(['error' => 'Fehler: ' . $e->getMessage()]);
 }

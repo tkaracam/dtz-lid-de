@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schreiben prüfen - Admin</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+        }
+        
+        .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-badge {
+            background: linear-gradient(135deg, #ff4757, #ff6348);
+            color: white;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 92, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            font-size: 1.75rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filters button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .filters button.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .submissions-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .submission-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .submission-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .submission-title {
+            font-weight: 600;
+        }
+        
+        .submission-user {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .submission-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: #ffa502; color: #000; }
+        .status-ai_reviewed { background: var(--accent); color: white; }
+        .status-approved { background: #2ed573; color: white; }
+        
+        /* Review Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .modal-overlay.active {
+            display: block;
+        }
+        
+        .modal-content {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+        }
+        
+        .text-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+        
+        .text-box {
+            background: var(--input-bg);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .text-box h4 {
+            margin-bottom: 0.75rem;
+            color: var(--accent);
+        }
+        
+        .ai-feedback {
+            background: rgba(124, 92, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .score-input {
+            width: 80px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        
+        .admin-comment {
+            width: 100%;
+            min-height: 100px;
+            padding: 1rem;
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            background: var(--input-bg);
+            color: var(--text);
+            resize: vertical;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .modal-actions button {
+            flex: 1;
+            padding: 1rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .text-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                DTZ <span class="admin-badge">ADMIN</span>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="users.html" class="nav-link">👥 Benutzer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="questions.html" class="nav-link">❓ Fragen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="writing.html" class="nav-link active">✍️ Schreiben</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" onclick="logout()" class="nav-link">🚪 Abmelden</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Schreiben prüfen</h1>
+            </div>
+            
+            <div class="filters">
+                <button class="active" onclick="filterStatus('all')">Alle</button>
+                <button onclick="filterStatus('pending')">Wartend</button>
+                <button onclick="filterStatus('ai_reviewed')">KI geprüft</button>
+                <button onclick="filterStatus('approved')">Freigegeben</button>
+            </div>
+            
+            <div class="submissions-grid" id="submissions-list">
+                <p style="color: var(--text-muted);">Laden...</p>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Review Modal -->
+    <div class="modal-overlay" id="review-modal">
+        <div class="modal-content">
+            <h2>Text prüfen</h2>
+            <input type="hidden" id="review-id">
+            
+            <div class="text-comparison">
+                <div class="text-box">
+                    <h4>📝 Original Text</h4>
+                    <div id="original-text" style="white-space: pre-wrap; line-height: 1.8;"></div>
+                    <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">
+                        <span id="word-count"></span> Wörter
+                    </div>
+                </div>
+                <div class="text-box">
+                    <h4>🤖 KI-Analyse</h4>
+                    <div id="ai-feedback-text"></div>
+                </div>
+            </div>
+            
+            <div class="ai-feedback" id="ai-corrections">
+                <h4>Korrekturen</h4>
+                <div id="corrections-list"></div>
+            </div>
+            
+            <h3>Admin Bewertung</h3>
+            <div style="display: flex; align-items: center; gap: 2rem; margin: 1rem 0;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem;">Punkte (0-20)</label>
+                    <input type="number" class="input score-input" id="admin-score" min="0" max="20" value="10">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem;">Status</label>
+                    <select class="input" id="admin-status">
+                        <option value="admin_reviewing">In Prüfung</option>
+                        <option value="approved">Freigeben</option>
+                        <option value="rejected">Ablehnen</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem;">Kommentar</label>
+                <textarea class="admin-comment" id="admin-comment" placeholder="Ihr Kommentar für den Lernenden..."></textarea>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()" style="background: var(--glass-bg);">Abbrechen</button>
+                <button class="btn btn-primary" onclick="saveReview()">Speichern</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        const user = getUser();
+        if (!user || user.role !== 'admin') {
+            window.location.href = 'login.html';
+        }
+        
+        let currentFilter = 'all';
+        let submissions = [];
+        
+        async function loadSubmissions() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/writing.php`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    submissions = data.submissions;
+                    renderSubmissions();
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('submissions-list').innerHTML = 
+                    '<p style="color: #ff4757;">Fehler beim Laden</p>';
+            }
+        }
+        
+        function filterStatus(status) {
+            currentFilter = status;
+            
+            // Update button states
+            document.querySelectorAll('.filters button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(status) || (status === 'all' && btn.textContent === 'Alle')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            renderSubmissions();
+        }
+        
+        function renderSubmissions() {
+            const container = document.getElementById('submissions-list');
+            
+            let filtered = submissions;
+            if (currentFilter !== 'all') {
+                filtered = submissions.filter(s => s.status === currentFilter);
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted);">Keine Einsendungen</p>';
+                return;
+            }
+            
+            const statusLabels = {
+                'pending': 'Wartet auf KI',
+                'ai_processing': 'KI analysiert...',
+                'ai_reviewed': 'KI fertig',
+                'admin_reviewing': 'Admin prüft',
+                'approved': 'Freigegeben',
+                'rejected': 'Abgelehnt'
+            };
+            
+            const taskLabels = {
+                'bewerbung': 'Bewerbung',
+                'beschwerde': 'Beschwerde',
+                'einladung': 'Einladung',
+                'anfrage': 'Anfrage',
+                'termin': 'Termin',
+                'danksagung': 'Danksagung'
+            };
+            
+            container.innerHTML = filtered.map(s => `
+                <div class="submission-item" onclick="openReview(${s.id})">
+                    <div class="submission-header">
+                        <div>
+                            <div class="submission-title">${taskLabels[s.task_type] || s.task_type}</div>
+                            <div class="submission-user">${s.user_name} (${s.user_email})</div>
+                        </div>
+                        <span class="status-badge status-${s.status}">${statusLabels[s.status]}</span>
+                    </div>
+                    <div class="submission-meta">
+                        <span>📅 ${new Date(s.submitted_at).toLocaleDateString('de-DE')}</span>
+                        <span>📝 ${s.word_count} Wörter</span>
+                        ${s.ai_score ? `<span>🤖 KI: ${s.ai_score}/20</span>` : ''}
+                        ${s.final_score ? `<span>✅ Final: ${s.final_score}/20</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function openReview(id) {
+            try {
+                const response = await fetch(`${API_BASE}/writing/feedback.php?id=${id}`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const s = data.submission;
+                    document.getElementById('review-id').value = s.id;
+                    document.getElementById('original-text').textContent = s.original_text;
+                    document.getElementById('word-count').textContent = s.word_count;
+                    
+                    // AI Feedback
+                    const aiFeedback = s.ai_feedback || {};
+                    document.getElementById('ai-feedback-text').innerHTML = `
+                        <p><strong>Gesamtbewertung:</strong> ${aiFeedback.overallScore || '-'}/20</p>
+                        <p><strong>Niveau:</strong> ${aiFeedback.levelAssessment || '-'}</p>
+                        <p>${aiFeedback.generalFeedback || 'Kein Feedback'}</p>
+                    `;
+                    
+                    // Corrections
+                    const correctionsList = document.getElementById('corrections-list');
+                    if (aiFeedback.corrections?.length > 0) {
+                        correctionsList.innerHTML = aiFeedback.corrections.map(c => `
+                            <div style="margin-bottom: 0.75rem; padding: 0.75rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                <strong>${c.type}</strong> (${c.severity})
+                                <br>"${c.original}" → "${c.corrected}"
+                                <br><small style="color: var(--text-muted);">${c.explanation}</small>
+                            </div>
+                        `).join('');
+                    } else {
+                        correctionsList.innerHTML = '<p style="color: var(--text-muted);">Keine Korrekturen</p>';
+                    }
+                    
+                    // Pre-fill admin values
+                    document.getElementById('admin-score').value = s.ai_score || 10;
+                    document.getElementById('admin-status').value = s.status;
+                    document.getElementById('admin-comment').value = s.admin_comment || '';
+                    
+                    document.getElementById('review-modal').classList.add('active');
+                }
+            } catch (err) {
+                alert('Fehler beim Laden');
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('review-modal').classList.remove('active');
+        }
+        
+        async function saveReview() {
+            const id = document.getElementById('review-id').value;
+            const data = {
+                id: parseInt(id),
+                score: parseInt(document.getElementById('admin-score').value),
+                status: document.getElementById('admin-status').value,
+                comment: document.getElementById('admin-comment').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/writing.php`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal();
+                    loadSubmissions();
+                } else {
+                    alert('Fehler: ' + result.error);
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        }
+        
+        // Close modal on outside click
+        document.getElementById('review-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('review-modal')) {
+                closeModal();
+            }
+        });
+        
+        loadSubmissions();
+    </script>
+</body>
+</html>

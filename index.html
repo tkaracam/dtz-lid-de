@@ -1,680 +1,408 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DTZ-LiD.de | Online Vorbereitung für Deutschtest</title>
-  <meta name="description" content="Bereite dich kostenlos auf den DTZ (Deutsch-Test für Zuwanderer) und LiD (Leben in Deutschland) vor. Mit AI-Korrektur, Übungen und Simulationen.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/glass.css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    html { scroll-behavior: smooth; }
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      color: #1e293b;
-      line-height: 1.6;
-      overflow-x: hidden;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      min-height: 100vh;
-    }
-    
-    /* Animated Background */
-    .bg-animation {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: hidden;
-      z-index: -1;
-    }
-    
-    .gradient-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      opacity: 0.6;
-    }
-    
-    .orb-1 {
-      width: 600px;
-      height: 600px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      top: -200px;
-      right: -200px;
-      animation: float 20s ease-in-out infinite;
-    }
-    
-    .orb-2 {
-      width: 500px;
-      height: 500px;
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      bottom: -150px;
-      left: -150px;
-      animation: float 25s ease-in-out infinite reverse;
-    }
-    
-    .orb-3 {
-      width: 400px;
-      height: 400px;
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      top: 40%;
-      left: 30%;
-      opacity: 0.4;
-      animation: float 22s ease-in-out infinite;
-      animation-delay: -5s;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -30px) scale(1.1); }
-      66% { transform: translate(-20px, 20px) scale(0.9); }
-    }
-    
-    /* Navigation */
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      padding: 16px 0;
-    }
-    
-    .nav-inner {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      border-radius: 999px;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-    
-    .nav-logo {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-decoration: none;
-    }
-    
-    .nav-links {
-      display: flex;
-      gap: 32px;
-    }
-    
-    .nav-link {
-      color: #475569;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-    
-    .nav-link:hover {
-      color: #667eea;
-    }
-    
-    .nav-cta {
-      display: flex;
-      gap: 12px;
-    }
-    
-    .btn {
-      padding: 10px 20px;
-      border-radius: 999px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.3s;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    
-    .btn-ghost {
-      color: #475569;
-      background: transparent;
-    }
-    
-    .btn-ghost:hover {
-      background: rgba(102, 126, 234, 0.1);
-      color: #667eea;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-    }
-    
-    /* Hero */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 140px 24px 80px;
-    }
-    
-    .hero-content {
-      text-align: center;
-      max-width: 800px;
-    }
-    
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      padding: 10px 20px;
-      border-radius: 999px;
-      font-size: 14px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 32px;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-      50% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
-    }
-    
-    .hero-title {
-      font-size: clamp(40px, 8vw, 72px);
-      font-weight: 800;
-      color: white;
-      line-height: 1.1;
-      margin-bottom: 24px;
-      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-    }
-    
-    .hero-title span {
-      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .hero-subtitle {
-      font-size: 20px;
-      color: rgba(255, 255, 255, 0.9);
-      margin-bottom: 40px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .hero-cta {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    
-    .btn-large {
-      padding: 16px 32px;
-      font-size: 16px;
-    }
-    
-    .btn-glass {
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
-    }
-    
-    .btn-glass:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-    }
-    
-    .hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 48px;
-      margin-top: 64px;
-      flex-wrap: wrap;
-    }
-    
-    .hero-stat {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 20px;
-      padding: 24px 32px;
-      text-align: center;
-      min-width: 140px;
-    }
-    
-    .hero-stat-value {
-      font-size: 36px;
-      font-weight: 800;
-      color: white;
-    }
-    
-    .hero-stat-label {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-      margin-top: 4px;
-    }
-    
-    /* Modules */
-    .modules {
-      padding: 100px 24px;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .section-header {
-      text-align: center;
-      margin-bottom: 64px;
-    }
-    
-    .section-badge {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 8px 16px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 16px;
-    }
-    
-    .section-title {
-      font-size: 42px;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 16px;
-    }
-    
-    .section-subtitle {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 18px;
-    }
-    
-    .modules-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-    
-    .module-card {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      border-radius: 24px;
-      padding: 32px;
-      text-align: center;
-      text-decoration: none;
-      color: inherit;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-    
-    .module-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      background: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    }
-    
-    .module-icon {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
-    }
-    
-    .module-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: #1e293b;
-    }
-    
-    .module-desc {
-      font-size: 15px;
-      color: #64748b;
-      margin-bottom: 20px;
-    }
-    
-    .module-arrow {
-      font-size: 20px;
-      color: #667eea;
-      opacity: 0;
-      transform: translateX(-10px);
-      transition: all 0.3s;
-    }
-    
-    .module-card:hover .module-arrow {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    
-    /* Features */
-    .features {
-      padding: 100px 24px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-    }
-    
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-    }
-    
-    .feature-card {
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 20px;
-      padding: 28px;
-      display: flex;
-      gap: 20px;
-      transition: all 0.3s;
-    }
-    
-    .feature-card:hover {
-      background: rgba(255, 255, 255, 0.8);
-      transform: translateY(-4px);
-    }
-    
-    .feature-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      flex-shrink: 0;
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-    }
-    
-    .feature-content h3 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: #1e293b;
-    }
-    
-    .feature-content p {
-      font-size: 14px;
-      color: #64748b;
-    }
-    
-    /* CTA */
-    .cta {
-      padding: 120px 24px;
-      text-align: center;
-    }
-    
-    .cta-card {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 32px;
-      padding: 64px 48px;
-      max-width: 700px;
-      margin: 0 auto;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-    }
-    
-    .cta-title {
-      font-size: 40px;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 16px;
-    }
-    
-    .cta-subtitle {
-      font-size: 18px;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 32px;
-    }
-    
-    /* Footer */
-    .footer {
-      padding: 40px 24px;
-      text-align: center;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 14px;
-    }
-    
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 16px;
-    }
-    
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    
-    .footer-links a:hover {
-      color: white;
-    }
-    
-    /* Mobile */
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .hero-title { font-size: 40px; }
-      .hero-stats { gap: 16px; }
-      .hero-stat { padding: 16px 24px; min-width: auto; }
-      .section-title { font-size: 32px; }
-      .cta-card { padding: 40px 24px; }
-      .cta-title { font-size: 28px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTZ Lernplattform - Deutsch-Test für Zuwanderer</title>
+    <link rel="stylesheet" href="frontend/css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #f1f5f9;
+        }
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background: rgba(30, 30, 50, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #f1f5f9;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #8b5cf6;
+        }
+        
+        .btn-nav {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 92, 255, 0.4);
+        }
+        
+        .hero-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            gap: 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .hero-text {
+            flex: 1;
+        }
+        
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-text p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(124, 92, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            background: transparent;
+            color: #f1f5f9;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #8b5cf6;
+            background: rgba(124, 92, 255, 0.1);
+        }
+        
+        .hero-visual {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .module-card {
+            background: rgba(30, 30, 50, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-5px);
+            border-color: #8b5cf6;
+            box-shadow: 0 20px 40px rgba(124, 92, 255, 0.2);
+        }
+        
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .module-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .module-desc {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+        
+        .features {
+            padding: 5rem 3rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(30, 30, 50, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-desc {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+        
+        .cta-section {
+            padding: 5rem 3rem;
+            text-align: center;
+        }
+        
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-section p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        
+        footer {
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #64748b;
+        }
+        
+        @media (max-width: 1024px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+            
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Animated Background -->
-  <div class="bg-animation">
-    <div class="gradient-orb orb-1"></div>
-    <div class="gradient-orb orb-2"></div>
-    <div class="gradient-orb orb-3"></div>
-  </div>
-
-  <!-- Navigation -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="/" class="nav-logo">🎯 DTZ-LiD</a>
-      <div class="nav-links">
-        <a href="#modules" class="nav-link">Module</a>
-        <a href="#features" class="nav-link">Features</a>
-      </div>
-      <div class="nav-cta">
-        <a href="/login.html" class="btn btn-ghost">Anmelden</a>
-        <a href="/register.html" class="btn btn-primary">Registrieren</a>
-      </div>
+    <div class="hero">
+        <nav class="navbar">
+            <div class="logo">🎓 DTZ Learning</div>
+            <div class="nav-links">
+                <a href="#modules">Module</a>
+                <a href="#features">Funktionen</a>
+                <a href="frontend/login.html" class="btn-nav">Anmelden</a>
+            </div>
+        </nav>
+        
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Bereite dich auf den DTZ vor!</h1>
+                <p>Der Deutsch-Test für Zuwanderer (DTZ) ist ein wichtiger Schritt auf deinem Weg in Deutschland. Übe mit unserer interaktiven Plattform alle Module: Hören, Lesen, Schreiben und Sprechen.</p>
+                <div class="hero-buttons">
+                    <a href="frontend/register.html" class="btn-primary">🚀 Kostenlos starten</a>
+                    <a href="frontend/modelltest.html" class="btn-secondary">📝 Modelltest</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual" id="modules">
+                <div class="modules-grid">
+                    <a href="frontend/learn.html?module=hoeren" class="module-card">
+                        <div class="module-icon">🎧</div>
+                        <div class="module-name">Hören</div>
+                        <div class="module-desc">4 Teile • 20 Fragen</div>
+                    </a>
+                    <a href="frontend/learn.html?module=lesen" class="module-card">
+                        <div class="module-icon">📖</div>
+                        <div class="module-name">Lesen</div>
+                        <div class="module-desc">5 Teile • 25 Fragen</div>
+                    </a>
+                    <a href="frontend/writing.html" class="module-card">
+                        <div class="module-icon">✍️</div>
+                        <div class="module-name">Schreiben</div>
+                        <div class="module-desc">2 Teile • 25 Punkte</div>
+                    </a>
+                    <a href="frontend/learn.html?module=sprechen" class="module-card">
+                        <div class="module-icon">🗣️</div>
+                        <div class="module-name">Sprechen</div>
+                        <div class="module-desc">3 Teile • Übungen</div>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-  </nav>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-content">
-      <div class="hero-badge">✨ 7 Tage kostenlos testen</div>
-      <h1 class="hero-title">
-        Bereite dich auf <span>DTZ & LiD</span> vor
-      </h1>
-      <p class="hero-subtitle">
-        Der beste Weg für den Deutsch-Test für Zuwanderer (B1). 
-        Mit KI-gestützter Korrektur, unbegrenzten Übungen und simulierten Prüfungen.
-      </p>
-      <div class="hero-cta">
-        <a href="/register.html" class="btn btn-primary btn-large">🚀 Jetzt starten</a>
-        <a href="#modules" class="btn btn-glass btn-large">📚 Module entdecken</a>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-value">🎓 5</div>
-          <div class="hero-stat-label">Module</div>
+    
+    <section class="features" id="features">
+        <div class="features-container">
+            <h2>Warum DTZ Learning?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">DTZ Format</div>
+                    <div class="feature-desc">Alle Aufgaben entsprechen dem originalen DTZ-Prüfungsformat</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-title">KI-Feedback</div>
+                    <div class="feature-desc">Erhalte sofortige Korrekturen für deine Schreibübungen</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Fortschrittsanalyse</div>
+                    <div class="feature-desc">Verfolge deine Leistung mit detaillierten Statistiken</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔊</div>
+                    <div class="feature-title">Audio-Übungen</div>
+                    <div class="feature-desc">Übe das Hörenverstehen mit authentischen Audioaufnahmen</div>
+                </div>
+            </div>
         </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value">⚡ ∞</div>
-          <div class="hero-stat-label">Übungen</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value">🤖 KI</div>
-          <div class="hero-stat-label">Korrektur</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Modules -->
-  <section class="modules" id="modules">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-badge">📦 Module</div>
-        <h2 class="section-title">Alle Prüfungsteile abdecken</h2>
-        <p class="section-subtitle">Übe gezielt jeden Bereich der DTZ-Prüfung</p>
-      </div>
-      <div class="modules-grid">
-        <a href="/register.html" class="module-card">
-          <div class="module-icon">📖</div>
-          <h3 class="module-title">Lesen</h3>
-          <p class="module-desc">Textverständnis und Lesekompetenz üben</p>
-          <div class="module-arrow">→</div>
-        </a>
-        <a href="/register.html" class="module-card">
-          <div class="module-icon">🎧</div>
-          <h3 class="module-title">Hören</h3>
-          <p class="module-desc">Hörverständnis mit Audio-Übungen</p>
-          <div class="module-arrow">→</div>
-        </a>
-        <a href="/register.html" class="module-card">
-          <div class="module-icon">✍️</div>
-          <h3 class="module-title">Schreiben</h3>
-          <p class="module-desc">Briefe schreiben mit KI-Korrektur</p>
-          <div class="module-arrow">→</div>
-        </a>
-        <a href="/register.html" class="module-card">
-          <div class="module-icon">🗣️</div>
-          <h3 class="module-title">Sprechen</h3>
-          <p class="module-desc">Mündliche Kommunikation trainieren</p>
-          <div class="module-arrow">→</div>
-        </a>
-        <a href="/register.html" class="module-card">
-          <div class="module-icon">🇩🇪</div>
-          <h3 class="module-title">Leben in Deutschland</h3>
-          <p class="module-desc">300 Fragen zur Orientierungskurs-Prüfung</p>
-          <div class="module-arrow">→</div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Features -->
-  <section class="features" id="features">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-badge">⚡ Features</div>
-        <h2 class="section-title">Warum DTZ-LiD.de?</h2>
-        <p class="section-subtitle">Moderne Tools für deinen Erfolg</p>
-      </div>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">🎯</div>
-          <div class="feature-content">
-            <h3>Adaptive Übungen</h3>
-            <p>Intelligente Fragenauswahl basierend auf deinem Lernfortschritt</p>
-          </div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <div class="feature-content">
-            <h3>Statistiken</h3>
-            <p>Detaillierte Auswertungen deiner Stärken und Schwächen</p>
-          </div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🔥</div>
-          <div class="feature-content">
-            <h3>Tägliche Streaks</h3>
-            <p>Behalte deine Lernkontinuität bei und sammle Erfolge</p>
-          </div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📱</div>
-          <div class="feature-content">
-            <h3>Mobile Optimierung</h3>
-            <p>Lerne überall auf Smartphone, Tablet oder Computer</p>
-          </div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <div class="feature-content">
-            <h3>Sofortiges Feedback</h3>
-            <p>Direkte Ergebnisse nach jeder Übung</p>
-          </div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🔒</div>
-          <div class="feature-content">
-            <h3>Kostenlos & Sicher</h3>
-            <p>7 Tage kostenlos testen, danach faire Preise</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta">
-    <div class="cta-card">
-      <h2 class="cta-title">🎉 Bereit für die Prüfung?</h2>
-      <p class="cta-subtitle">
-        Starte jetzt deine kostenlose 7-Tage-Testphase. Keine Kreditkarte erforderlich.
-      </p>
-      <a href="/register.html" class="btn btn-primary btn-large" style="display: inline-block;">
-        🚀 Kostenlos registrieren
-      </a>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-links">
-      <a href="/login.html">Anmelden</a>
-      <a href="/register.html">Registrieren</a>
-    </div>
-    <p>© 2025 DTZ-LiD.de – Online Vorbereitung für DTZ & LiD</p>
-  </footer>
+    </section>
+    
+    <section class="cta-section">
+        <h2>Bereit für den Test?</h2>
+        <p>Starte jetzt deine Vorbereitung mit einem kostenlosen Modelltest</p>
+        <a href="frontend/modelltest.html" class="btn-primary">📝 Modelltest starten</a>
+    </section>
+    
+    <footer>
+        <p>&copy; 2024 DTZ Learning Plattform. Alle Rechte vorbehalten.</p>
+    </footer>
 </body>
 </html>

@@ -3,105 +3,94 @@ declare(strict_types=1);
 
 namespace DTZ\Services;
 
-/**
- * OpenAI Service for DTZ Writing Analysis
- * Structured feedback for A2-B1 level German learners
- */
-class OpenAIService
-{
+class OpenAIService {
     private string $apiKey;
-    private string $model;
     private string $baseUrl = 'https://api.openai.com/v1';
     
-    public function __construct()
-    {
-        $this->apiKey = $_ENV['OPENAI_API_KEY'] ?? '';
-        $this->model = $_ENV['OPENAI_MODEL'] ?? 'gpt-4';
-        
-        if (empty($this->apiKey)) {
-            throw new \RuntimeException('OpenAI API key not configured');
-        }
+    public function __construct(string $apiKey) {
+        $this->apiKey = $apiKey;
     }
     
     /**
-     * Analyze DTZ writing submission
+     * Analyze a German writing submission for DTZ B1 level
+     * 
+     * @param string $text The user's writing
+     * @param string $taskType Type of task (bewerbung, beschwerde, etc.)
+     * @return array Analysis results
      */
-    public function analyzeWriting(string $text, string $taskType, string $expectedLevel = 'B1'): array
-    {
-        $systemPrompt = $this->buildSystemPrompt($expectedLevel);
-        $userPrompt = $this->buildUserPrompt($text, $taskType);
+    public function analyzeWriting(string $text, string $taskType): array {
+        $prompt = $this->buildPrompt($text, $taskType);
         
-        $response = $this->callOpenAI($systemPrompt, $userPrompt);
+        $response = $this->callAPI($prompt);
+        
+        if (!$response) {
+            throw new \Exception('OpenAI API error');
+        }
         
         return $this->parseResponse($response);
     }
     
-    private function buildSystemPrompt(string $expectedLevel): string
-    {
-        return <<<PROMPT
-Du bist ein DTZ-Prüfer (Deutsch-Test für Zuwanderer, B1-Niveau).
-
-WICHTIGE REGELN:
-1. Korrigiere NUR echte Fehler (Grammatik, Wortschatz, Satzbau)
-2. Korrigiere NICHT den gesamten Text neu
-3. Erklärungen müssen auf A2-B1-Niveau verständlich sein
-
-BEWERTUNG (max. 20 Punkte):
-- Aufgabenerfüllung (0-5)
-- Textaufbau (0-5)
-- Sprachrichtigkeit (0-5)
-- Sprachbeherrschung (0-5)
-
-AUSGABE (JSON):
-{
-  "overallScore": 0-20,
-  "levelAssessment": "A2" oder "B1",
-  "passed": true/false,
-  "generalFeedback": "2-3 Sätze",
-  "categories": {
-    "taskCompletion": { "score": 0-5, "feedback": "..." },
-    "structure": { "score": 0-5, "feedback": "..." },
-    "languageAccuracy": { "score": 0-5, "feedback": "..." },
-    "languageRange": { "score": 0-5, "feedback": "..." }
-  },
-  "corrections": [
-    {
-      "id": "corr_001",
-      "type": "grammar|vocabulary|spelling|style",
-      "severity": "major|minor",
-      "original": "...",
-      "corrected": "...",
-      "explanation": "Einfache Erklärung",
-      "startIndex": 45,
-      "endIndex": 57
-    }
-  ],
-  "highlights": [
-    { "type": "good", "text": "...", "comment": "..." },
-    { "type": "improve", "text": "...", "suggestion": "...", "reason": "..." }
-  ]
-}
-PROMPT;
-    }
-    
-    private function buildUserPrompt(string $text, string $taskType): string
-    {
-        $tasks = [
-            'bewerbung' => 'Bewerbungsschreiben',
-            'beschwerde' => 'Beschwerdebrief',
-            'anfrage' => 'Anfrage',
-            'termin' => 'Terminabsage',
-            'einladung' => 'Einladung',
-            'danksagung' => 'Dankesschreiben',
+    private function buildPrompt(string $text, string $taskType): array {
+        $taskDescriptions = [
+            'bewerbung' => 'eine Bewerbung',
+            'beschwerde' => 'einen Beschwerdebrief',
+            'einladung' => 'eine Einladung',
+            'anfrage' => 'eine Anfrage',
+            'termin' => 'eine Terminvereinbarung',
+            'danksagung' => 'eine Danksagung'
         ];
         
-        return "AUFGABE: " . ($tasks[$taskType] ?? 'Brief') . "\n\nTEXT:\n" . $text;
-    }
-    
-    private function callOpenAI(string $systemPrompt, string $userPrompt): string
-    {
-        $payload = [
-            'model' => $this->model,
+        $taskDesc = $taskDescriptions[$taskType] ?? 'einen Text';
+        
+        $systemPrompt = "Du bist ein erfahrener DTZ-Prüfer (Deutsch-Test für Zuwanderer) auf B1-Niveau. 
+Deine Aufgabe ist es, Schreibproben von Deutschlernenden zu analysieren und konstruktives Feedback zu geben.
+
+WICHTIGE REGELN:
+1. Bewahre das A2-B1 Niveau des Lernenden - korrigiere NICHT zu nativem Deutsch
+2. Markiere nur echte Fehler, übertreibe nicht
+3. Erkenne und lobe gute Formulierungen
+4. Sei ermutigend aber ehrlich
+
+BEWERTUNGSKRITERIEN (B1-Niveau):
+- Aufgabenerfüllung (0-5 Punkte): Sind alle gefragten Punkte enthalten?
+- Textaufbau (0-5 Punkte): Einleitung, Hauptteil, Schluss logisch verbunden?
+- Sprachrichtigkeit (0-5 Punkte): Grammatik, Rechtschreibung, Zeichensetzung
+- Sprachumfang (0-5 Punkte): Wortschatz, Satzvielfalt
+
+Gib deine Antwort im JSON-Format:
+{
+    \"overallScore\": 15,
+    \"levelAssessment\": \"B1\",
+    \"generalFeedback\": \"Übersichtliches Gesamtfeedback...\",
+    \"categories\": {
+        \"aufgabenerfuellung\": {\"score\": 4, \"feedback\": \"...\"},
+        \"textaufbau\": {\"score\": 4, \"feedback\": \"...\"},
+        \"sprachrichtigkeit\": {\"score\": 3, \"feedback\": \"...\"},
+        \"sprachumfang\": {\"score\": 4, \"feedback\": \"...\"}
+    },
+    \"corrections\": [
+        {
+            \"type\": \"grammar\",
+            \"severity\": \"major\",
+            \"original\": \"Ich habe gehen\",
+            \"corrected\": \"Ich bin gegangen\",
+            \"explanation\": \"Perfekt mit 'sein' bei Bewegungsverben\",
+            \"position\": 45
+        }
+    ],
+    \"highlights\": [
+        {
+            \"type\": \"good\",
+            \"text\": \"Sehr geehrte Damen und Herren\",
+            \"comment\": \"Formelle Anrede perfekt!\"
+        }
+    ]
+}";
+
+        $userPrompt = "Bitte analysiere folgende {$taskDesc} auf B1-Niveau:\n\n\"\"\"{$text}\"\"\"";
+        
+        return [
+            'model' => 'gpt-4',
             'messages' => [
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $userPrompt]
@@ -110,40 +99,78 @@ PROMPT;
             'max_tokens' => 2000,
             'response_format' => ['type' => 'json_object']
         ];
-        
-        $ch = curl_init($this->baseUrl . '/chat/completions');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->apiKey
-            ],
-            CURLOPT_TIMEOUT => 60,
-        ]);
-        
-        $response = curl_exec($ch);
-        curl_close($ch);
-        
-        $data = json_decode($response, true);
-        return $data['choices'][0]['message']['content'] ?? '{}';
     }
     
-    private function parseResponse(string $json): array
-    {
-        $data = json_decode($json, true);
+    private function callAPI(array $payload): ?array {
+        $ch = curl_init("{$this->baseUrl}/chat/completions");
         
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->apiKey
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
+        if (curl_errno($ch)) {
+            error_log('OpenAI API curl error: ' . curl_error($ch));
+            curl_close($ch);
+            return null;
+        }
+        
+        curl_close($ch);
+        
+        if ($httpCode !== 200) {
+            error_log('OpenAI API error: HTTP ' . $httpCode . ' - ' . $response);
+            return null;
+        }
+        
+        return json_decode($response, true);
+    }
+    
+    private function parseResponse(array $response): array {
+        if (!isset($response['choices'][0]['message']['content'])) {
+            throw new \Exception('Invalid OpenAI response structure');
+        }
+        
+        $content = $response['choices'][0]['message']['content'];
+        $result = json_decode($content, true);
+        
+        if (!$result) {
+            throw new \Exception('Failed to parse OpenAI JSON response');
+        }
+        
+        // Ensure required fields exist
         $defaults = [
-            'overallScore' => 0,
+            'overallScore' => 10,
             'levelAssessment' => 'A2',
-            'passed' => false,
-            'generalFeedback' => '',
+            'generalFeedback' => 'Analyse abgeschlossen.',
             'categories' => [],
             'corrections' => [],
-            'highlights' => [],
+            'highlights' => []
         ];
         
-        return array_merge($defaults, $data ?? []);
+        return array_merge($defaults, $result);
+    }
+    
+    /**
+     * Test if API key is valid
+     */
+    public function testConnection(): bool {
+        try {
+            $response = $this->callAPI([
+                'model' => 'gpt-3.5-turbo',
+                'messages' => [['role' => 'user', 'content' => 'Hello']],
+                'max_tokens' => 5
+            ]);
+            
+            return $response !== null;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }
