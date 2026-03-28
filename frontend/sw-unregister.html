@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Temizleme</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+            background: #0f0f1a;
+            color: white;
+        }
+        h1 { color: #6366f1; }
+        .btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .btn:hover { background: #4f46e5; }
+        .success { color: #22c55e; }
+        #status { margin: 20px 0; padding: 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🧹 Cache Temizleme</h1>
+    <p>"Du bist offline" hatası için</p>
+    
+    <div id="status">Başlatmak için butona tıkla...</div>
+    
+    <button class="btn" onclick="clearAll()">🗑️ Tüm Cache'i Temizle</button>
+    <button class="btn" onclick="goHome()">🏠 Siteye Git</button>
+    
+    <script>
+        async function clearAll() {
+            const status = document.getElementById('status');
+            status.innerHTML = 'Temizleniyor...';
+            
+            try {
+                // 1. Service Worker'ları kaldır
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (const reg of regs) {
+                        await reg.unregister();
+                    }
+                    status.innerHTML += '<br>✅ Service Workers silindi';
+                }
+                
+                // 2. Cache'leri temizle
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(key => caches.delete(key)));
+                    status.innerHTML += '<br>✅ Cache temizlendi';
+                }
+                
+                // 3. LocalStorage temizle
+                localStorage.clear();
+                status.innerHTML += '<br>✅ LocalStorage temizlendi';
+                
+                // 4. SessionStorage temizle
+                sessionStorage.clear();
+                status.innerHTML += '<br>✅ SessionStorage temizlendi';
+                
+                status.innerHTML += '<br><br><span class="success">🎉 Tüm cache temizlendi! Şimdi "Siteye Git" butonuna tıkla.</span>';
+                
+            } catch (e) {
+                status.innerHTML = '<span style="color:#ef4444">❌ Hata: ' + e.message + '</span>';
+            }
+        }
+        
+        function goHome() {
+            // Cache query string ile siteye git
+            window.location.href = '/?nocache=' + Date.now();
+        }
+        
+        // Otomatik temizle
+        clearAll();
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Cache Temizle - DTZ</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { color: #6366f1; }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { background: #4f46e5; }
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+        #status { margin: 20px 0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🧹 Cache Temizleme Aracı</h1>
+    <p>"Du bist offline" hatası için cache temizleme</p>
+    
+    <div id="status">Hazır...</div>
+    
+    <button onclick="clearCache()">1. Cache'i Temizle</button>
+    <button onclick="location.href='/'">2. Ana Sayfaya Git</button>
+    
+    <script>
+        async function clearCache() {
+            const status = document.getElementById('status');
+            status.textContent = 'Temizleniyor...';
+            
+            try {
+                // 1. Service Worker unregister
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let reg of registrations) {
+                        await reg.unregister();
+                        console.log('SW unregistered');
+                    }
+                }
+                
+                // 2. Cache storage clear
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    console.log('Caches cleared');
+                }
+                
+                // 3. LocalStorage clear (sw related)
+                localStorage.removeItem('installPromptDismissed');
+                
+                status.innerHTML = '<span class="success">✅ Cache temizlendi! Şimdi ana sayfaya git.</span>';
+                
+            } catch (e) {
+                status.innerHTML = '<span class="error">❌ Hata: ' + e.message + '</span>';
+            }
+        }
+        
+        // Auto clear on load
+        clearCache();
+    </script>
+</body>
+</html>
