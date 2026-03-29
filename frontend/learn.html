@@ -484,6 +484,7 @@
         let correctCount = 0;
         let streak = 0;
         let answered = false;
+        let currentAudioText = '';
         
         const moduleInfo = {
             hoeren: {
@@ -583,27 +584,154 @@
         
         async function loadQuestions() {
             try {
-                const response = await fetch(`${API_BASE}/questions.php?module=${currentModule}&teil=${currentTeil}&limit=20`);
-                
-                const data = await response.json();
-                
-                if (data.success && data.questions && data.questions.length > 0) {
-                    questions = data.questions.map(q => ({
-                        id: q.id,
-                        question_text: q.content?.question || q.content?.text || 'Frage',
-                        options: q.content?.options || ['A', 'B', 'C', 'D'],
-                        correct: q.correct_answer,
-                        explanation: q.explanation,
-                        content: q.content
-                    }));
-                } else {
-                    console.log('No questions from API, using fallback');
+                if (currentModule !== 'hoeren' && currentModule !== 'lesen') {
                     generateMockQuestions();
+                    return;
                 }
+                const response = await fetch(`${API_BASE}/dtz_${currentModule}_teil${currentTeil}_public.php`);
+                const data = await response.json().catch(() => ({}));
+                const parsed = parseDtzQuestions(currentModule, currentTeil, data);
+                if (!parsed.length) {
+                    throw new Error('Keine DTZ-Fragen gefunden.');
+                }
+                questions = parsed;
             } catch (err) {
                 console.error('Failed to load questions:', err);
-                generateMockQuestions();
+                questions = [];
+                document.getElementById('question-text').textContent = 'Fragen konnten nicht geladen werden.';
+                document.getElementById('answer-options').innerHTML = '';
             }
+        }
+
+        function parseDtzQuestions(module, teil, payload) {
+            const set = payload && payload.set ? payload.set : {};
+            const item = Array.isArray(set.items) ? (set.items[0] || null) : null;
+            if (!item) return [];
+
+            if (module === 'hoeren') {
+                const rawQuestions = Array.isArray(item.questions) ? item.questions : [];
+                return rawQuestions.map((q, idx) => ({
+                    id: q.id || `h${teil}_${idx + 1}`,
+                    question_text: q.question || 'Frage',
+                    options: q.options || {},
+                    correct: q.correct || 'A',
+                    explanation: q.explanation || '',
+                    audio_script: q.audio_script || item.audio_script || ''
+                }));
+            }
+
+            const schema = String(item.dtz_schema || '');
+            if (schema === 'lesen_teil1_wegweiser') {
+                const wegweiserText = Array.isArray(item.wegweiser) ? item.wegweiser.join('\n') : '';
+                const situations = Array.isArray(item.situations) ? item.situations : [];
+                return situations.map((s, idx) => ({
+                    id: s.id || `l1_${idx + 1}`,
+                    question_text: `${wegweiserText}\n\n${s.no}. ${s.prompt}`,
+                    options: s.options || {},
+                    correct: s.correct || 'A',
+                    explanation: s.explanation || ''
+                }));
+            }
+
+            if (schema === 'lesen_teil2_matching') {
+                const ads = item.ads && typeof item.ads === 'object' ? item.ads : {};
+                const labels = Array.isArray(item.labels) ? item.labels : Object.keys(ads);
+                const adsText = Object.keys(ads).map((key) => `${key}) ${ads[key]}`).join('\n');
+                const optionMap = {};
+                labels.forEach((key) => {
+                    optionMap[key] = key === 'X' ? 'Keine passende Anzeige' : (ads[key] || key);
+                });
+                const situations = Array.isArray(item.situations) ? item.situations : [];
+                return situations.map((s, idx) => ({
+                    id: s.id || `l2_${idx + 1}`,
+                    question_text: `${adsText}\n\n${s.no}. ${s.prompt}`,
+                    options: optionMap,
+                    correct: s.correct || 'X',
+                    explanation: s.explanation || ''
+                }));
+            }
+
+            if (schema === 'lesen_teil3_textblock_mix') {
+                const blocks = Array.isArray(item.blocks) ? item.blocks : [];
+                const out = [];
+                blocks.forEach((b, idx) => {
+                    const baseText = `${b.title || `Text ${idx + 1}`}\n${b.text || ''}`;
+                    if (b.true_false) {
+                        out.push({
+                            id: b.true_false.id || `l3_tf_${idx + 1}`,
+                            question_text: `${baseText}\n\n${b.true_false.no}. ${b.true_false.statement}`,
+                            options: { A: 'Richtig', B: 'Falsch' },
+                            correct: b.true_false.correct || 'A',
+                            explanation: b.true_false.explanation || ''
+                        });
+                    }
+                    if (b.mc) {
+                        out.push({
+                            id: b.mc.id || `l3_mc_${idx + 1}`,
+                            question_text: `${baseText}\n\n${b.mc.no}. ${b.mc.question}`,
+                            options: b.mc.options || {},
+                            correct: b.mc.correct || 'A',
+                            explanation: b.mc.explanation || ''
+                        });
+                    }
+                });
+                return out;
+            }
+
+            if (schema === 'lesen_teil4_richtig_falsch_text') {
+                const sourceText = String(item.text || '');
+                const statements = Array.isArray(item.statements) ? item.statements : [];
+                return statements.map((s, idx) => ({
+                    id: s.id || `l4_${idx + 1}`,
+                    question_text: `${sourceText}\n\n${s.no}. ${s.statement}`,
+                    options: { A: 'Richtig', B: 'Falsch' },
+                    correct: s.correct || 'A',
+                    explanation: s.explanation || ''
+                }));
+            }
+
+            if (schema === 'lesen_teil5_lueckentext') {
+                const textTemplate = String(item.text_template || '');
+                const out = [];
+                if (item.example && item.example.options) {
+                    out.push({
+                        id: 'l5_example',
+                        question_text: `${textTemplate}\n\n0. Beispiel`,
+                        options: item.example.options,
+                        correct: item.example.correct || 'A',
+                        explanation: item.example.rationale || ''
+                    });
+                }
+                const gaps = Array.isArray(item.gaps) ? item.gaps : [];
+                gaps.forEach((g, idx) => {
+                    out.push({
+                        id: g.id || `l5_${idx + 1}`,
+                        question_text: `${textTemplate}\n\n${g.no}. Lücke`,
+                        options: g.options || {},
+                        correct: g.correct || 'A',
+                        explanation: g.rationale || ''
+                    });
+                });
+                return out;
+            }
+
+            return [];
+        }
+
+        function normalizeOptionEntries(options) {
+            if (Array.isArray(options)) {
+                return options.map((value, idx) => ({
+                    key: String.fromCharCode(65 + idx),
+                    text: String(value || '')
+                }));
+            }
+            if (options && typeof options === 'object') {
+                return Object.keys(options).map((key) => ({
+                    key: String(key),
+                    text: String(options[key] || '')
+                }));
+            }
+            return [];
         }
         
         function generateMockQuestions() {
@@ -623,6 +751,12 @@
         }
         
         function showQuestion() {
+            if (!questions.length) {
+                document.getElementById('question-text').textContent = 'Bu bölüm için soru bulunamadı.';
+                document.getElementById('answer-options').innerHTML = '';
+                document.getElementById('audio-player').style.display = 'none';
+                return;
+            }
             if (currentQuestion >= questions.length) {
                 showResults();
                 return;
@@ -635,17 +769,14 @@
             // Update question text
             const questionText = q.question_text || q.content?.question || q.content?.text || 'Frage lädt...';
             document.getElementById('question-text').textContent = questionText;
+            currentAudioText = String(q.audio_script || '');
             
             // Update options
             const optionsDiv = document.getElementById('answer-options');
-            let options = q.options || q.content?.options;
-            if (!options || !Array.isArray(options)) {
-                options = ['A', 'B', 'C', 'D'];
-            }
-            
-            optionsDiv.innerHTML = options.map((opt, idx) => `
-                <div class="answer-option" onclick="selectAnswer('${String.fromCharCode(65 + idx)}', this)">
-                    ${opt}
+            const optionEntries = normalizeOptionEntries(q.options || q.content?.options);
+            optionsDiv.innerHTML = optionEntries.map((opt) => `
+                <div class="answer-option" onclick="selectAnswer('${opt.key}', this)">
+                    ${opt.key}) ${opt.text}
                 </div>
             `).join('');
             
@@ -674,11 +805,11 @@
             
             answered = true;
             const q = questions[currentQuestion];
-            const correct = q.correct || q.correct_answer?.answer || 'A';
+            const correct = String(q.correct || q.correct_answer?.answer || 'A');
             
             // Show correct/wrong
-            document.querySelectorAll('.answer-option').forEach((el, idx) => {
-                const letter = String.fromCharCode(65 + idx);
+            document.querySelectorAll('.answer-option').forEach((el) => {
+                const letter = String(el.textContent || '').split(')')[0].trim();
                 if (letter === correct) {
                     el.classList.add('correct');
                 } else if (letter === selectedAnswer && selectedAnswer !== correct) {
@@ -753,11 +884,12 @@
         }
         
         function playAudio() {
-            // Demo audio or use speech synthesis
             if ('speechSynthesis' in window) {
-                const text = `Beispielaudio für ${currentModule} Teil ${currentTeil}, Frage ${currentQuestion + 1}`;
+                const text = currentAudioText || document.getElementById('question-text').textContent || '';
+                if (!text.trim()) return;
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'de-DE';
+                speechSynthesis.cancel();
                 speechSynthesis.speak(utterance);
             }
         }
