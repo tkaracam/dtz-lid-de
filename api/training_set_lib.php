@@ -2454,7 +2454,7 @@ function build_lesen_teil3_textblock_pools(): array
             'instructions' => 'Lesen Sie die drei Texte. Zu jedem Text gibt es zwei Aufgaben. Entscheiden Sie bei jedem Text, ob die Aussage richtig oder falsch ist und welche Antwort (a, b oder c) am besten passt. Markieren Sie Ihre Lösungen für die Aufgaben 31-36.',
             'blocks' => [
                 [
-                    'text' => 'Die Stadtbibliothek erweitert ab Mai ihre Öffnungszeiten. Von Montag bis Freitag ist jetzt von 8 bis 20 Uhr geöffnet, samstags von 10 bis 16 Uhr. Die Rückgabe am Automaten bleibt rund um die Uhr möglich. Für neue Nutzerinnen und Nutzer ist ein Ausweis nötig; die Ausstellung kostet einmalig 10 Euro. Wer den Ausweis online verlängern möchte, kann dies im Kundenkonto machen und die Gebühr per Lastschrift bezahlen. Ab sofort gibt es im ersten Stock auch mehr Arbeitsplätze mit Steckdosen, die besonders in Prüfungszeiten stark nachgefragt sind.',
+                    'text' => 'Die Stadtbibliothek am Marktplatz erweitert ab Mai ihre Öffnungszeiten deutlich. Unter der Woche ist das Haus nun von Montag bis Freitag bereits ab 8 Uhr geöffnet und schließt erst um 20 Uhr. Am Samstag kann man die Bibliothek von 10 bis 16 Uhr besuchen. Viele Besucherinnen und Besucher hatten sich längere Zeiten gewünscht, weil sie nach der Arbeit oder nach dem Unterricht noch lernen möchten. Deshalb wurden außerdem im ersten Stock zusätzliche Arbeitsplätze mit Steckdosen eingerichtet. In den Prüfungswochen sind diese Plätze oft schnell besetzt. Die Rückgabe am Automaten bleibt weiterhin rund um die Uhr möglich, auch wenn das Gebäude geschlossen ist. Wer neu angemeldet werden möchte, braucht einen Bibliotheksausweis; die Ausstellung kostet einmalig 10 Euro. Eine Verlängerung des Ausweises kann man im Kundenkonto online erledigen und die Gebühr bequem per Lastschrift zahlen.',
                     'true_false' => [
                         'no' => 31,
                         'statement' => 'Samstags ist die Bibliothek bis 20 Uhr geöffnet.',
@@ -2474,7 +2474,7 @@ function build_lesen_teil3_textblock_pools(): array
                     ],
                 ],
                 [
-                    'text' => 'Liebe Eltern, unser Elternabend findet am Donnerstag, den 14. März, um 19 Uhr statt. Wir sprechen über den Lernstand der Klasse und die Vorbereitung auf die Projektwoche. Außerdem informieren wir Sie über die neuen Arbeitsgemeinschaften im kommenden Halbjahr. Der Abend findet in Raum 2 der Schule statt; ein Online-Zugang ist diesmal nicht vorgesehen. Wenn Sie nicht teilnehmen können, schreiben Sie bitte bis Mittwochmittag eine kurze Nachricht an das Sekretariat.',
+                    'text' => 'Liebe Eltern, wir laden Sie herzlich zum Elternabend am Donnerstag, den 14. März, um 19 Uhr ein. Der Abend beginnt mit einem kurzen Überblick über den aktuellen Lernstand der Klasse und über die Schwerpunkte bis zu den Osterferien. Danach sprechen wir ausführlich über die Vorbereitung auf die Projektwoche, die geplanten Ausflüge und die Aufgabenverteilung in den Gruppen. Zusätzlich informieren wir Sie über neue Arbeitsgemeinschaften im kommenden Halbjahr, unter anderem Robotik, Theater und Schulband. Der Elternabend findet in Raum 2 im Hauptgebäude statt; ein Online-Zugang ist diesmal nicht vorgesehen. Bitte planen Sie für den Termin etwa 90 Minuten ein. Wenn Sie nicht teilnehmen können, geben Sie dem Sekretariat bitte bis Mittwochmittag kurz Bescheid.',
                     'true_false' => [
                         'no' => 33,
                         'statement' => 'Der Elternabend findet online statt.',
@@ -2494,7 +2494,7 @@ function build_lesen_teil3_textblock_pools(): array
                     ],
                 ],
                 [
-                    'text' => 'Sehr geehrte Kundin, sehr geehrter Kunde, unser Fitnessstudio bietet ab April neue Tarife an. Der Basic-Tarif kostet 24 Euro monatlich und beinhaltet die Nutzung von Montag bis Freitag. Im Plus-Tarif für 34 Euro ist zusätzlich der Wochenendzugang enthalten. Bei Abschluss bis 30. April entfällt die Aufnahmegebühr. Neue Mitglieder erhalten in den ersten zwei Wochen außerdem eine kostenlose Einführung an den Geräten. Verträge können jeweils zum Monatsende mit einer Frist von vier Wochen gekündigt werden.',
+                    'text' => 'Sehr geehrte Kundin, sehr geehrter Kunde, unser Fitnessstudio führt ab April ein neues Tarifsystem ein. Der Basic-Tarif kostet 24 Euro pro Monat und gilt für das Training von Montag bis Freitag. Im Plus-Tarif für 34 Euro ist zusätzlich der Zugang am Wochenende enthalten, sodass auch samstags und sonntags trainiert werden kann. Wer den Vertrag bis zum 30. April abschließt, zahlt keine Aufnahmegebühr. Neue Mitglieder erhalten in den ersten zwei Wochen eine kostenlose Einweisung an den Geräten und können auf Wunsch an einem kurzen Beratungsgespräch mit einem Trainer teilnehmen. Dort werden persönliche Trainingsziele und ein passender Wochenplan besprochen. Die Kündigung bleibt flexibel: Verträge können zum Monatsende mit einer Frist von vier Wochen beendet werden.',
                     'true_false' => [
                         'no' => 35,
                         'statement' => 'Im Basic-Tarif kann man auch am Wochenende trainieren.',
