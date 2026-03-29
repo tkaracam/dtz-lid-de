@@ -240,6 +240,43 @@
             font-size: 1.2rem;
             margin-bottom: 1.5rem;
             line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .question-rich {
+            display: grid;
+            gap: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-panel {
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 0.95rem 1.05rem;
+        }
+        
+        .question-panel-title {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.55rem;
+        }
+        
+        .question-lines {
+            display: grid;
+            gap: 0.4rem;
+            font-size: 0.98rem;
+            line-height: 1.42;
+        }
+        
+        .question-main {
+            font-size: 1.03rem;
+            line-height: 1.5;
+            font-weight: 600;
         }
         
         .answer-options {
@@ -733,6 +770,45 @@
             }
             return [];
         }
+
+        function escapeHtml(text) {
+            return String(text || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function renderQuestionText(questionTextRaw) {
+            const el = document.getElementById('question-text');
+            const text = String(questionTextRaw || '').trim();
+            if (!text) {
+                el.textContent = 'Frage lädt...';
+                return;
+            }
+
+            const sections = text.split('\n\n').map((s) => s.trim()).filter(Boolean);
+            if (sections.length < 2) {
+                el.textContent = text;
+                return;
+            }
+
+            const header = sections[0];
+            const body = sections.slice(1).join('\n\n');
+            const lines = header.split('\n').map((l) => l.trim()).filter(Boolean);
+            const linesHtml = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
+
+            el.innerHTML = `
+                <div class="question-rich">
+                    <div class="question-panel">
+                        <span class="question-panel-title">Wegweiser / Information</span>
+                        <div class="question-lines">${linesHtml}</div>
+                    </div>
+                    <div class="question-panel question-main">${escapeHtml(body)}</div>
+                </div>
+            `;
+        }
         
         function generateMockQuestions() {
             // Generate sample questions based on module and teil
@@ -768,7 +844,7 @@
             
             // Update question text
             const questionText = q.question_text || q.content?.question || q.content?.text || 'Frage lädt...';
-            document.getElementById('question-text').textContent = questionText;
+            renderQuestionText(questionText);
             currentAudioText = String(q.audio_script || '');
             
             // Update options
