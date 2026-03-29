@@ -379,6 +379,7 @@
             font-size: 0.95rem;
             line-height: 1.4;
             color: #e2e8f0;
+            overflow-wrap: anywhere;
         }
 
         .source-wayfinder-arrow {
@@ -386,6 +387,37 @@
             font-size: 1.05rem;
             color: #93c5fd;
             font-weight: 700;
+        }
+
+        @media (max-width: 640px) {
+            .source-wayfinder {
+                padding: 0.55rem;
+            }
+
+            .source-wayfinder-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.2rem;
+            }
+
+            .source-wayfinder-row {
+                grid-template-columns: 72px 1fr;
+                gap: 0.45rem;
+                padding: 0.42rem 0.45rem;
+            }
+
+            .source-wayfinder-level {
+                font-size: 0.86rem;
+                padding-right: 0.25rem;
+            }
+
+            .source-wayfinder-items {
+                font-size: 0.9rem;
+            }
+
+            .source-wayfinder-arrow {
+                display: none;
+            }
         }
 
         .source-info-list {
@@ -845,7 +877,7 @@
                     id: 'spr3_1',
                     topic: 'Thema: Einen gemeinsamen Lernplan für die DTZ-Prüfung organisieren',
                     mode: 'speaking',
-                    question_text: 'Teil 3: Planen Sie gemeinsam. Finden Sie eine konkrete Lösung.',
+                    question_text: 'Teil 3: Sie und Ihr Partner möchten in den nächsten 2 Wochen gemeinsam für die DTZ-Prüfung lernen. Wie organisieren Sie konkret Ihren Lernplan?',
                     speaking_points: [
                         'Wann treffen wir uns?',
                         'Wo lernen wir?',
