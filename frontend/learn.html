@@ -280,28 +280,75 @@
         .source-wayfinder {
             display: grid;
             gap: 0.55rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 1px solid rgba(96, 165, 250, 0.35);
+            background:
+                linear-gradient(180deg, rgba(30, 64, 175, 0.25), rgba(15, 23, 42, 0.22)),
+                repeating-linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.03) 0,
+                    rgba(255, 255, 255, 0.03) 8px,
+                    rgba(255, 255, 255, 0.01) 8px,
+                    rgba(255, 255, 255, 0.01) 16px
+                );
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 28px rgba(2, 6, 23, 0.35);
+        }
+
+        .source-wayfinder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.45rem 0.6rem;
+            border-radius: 8px;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.35), rgba(37, 99, 235, 0.2));
+            border: 1px solid rgba(147, 197, 253, 0.35);
+            margin-bottom: 0.35rem;
+        }
+
+        .source-wayfinder-header-title {
+            font-size: 0.86rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #dbeafe;
+        }
+
+        .source-wayfinder-header-sub {
+            font-size: 0.75rem;
+            color: #bfdbfe;
         }
 
         .source-wayfinder-row {
             display: grid;
-            grid-template-columns: 96px 1fr;
+            grid-template-columns: 92px 1fr 30px;
             gap: 0.55rem;
             align-items: center;
             padding: 0.45rem 0.55rem;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--glass-border);
+            background: linear-gradient(90deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.72));
+            border: 1px solid rgba(148, 163, 184, 0.35);
         }
 
         .source-wayfinder-level {
             font-weight: 700;
-            color: var(--accent);
+            color: #dbeafe;
             text-align: center;
+            border-right: 1px solid rgba(148, 163, 184, 0.35);
+            padding-right: 0.35rem;
         }
 
         .source-wayfinder-items {
             font-size: 0.95rem;
             line-height: 1.4;
+            color: #e2e8f0;
+        }
+
+        .source-wayfinder-arrow {
+            text-align: center;
+            font-size: 1.05rem;
+            color: #93c5fd;
+            font-weight: 700;
         }
 
         .source-info-list {
@@ -964,15 +1011,32 @@
             } else if (looksLikeWayfinder) {
                 const rows = lines.map((line) => {
                     const match = line.match(/^([^:]+):\s*(.+)$/);
-                    if (!match) return `<div class="source-wayfinder-row"><div class="source-wayfinder-level">Bereich</div><div class="source-wayfinder-items">${escapeHtml(line)}</div></div>`;
+                    if (!match) {
+                        return `
+                            <div class="source-wayfinder-row">
+                                <div class="source-wayfinder-level">Bereich</div>
+                                <div class="source-wayfinder-items">${escapeHtml(line)}</div>
+                                <div class="source-wayfinder-arrow">&rarr;</div>
+                            </div>
+                        `;
+                    }
                     return `
                         <div class="source-wayfinder-row">
                             <div class="source-wayfinder-level">${escapeHtml(match[1])}</div>
                             <div class="source-wayfinder-items">${escapeHtml(match[2])}</div>
+                            <div class="source-wayfinder-arrow">&rarr;</div>
                         </div>
                     `;
                 }).join('');
-                linesHtml = `<div class="source-wayfinder">${rows}</div>`;
+                linesHtml = `
+                    <div class="source-wayfinder">
+                        <div class="source-wayfinder-header">
+                            <span class="source-wayfinder-header-title">Lageplan / Wegweiser</span>
+                            <span class="source-wayfinder-header-sub">Bitte Bereich auswählen</span>
+                        </div>
+                        ${rows}
+                    </div>
+                `;
             } else if (hasAds) {
                 const cards = lines.map((line) => {
                     const match = line.match(/^([A-H])\)\s*(.+)$/);
