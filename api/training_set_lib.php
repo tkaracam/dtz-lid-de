@@ -2590,27 +2590,27 @@ function build_lesen_teil4_richtig_falsch_pools(): array
 {
     return [
         [
-            'title' => 'Kundendienst: Filmplattform',
+            'title' => 'Information vom Bürgeramt',
             'instructions' => 'Lesen Sie den Text. Entscheiden Sie, ob die Aussagen 37-39 richtig oder falsch sind. Markieren Sie Ihre Lösungen für die Aufgaben 37-39.',
-            'text' => 'ViewNow - Mitgliedschaft\n\nBei ViewNow können Sie Filme, Serien und Sportübertragungen live oder später ansehen. Das Angebot ist ab 14 Jahren nutzbar. Jugendliche unter 18 Jahren dürfen den Dienst nur mit Zustimmung der Erziehungsberechtigten nutzen.\n\nEin Basis-Abo kostet 7,99 Euro pro Monat und enthält Werbung. Das Plus-Abo kostet 13,99 Euro und ist ohne Werbung auf zwei Geräten gleichzeitig nutzbar.\n\nDie Zahlung ist jeweils am Tag des Vertragsabschlusses für den nächsten Monat fällig. Geht das Geld nicht rechtzeitig ein, wird der Zugang vorübergehend gesperrt.\n\nNutzerinnen und Nutzer können ihr Paket jederzeit im Kundenkonto wechseln. Der neue Preis gilt dann ab dem nächsten Abrechnungsmonat.\n\nDas Abo ist monatlich kündbar. Die Kündigung ist über das Kundenkonto oder per E-Mail möglich.',
+            'text' => 'Bürgeramt Mitte - Wichtige Hinweise\n\nFür die Beantragung eines neuen Personalausweises benötigen Sie einen Termin. Termine können online oder telefonisch vereinbart werden.\n\nBitte bringen Sie zum Termin Ihren alten Ausweis oder Reisepass mit. Zusätzlich benötigen Sie ein aktuelles biometrisches Passfoto.\n\nDie Gebühr für den neuen Personalausweis beträgt 37 Euro. Für Personen unter 24 Jahren beträgt die Gebühr 22,80 Euro.\n\nWenn Sie einen Termin nicht wahrnehmen können, sagen Sie ihn bitte spätestens 24 Stunden vorher ab. So kann der Termin an andere Personen vergeben werden.\n\nFertiggestellte Ausweise können ohne Termin während der Öffnungszeiten abgeholt werden.',
             'statements' => [
                 [
                     'no' => 37,
-                    'statement' => 'Bei ViewNow kann man auch Sportübertragungen sehen.',
+                    'statement' => 'Einen Termin für den Ausweis kann man online buchen.',
                     'correct' => 'A',
-                    'rationale' => 'Im Text werden Sportübertragungen ausdrücklich genannt.',
+                    'rationale' => 'Im Text steht: online oder telefonisch vereinbaren.',
                 ],
                 [
                     'no' => 38,
-                    'statement' => 'Das Plus-Abo kann man auf sechs Geräten gleichzeitig nutzen.',
+                    'statement' => 'Alle Personen zahlen für den neuen Ausweis 37 Euro.',
                     'correct' => 'B',
-                    'rationale' => 'Im Text steht: auf zwei Geräten gleichzeitig.',
+                    'rationale' => 'Unter 24 Jahren gilt eine niedrigere Gebühr.',
                 ],
                 [
                     'no' => 39,
-                    'statement' => 'Man kann das Abo auch per E-Mail kündigen.',
+                    'statement' => 'Die Abholung fertiger Ausweise ist auch ohne Termin möglich.',
                     'correct' => 'A',
-                    'rationale' => 'Kündigung über Kundenkonto oder per E-Mail ist möglich.',
+                    'rationale' => 'Im letzten Absatz steht: Abholung ohne Termin.',
                 ],
             ],
         ],

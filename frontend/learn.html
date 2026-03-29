@@ -987,9 +987,10 @@
                 const textTemplate = String(item.text_template || '');
                 const out = [];
                 if (item.example && item.example.options) {
+                    const exampleText = textTemplate.replace('[0]', '_____');
                     out.push({
                         id: 'l5_example',
-                        question_text: `${textTemplate}\n\n0. Beispiel`,
+                        question_text: `${exampleText}\n\nAufgabe 0 (Beispiel): Welche Option passt in die Lücke [0]?`,
                         options: item.example.options,
                         correct: item.example.correct || 'A',
                         explanation: item.example.rationale || ''
@@ -997,9 +998,11 @@
                 }
                 const gaps = Array.isArray(item.gaps) ? item.gaps : [];
                 gaps.forEach((g, idx) => {
+                    const marker = `[${g.no}]`;
+                    const clozeText = textTemplate.replace(marker, '_____');
                     out.push({
                         id: g.id || `l5_${idx + 1}`,
-                        question_text: `${textTemplate}\n\n${g.no}. Lücke`,
+                        question_text: `${clozeText}\n\nAufgabe ${g.no}: Welche Option passt in die Lücke [${g.no}]?`,
                         options: g.options || {},
                         correct: g.correct || 'A',
                         explanation: g.rationale || ''
