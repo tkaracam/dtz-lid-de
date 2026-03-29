@@ -235,6 +235,10 @@
         .audio-btn:hover {
             transform: scale(1.1);
         }
+
+        .audio-btn.playing {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+        }
         
         .question-text {
             font-size: 1.2rem;
@@ -496,10 +500,10 @@
             
             <div class="question-area" id="question-area">
                 <div class="audio-player" id="audio-player" style="display: none;">
-                    <button class="audio-btn" onclick="playAudio()">▶️</button>
+                    <button id="audioBtn" class="audio-btn" onclick="playAudio()">▶️</button>
                     <div>
                         <div style="font-weight: 600;">🎧 Audio abspielen</div>
-                        <div style="font-size: 0.875rem; color: var(--text-muted);">Klicken Sie zum Hören</div>
+                        <div id="audioStatus" style="font-size: 0.875rem; color: var(--text-muted);">Klicken Sie zum Hören</div>
                     </div>
                 </div>
                 
@@ -534,6 +538,9 @@
         let streak = 0;
         let answered = false;
         let currentAudioText = '';
+        let currentPlaybackToken = 0;
+        let currentAudioPlayer = null;
+        let currentTtsSegments = [];
         
         const moduleInfo = {
             hoeren: {
@@ -633,8 +640,12 @@
         
         async function loadQuestions() {
             try {
+                if (currentModule === 'sprechen') {
+                    questions = buildSprechenTasks(currentTeil);
+                    return;
+                }
                 if (currentModule !== 'hoeren' && currentModule !== 'lesen') {
-                    generateMockQuestions();
+                    questions = [];
                     return;
                 }
                 const response = await fetch(`${API_BASE}/dtz_${currentModule}_teil${currentTeil}_public.php`);
@@ -650,6 +661,85 @@
                 document.getElementById('question-text').textContent = 'Fragen konnten nicht geladen werden.';
                 document.getElementById('answer-options').innerHTML = '';
             }
+        }
+
+        function buildSprechenTasks(teil) {
+            if (teil === 1) {
+                return [
+                    {
+                        id: 'spr1_1',
+                        question_text: 'Sie stellen sich in der Prüfung kurz vor. Welche Antwort passt am besten auf die Frage: "Wie lange leben Sie schon in Deutschland?"',
+                        options: {
+                            A: 'Ich lebe seit drei Jahren in Deutschland.',
+                            B: 'Deutschland ist ein großes Land in Europa.',
+                            C: 'Meine Lieblingsfarbe ist Blau.'
+                        },
+                        correct: 'A',
+                        explanation: 'Teil 1: kurze, direkte Information zur Person geben.'
+                    },
+                    {
+                        id: 'spr1_2',
+                        question_text: 'Welche Struktur ist in Teil 1 am besten?',
+                        options: {
+                            A: 'Name, Herkunft, Beruf, Familie, Sprachen, Hobby',
+                            B: 'Nur das Hobby sehr lange erklären',
+                            C: 'Gar nichts sagen und auf die nächste Frage warten'
+                        },
+                        correct: 'A',
+                        explanation: 'Teil 1 folgt einer klaren Vorstellungsstruktur.'
+                    }
+                ];
+            }
+            if (teil === 2) {
+                return [
+                    {
+                        id: 'spr2_1',
+                        question_text: 'Bildbeschreibung (Teil 2): Was ist ein guter Einstieg?',
+                        options: {
+                            A: 'Auf dem Bild sehe ich ...',
+                            B: 'Ich weiß es nicht.',
+                            C: 'Nächste Frage bitte.'
+                        },
+                        correct: 'A',
+                        explanation: 'Mit einer klaren Beschreibung starten, dann Details nennen.'
+                    },
+                    {
+                        id: 'spr2_2',
+                        question_text: 'Nach der Beschreibung sollen Sie eigene Erfahrungen nennen. Welche Aussage passt?',
+                        options: {
+                            A: 'In meinem Alltag ist das ähnlich, weil ...',
+                            B: 'Ich möchte darüber nicht sprechen.',
+                            C: 'Das ist egal.'
+                        },
+                        correct: 'A',
+                        explanation: 'DTZ Teil 2 verlangt Bezug zur eigenen Situation.'
+                    }
+                ];
+            }
+            return [
+                {
+                    id: 'spr3_1',
+                    question_text: 'Teil 3 (gemeinsam planen): Was ist kommunikativ am besten?',
+                    options: {
+                        A: 'Wir könnten am Samstag um 10 Uhr starten. Passt dir das?',
+                        B: 'Ich entscheide alles alleine.',
+                        C: 'Wir sprechen nicht über Details.'
+                    },
+                    correct: 'A',
+                    explanation: 'Vorschlag machen, nachfragen, gemeinsam entscheiden.'
+                },
+                {
+                    id: 'spr3_2',
+                    question_text: 'Welche Formulierung zeigt gute Kooperation?',
+                    options: {
+                        A: 'Was hältst du davon, wenn wir ...?',
+                        B: 'Du musst das so machen.',
+                        C: 'Mir ist alles egal.'
+                    },
+                    correct: 'A',
+                    explanation: 'Teil 3 bewertet Interaktion und Kooperation.'
+                }
+            ];
         }
 
         function parseDtzQuestions(module, teil, payload) {
@@ -688,12 +778,12 @@
                 const adsText = Object.keys(ads).map((key) => `${key}) ${ads[key]}`).join('\n');
                 const optionMap = {};
                 labels.forEach((key) => {
-                    optionMap[key] = key === 'X' ? 'Keine passende Anzeige' : (ads[key] || key);
+                    optionMap[key] = key === 'X' ? 'X' : key;
                 });
                 const situations = Array.isArray(item.situations) ? item.situations : [];
                 return situations.map((s, idx) => ({
                     id: s.id || `l2_${idx + 1}`,
-                    question_text: `${adsText}\n\n${s.no}. ${s.prompt}`,
+                    question_text: `${adsText}\n\n${s.no}. ${s.prompt}\nAntworten Sie mit A-H oder X.`,
                     options: optionMap,
                     correct: s.correct || 'X',
                     explanation: s.explanation || ''
@@ -872,6 +962,11 @@
             const questionText = q.question_text || q.content?.question || q.content?.text || 'Frage lädt...';
             renderQuestionText(questionText);
             currentAudioText = String(q.audio_script || '');
+            currentTtsSegments = [];
+            const audioStatus = document.getElementById('audioStatus');
+            if (audioStatus) {
+                audioStatus.textContent = currentAudioText ? 'Klicken Sie zum Hören' : 'Kein Audio für diese Frage';
+            }
             
             // Update options
             const optionsDiv = document.getElementById('answer-options');
@@ -986,13 +1081,81 @@
         }
         
         function playAudio() {
-            if ('speechSynthesis' in window) {
-                const text = currentAudioText || document.getElementById('question-text').textContent || '';
-                if (!text.trim()) return;
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'de-DE';
-                speechSynthesis.cancel();
-                speechSynthesis.speak(utterance);
+            void playAudioAsync();
+        }
+
+        async function playAudioAsync() {
+            const btn = document.getElementById('audioBtn');
+            const statusEl = document.getElementById('audioStatus');
+            const text = (currentAudioText || '').trim();
+            if (!text) {
+                if (statusEl) statusEl.textContent = 'Kein Audio für diese Frage';
+                return;
+            }
+
+            if (currentAudioPlayer) {
+                try { currentAudioPlayer.pause(); } catch (_) {}
+                currentAudioPlayer = null;
+            }
+
+            currentPlaybackToken += 1;
+            const token = currentPlaybackToken;
+            if (btn) {
+                btn.classList.add('playing');
+                btn.textContent = '⏸';
+            }
+            if (statusEl) statusEl.textContent = 'Audio wird geladen...';
+
+            try {
+                if (!currentTtsSegments.length) {
+                    const response = await fetch(`${API_BASE}/dtz_tts_public.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ script: text })
+                    });
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok || !payload.ok) {
+                        throw new Error(String(payload.error || `Fehler ${response.status}`));
+                    }
+                    currentTtsSegments = Array.isArray(payload.segments) ? payload.segments : [];
+                }
+
+                if (!currentTtsSegments.length) {
+                    throw new Error('Keine Audio-Segmente erzeugt.');
+                }
+                if (statusEl) statusEl.textContent = 'Wiedergabe läuft...';
+
+                for (const seg of currentTtsSegments) {
+                    if (token !== currentPlaybackToken) return;
+                    const url = String(seg && seg.url ? seg.url : '');
+                    if (!url) continue;
+                    const audio = new Audio(url);
+                    currentAudioPlayer = audio;
+                    await new Promise((resolve, reject) => {
+                        audio.onended = resolve;
+                        audio.onerror = () => reject(new Error('Audio konnte nicht abgespielt werden.'));
+                        audio.play().catch(reject);
+                    });
+                    const pause = Math.max(0, Number(seg && seg.pause_ms ? seg.pause_ms : 0));
+                    if (pause > 0) {
+                        await new Promise((resolve) => setTimeout(resolve, pause));
+                    }
+                }
+                if (statusEl) statusEl.textContent = 'Audio fertig';
+            } catch (err) {
+                if (statusEl) statusEl.textContent = 'Audio-Fehler';
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'de-DE';
+                    speechSynthesis.cancel();
+                    speechSynthesis.speak(utterance);
+                }
+            } finally {
+                if (token === currentPlaybackToken && btn) {
+                    btn.classList.remove('playing');
+                    btn.textContent = '▶️';
+                }
+                currentAudioPlayer = null;
             }
         }
     </script>

@@ -36,7 +36,7 @@ if ($apiKey === '') {
 }
 
 $ttsModel = getenv('OPENAI_TTS_MODEL') ?: (defined('OPENAI_TTS_MODEL') ? (string) OPENAI_TTS_MODEL : 'gpt-4o-mini-tts');
-$defaultVoice = getenv('OPENAI_TTS_VOICE') ?: (defined('OPENAI_TTS_VOICE') ? (string) OPENAI_TTS_VOICE : 'alloy');
+$defaultVoice = getenv('OPENAI_TTS_VOICE') ?: (defined('OPENAI_TTS_VOICE') ? (string) OPENAI_TTS_VOICE : 'verse');
 
 $raw = file_get_contents('php://input') ?: '';
 $decoded = json_decode($raw, true);
@@ -125,12 +125,26 @@ function dtz_tts_split_segments(string $script): array
         }
 
         $sentences = preg_split('/(?<=[.!?])\s+/u', $textBlock) ?: [$textBlock];
+        $buffer = '';
         foreach ($sentences as $sentence) {
-            $sentence = trim((string) $sentence);
+            $sentence = trim((string)$sentence);
             if ($sentence === '') {
                 continue;
             }
-            $segments[] = ['speaker' => $speaker, 'text' => $sentence];
+            if ($buffer === '') {
+                $buffer = $sentence;
+                continue;
+            }
+            // Keep natural flow by generating slightly longer chunks.
+            if (mb_strlen($buffer . ' ' . $sentence) <= 220) {
+                $buffer .= ' ' . $sentence;
+                continue;
+            }
+            $segments[] = ['speaker' => $speaker, 'text' => $buffer];
+            $buffer = $sentence;
+        }
+        if ($buffer !== '') {
+            $segments[] = ['speaker' => $speaker, 'text' => $buffer];
         }
     }
     return $segments;
@@ -140,10 +154,16 @@ function dtz_tts_voice_for_speaker(string $speaker, string $defaultVoice): strin
 {
     $speakerKey = mb_strtoupper(trim($speaker));
     $map = [
-        'A' => getenv('OPENAI_TTS_VOICE_A') ?: 'alloy',
+        'A' => getenv('OPENAI_TTS_VOICE_A') ?: 'verse',
         'B' => getenv('OPENAI_TTS_VOICE_B') ?: 'verse',
-        'C' => getenv('OPENAI_TTS_VOICE_C') ?: 'echo',
-        'D' => getenv('OPENAI_TTS_VOICE_D') ?: 'fable',
+        'C' => getenv('OPENAI_TTS_VOICE_C') ?: 'alloy',
+        'D' => getenv('OPENAI_TTS_VOICE_D') ?: 'alloy',
+        'WOMAN 1' => getenv('OPENAI_TTS_VOICE_WOMAN_1') ?: (getenv('OPENAI_TTS_VOICE_B') ?: 'verse'),
+        'WOMAN 2' => getenv('OPENAI_TTS_VOICE_WOMAN_2') ?: (getenv('OPENAI_TTS_VOICE_D') ?: 'alloy'),
+        'MAN 1' => getenv('OPENAI_TTS_VOICE_MAN_1') ?: (getenv('OPENAI_TTS_VOICE_A') ?: 'alloy'),
+        'MAN 2' => getenv('OPENAI_TTS_VOICE_MAN_2') ?: (getenv('OPENAI_TTS_VOICE_C') ?: 'alloy'),
+        'SPEAKER 1' => getenv('OPENAI_TTS_VOICE_SPEAKER_1') ?: (getenv('OPENAI_TTS_VOICE_A') ?: 'verse'),
+        'SPEAKER 2' => getenv('OPENAI_TTS_VOICE_SPEAKER_2') ?: (getenv('OPENAI_TTS_VOICE_B') ?: 'alloy'),
         'NARRATOR' => getenv('OPENAI_TTS_VOICE_NARRATOR') ?: $defaultVoice,
     ];
     return $map[$speakerKey] ?? $defaultVoice;
@@ -151,13 +171,13 @@ function dtz_tts_voice_for_speaker(string $speaker, string $defaultVoice): strin
 
 function dtz_tts_pause_for_segment(string $speaker, string $text): int
 {
-    $pause = 130;
+    $pause = 180;
     $speakerKey = mb_strtoupper(trim($speaker));
-    if (preg_match('/^(A|B|C|D)$/u', $speakerKey) === 1) {
-        $pause = 190;
+    if (preg_match('/^(A|B|C|D|WOMAN\s+\d+|MAN\s+\d+|SPEAKER\s+\d+)$/u', $speakerKey) === 1) {
+        $pause = 230;
     }
     if (preg_match('/[!?]$/u', trim($text)) === 1) {
-        $pause += 60;
+        $pause += 80;
     }
     return $pause;
 }
@@ -283,4 +303,3 @@ echo json_encode([
     'model' => $ttsModel,
     'segments' => $outSegments,
 ], JSON_UNESCAPED_UNICODE);
-
