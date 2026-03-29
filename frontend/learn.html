@@ -277,6 +277,51 @@
             line-height: 1.42;
         }
 
+        .source-wayfinder {
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .source-wayfinder-row {
+            display: grid;
+            grid-template-columns: 96px 1fr;
+            gap: 0.55rem;
+            align-items: center;
+            padding: 0.45rem 0.55rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+        }
+
+        .source-wayfinder-level {
+            font-weight: 700;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        .source-wayfinder-items {
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .source-info-list {
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .source-info-card {
+            padding: 0.55rem 0.65rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .source-info-label {
+            font-weight: 700;
+            color: var(--accent);
+            margin-right: 0.35rem;
+        }
+
         .question-source-title {
             font-weight: 700;
             font-size: 1rem;
@@ -901,7 +946,12 @@
             const lines = header.split('\n').map((l) => l.trim()).filter(Boolean);
             const firstLine = lines[0] || '';
             const hasTextHeading = /^Text\s+\d+/i.test(firstLine);
-            const sourceLabel = hasTextHeading ? 'Lesetext' : 'Wegweiser / Information';
+            const hasAds = lines.some((line) => /^[A-H]\)/.test(line));
+            const looksLikeWayfinder = lines.some((line) => /^(UG|EG|OG|\d+\.\s*Stock|\d+\.\s*Etage)\s*:/i.test(line));
+            let sourceLabel = 'Information';
+            if (hasTextHeading) sourceLabel = 'Lesetext';
+            else if (looksLikeWayfinder) sourceLabel = 'Wegweiser';
+            else if (hasAds) sourceLabel = 'Information';
             let linesHtml = '';
 
             if (hasTextHeading) {
@@ -911,8 +961,27 @@
                     <div class="question-source-title">${escapeHtml(textTitle)}</div>
                     <div class="question-source-body">${escapeHtml(textBody)}</div>
                 `;
+            } else if (looksLikeWayfinder) {
+                const rows = lines.map((line) => {
+                    const match = line.match(/^([^:]+):\s*(.+)$/);
+                    if (!match) return `<div class="source-wayfinder-row"><div class="source-wayfinder-level">Bereich</div><div class="source-wayfinder-items">${escapeHtml(line)}</div></div>`;
+                    return `
+                        <div class="source-wayfinder-row">
+                            <div class="source-wayfinder-level">${escapeHtml(match[1])}</div>
+                            <div class="source-wayfinder-items">${escapeHtml(match[2])}</div>
+                        </div>
+                    `;
+                }).join('');
+                linesHtml = `<div class="source-wayfinder">${rows}</div>`;
+            } else if (hasAds) {
+                const cards = lines.map((line) => {
+                    const match = line.match(/^([A-H])\)\s*(.+)$/);
+                    if (!match) return `<div class="source-info-card">${escapeHtml(line)}</div>`;
+                    return `<div class="source-info-card"><span class="source-info-label">${match[1]})</span>${escapeHtml(match[2])}</div>`;
+                }).join('');
+                linesHtml = `<div class="source-info-list">${cards}</div>`;
             } else {
-                linesHtml = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
+                linesHtml = lines.map((line) => `<div class="source-info-card">${escapeHtml(line)}</div>`).join('');
             }
 
             el.innerHTML = `
