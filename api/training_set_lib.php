@@ -38,8 +38,8 @@ function load_training_template_bank(): array
     return $decoded;
 }
 
-const DTZ_HOEREN_SCENARIO_TARGET_PER_TEIL = 120;
-const DTZ_LESEN_SCENARIO_TARGET_PER_TEIL = 120;
+const DTZ_HOEREN_SCENARIO_TARGET_PER_TEIL = 240;
+const DTZ_LESEN_SCENARIO_TARGET_PER_TEIL = 240;
 
 function normalize_training_module(string $module): string
 {
@@ -2689,6 +2689,81 @@ function build_lesen_teil4_richtig_falsch_pools(): array
                 ],
             ],
         ],
+        [
+            'title' => 'Elterninformation aus der Grundschule',
+            'instructions' => 'Lesen Sie den Text. Entscheiden Sie, ob die Aussagen 37-39 richtig oder falsch sind. Markieren Sie Ihre Lösungen für die Aufgaben 37-39.',
+            'text' => 'Grundschule Sonnenweg - Informationen zum Ausflug\n\nAm Freitag, den 14. Juni, macht die Klasse 4b einen Tagesausflug in den Tierpark. Treffpunkt ist um 8:00 Uhr vor dem Haupteingang der Schule. Die Rueckkehr ist gegen 15:30 Uhr geplant.\n\nBitte geben Sie Ihrem Kind ein kleines Pausenbrot und eine Trinkflasche mit. Das Mittagessen im Tierpark wird von der Schule organisiert.\n\nDer Teilnahmebeitrag betraegt 8 Euro pro Kind. Bitte geben Sie den Betrag spaetestens bis Mittwoch in einem beschrifteten Umschlag bei der Klassenlehrerin ab.\n\nBei starkem Regen findet der Ausflug nicht statt. In diesem Fall informieren wir die Eltern am Morgen bis 7:00 Uhr ueber die Eltern-App.\n\nKinder, die nicht teilnehmen, erhalten fuer den Tag Aufgaben fuer zu Hause.',
+            'statements' => [
+                [
+                    'no' => 37,
+                    'statement' => 'Die Klasse trifft sich direkt am Tierpark.',
+                    'correct' => 'B',
+                    'rationale' => 'Treffpunkt ist vor dem Haupteingang der Schule.',
+                ],
+                [
+                    'no' => 38,
+                    'statement' => 'Das Mittagessen wird von der Schule organisiert.',
+                    'correct' => 'A',
+                    'rationale' => 'Das steht explizit in der Information.',
+                ],
+                [
+                    'no' => 39,
+                    'statement' => 'Bei Regen bekommen die Eltern morgens eine Nachricht in der App.',
+                    'correct' => 'A',
+                    'rationale' => 'Bei starkem Regen erfolgt eine Information bis 7:00 Uhr ueber die Eltern-App.',
+                ],
+            ],
+        ],
+        [
+            'title' => 'Mitteilung vom Fitnessstudio',
+            'instructions' => 'Lesen Sie den Text. Entscheiden Sie, ob die Aussagen 37-39 richtig oder falsch sind. Markieren Sie Ihre Lösungen für die Aufgaben 37-39.',
+            'text' => 'FitAktiv - Sommerprogramm\n\nVom 1. Juli bis 31. August gelten bei FitAktiv angepasste Trainingszeiten. Montag bis Freitag oeffnet das Studio bereits um 6:30 Uhr und schliesst um 21:00 Uhr. Samstags ist von 9:00 bis 16:00 Uhr geoeffnet.\n\nDie Kurse "Rueckenfit" und "Yoga am Abend" finden weiterhin statt, beginnen aber jeweils 30 Minuten spaeter als gewohnt. Die genauen Zeiten sehen Sie in der App und am Aushang im Eingangsbereich.\n\nMitglieder koennen ihren Vertrag waehrend der Sommerferien einmalig fuer bis zu vier Wochen pausieren. Die Pause muss spaetestens drei Werktage vorher online beantragt werden.\n\nDer Saunabereich bleibt vom 15. bis 22. Juli wegen Wartungsarbeiten geschlossen.\n\nFragen beantwortet unser Service-Team taeglich zwischen 10:00 und 18:00 Uhr telefonisch.',
+            'statements' => [
+                [
+                    'no' => 37,
+                    'statement' => 'Im Sommer oeffnet das Studio unter der Woche schon um 6:30 Uhr.',
+                    'correct' => 'A',
+                    'rationale' => 'Die geaenderten Zeiten nennen 6:30 Uhr als Oeffnungszeit.',
+                ],
+                [
+                    'no' => 38,
+                    'statement' => 'Die Sommerpause des Vertrags ist nur zwei Wochen lang moeglich.',
+                    'correct' => 'B',
+                    'rationale' => 'Es sind bis zu vier Wochen moeglich.',
+                ],
+                [
+                    'no' => 39,
+                    'statement' => 'Der Saunabereich ist im Juli fuer eine Woche geschlossen.',
+                    'correct' => 'B',
+                    'rationale' => 'Vom 15. bis 22. Juli sind acht Tage, nicht eine Woche.',
+                ],
+            ],
+        ],
+        [
+            'title' => 'Info vom Mobilfunkanbieter',
+            'instructions' => 'Lesen Sie den Text. Entscheiden Sie, ob die Aussagen 37-39 richtig oder falsch sind. Markieren Sie Ihre Lösungen für die Aufgaben 37-39.',
+            'text' => 'MobileNet - Tarifupdate\n\nAb dem 1. September stellen wir alle Privatkundentarife auf ein neues Datenpaket um. Ihr monatlicher Grundpreis bleibt unveraendert.\n\nKundinnen und Kunden mit dem Tarif "Smart S" erhalten kuenftig 12 GB statt 8 GB. Beim Tarif "Smart M" steigt das Datenvolumen von 20 GB auf 30 GB.\n\nSie muessen nichts aktivieren. Die Umstellung erfolgt automatisch. Nach der Umstellung bekommen Sie eine Bestaetigung per SMS.\n\nFalls Sie den Tarif wechseln moechten, ist das weiterhin zum Ende des Abrechnungsmonats moeglich. Die Anfrage kann im Kundenportal oder telefonisch gestellt werden.\n\nBei Fragen erreichen Sie unseren Support werktags von 8:00 bis 20:00 Uhr.',
+            'statements' => [
+                [
+                    'no' => 37,
+                    'statement' => 'Der monatliche Preis wird ab September hoeher.',
+                    'correct' => 'B',
+                    'rationale' => 'Der Grundpreis bleibt laut Text unveraendert.',
+                ],
+                [
+                    'no' => 38,
+                    'statement' => 'Der Tarif "Smart M" bekommt kuenftig 30 GB Datenvolumen.',
+                    'correct' => 'A',
+                    'rationale' => 'Das steht direkt in der Tarifinfo.',
+                ],
+                [
+                    'no' => 39,
+                    'statement' => 'Nach der Umstellung erhalten Kundinnen und Kunden eine SMS.',
+                    'correct' => 'A',
+                    'rationale' => 'Die Bestaetigung per SMS wird ausdrucklich genannt.',
+                ],
+            ],
+        ],
     ];
 }
 
@@ -2818,6 +2893,63 @@ function build_lesen_teil5_cloze_pools(): array
                 ['no' => 43, 'options' => ['A' => 'einen', 'B' => 'eine', 'C' => 'einem'], 'correct' => 'B', 'rationale' => 'Akkusativ feminin: eine Bestaetigung.'],
                 ['no' => 44, 'options' => ['A' => 'mit', 'B' => 'bei', 'C' => 'unter'], 'correct' => 'C', 'rationale' => 'unter Telefon erreichbar sein.'],
                 ['no' => 45, 'options' => ['A' => 'fuer', 'B' => 'gegen', 'C' => 'ueber'], 'correct' => 'A', 'rationale' => 'Vielen Dank fuer ...'],
+            ],
+        ],
+        [
+            'title' => 'Anfrage zur Kinderbetreuung',
+            'instructions' => 'Lesen Sie den Text und schliessen Sie die Luecken 40-45. Welche Loesung (A, B oder C) passt am besten?',
+            'text_template' => 'Sehr geehrte Damen und Herren,\n\nich interessiere mich [0] einen Betreuungsplatz fuer meine Tochter ab September. Sie ist drei Jahre alt und war bisher zu Hause betreut. Ich habe auf Ihrer Webseite gelesen, [40] Ihre Einrichtung von 7:30 bis 16:30 Uhr geoeffnet ist. Da ich ab September wieder arbeite, waere diese Zeit fuer uns sehr passend.\n\nKoennen Sie mir bitte mitteilen, [41] es noch freie Plaetze gibt und welche Unterlagen wir fuer die Anmeldung brauchen? Ausserdem moechte ich fragen, ob ich [42] einen Besichtigungstermin mit meiner Tochter vereinbaren kann.\n\nFalls moeglich, haetten wir naechste Woche am Dienstag oder Donnerstag Zeit. Ich freue mich [43] Ihre Antwort. Sie erreichen mich tagsueber [44] dieser Telefonnummer oder per E-Mail.\n\nVielen Dank [45] Ihre Unterstuetzung.\n\nMit freundlichen Gruessen\nMina Yilmaz',
+            'example' => [
+                'no' => 0,
+                'options' => ['A' => 'fuer', 'B' => 'um', 'C' => 'an'],
+                'correct' => 'A',
+                'rationale' => 'Man interessiert sich fuer einen Platz.',
+            ],
+            'gaps' => [
+                ['no' => 40, 'options' => ['A' => 'ob', 'B' => 'dass', 'C' => 'wenn'], 'correct' => 'B', 'rationale' => 'Ich habe gelesen, dass ...'],
+                ['no' => 41, 'options' => ['A' => 'ob', 'B' => 'warum', 'C' => 'wann'], 'correct' => 'A', 'rationale' => 'Indirekte Frage mit ob.'],
+                ['no' => 42, 'options' => ['A' => 'mich', 'B' => 'mir', 'C' => 'sie'], 'correct' => 'B', 'rationale' => 'ich kann mir einen Termin vereinbaren.'],
+                ['no' => 43, 'options' => ['A' => 'auf', 'B' => 'ueber', 'C' => 'fuer'], 'correct' => 'A', 'rationale' => 'Feste Verbindung: sich auf eine Antwort freuen.'],
+                ['no' => 44, 'options' => ['A' => 'an', 'B' => 'mit', 'C' => 'unter'], 'correct' => 'C', 'rationale' => 'unter einer Telefonnummer erreichbar.'],
+                ['no' => 45, 'options' => ['A' => 'fuer', 'B' => 'gegen', 'C' => 'mit'], 'correct' => 'A', 'rationale' => 'Vielen Dank fuer ...'],
+            ],
+        ],
+        [
+            'title' => 'Rueckfrage zur Stromrechnung',
+            'instructions' => 'Lesen Sie den Text und schliessen Sie die Luecken 40-45. Welche Loesung (A, B oder C) passt am besten?',
+            'text_template' => 'Sehr geehrte Damen und Herren,\n\nich habe gestern meine neue Stromrechnung erhalten und moechte [0] eine Position nachfragen. Im Vergleich zum letzten Jahr ist der Gesamtbetrag deutlich hoeher.\n\nIn der Rechnung steht, [40] mein Verbrauch im Dezember stark gestiegen ist. Das wundert mich, weil ich in diesem Monat zwei Wochen im Urlaub war. Deshalb bitte ich Sie, die Abrechnung noch einmal zu pruefen und mir [41] eine kurze Erklaerung zu schicken.\n\nFalls ein Zaehlerstand fehlt, kann ich Ihnen den aktuellen Wert sofort mitteilen. Bitte sagen Sie mir auch, [42] ich den Betrag in Raten zahlen kann.\n\nFuer Rueckfragen bin ich werktags [43] 9 und 15 Uhr erreichbar. Sie koennen mich [44] E-Mail oder telefonisch kontaktieren.\n\nIch danke Ihnen [45] Ihre Hilfe.\n\nMit freundlichen Gruessen\nNadja Keller',
+            'example' => [
+                'no' => 0,
+                'options' => ['A' => 'zu', 'B' => 'nach', 'C' => 'ueber'],
+                'correct' => 'A',
+                'rationale' => 'Zu einer Position nachfragen.',
+            ],
+            'gaps' => [
+                ['no' => 40, 'options' => ['A' => 'ob', 'B' => 'dass', 'C' => 'wenn'], 'correct' => 'B', 'rationale' => 'In der Rechnung steht, dass ...'],
+                ['no' => 41, 'options' => ['A' => 'mir', 'B' => 'mich', 'C' => 'ich'], 'correct' => 'A', 'rationale' => 'Dativobjekt: mir eine Erklaerung schicken.'],
+                ['no' => 42, 'options' => ['A' => 'dass', 'B' => 'ob', 'C' => 'wann'], 'correct' => 'B', 'rationale' => 'Indirekte Frage mit ob.'],
+                ['no' => 43, 'options' => ['A' => 'zwischen', 'B' => 'seit', 'C' => 'waehrend'], 'correct' => 'A', 'rationale' => 'zwischen 9 und 15 Uhr.'],
+                ['no' => 44, 'options' => ['A' => 'ohne', 'B' => 'per', 'C' => 'gegen'], 'correct' => 'B', 'rationale' => 'per E-Mail kontaktieren.'],
+                ['no' => 45, 'options' => ['A' => 'an', 'B' => 'fuer', 'C' => 'von'], 'correct' => 'B', 'rationale' => 'Ich danke Ihnen fuer ...'],
+            ],
+        ],
+        [
+            'title' => 'Absage eines Beratungstermins',
+            'instructions' => 'Lesen Sie den Text und schliessen Sie die Luecken 40-45. Welche Loesung (A, B oder C) passt am besten?',
+            'text_template' => 'Sehr geehrte Frau Schneider,\n\nvielen Dank [0] Ihre Einladung zum Beratungstermin am Mittwoch. Leider muss ich den Termin absagen, weil ich kurzfristig einen wichtigen Arzttermin bekommen habe.\n\nIch moechte Sie daher bitten, [40] wir einen neuen Termin vereinbaren koennen. Naechste Woche haette ich am Montag oder Freitag Zeit, jeweils ab 14 Uhr.\n\nFalls diese Zeiten nicht passen, koennen Sie mir gern [41] einen anderen Vorschlag schicken. Fuer das Gespraech bringe ich alle notwendigen Unterlagen mit, [42] wir die Anmeldung direkt abschliessen koennen.\n\nBitte geben Sie mir kurz Bescheid, [43] der neue Termin moeglich ist. Ich bin tagsueber [44] Handy erreichbar.\n\nVielen Dank [45] Ihr Verstaendnis.\n\nMit freundlichen Gruessen\nOmer Karaca',
+            'example' => [
+                'no' => 0,
+                'options' => ['A' => 'fuer', 'B' => 'gegen', 'C' => 'ueber'],
+                'correct' => 'A',
+                'rationale' => 'Vielen Dank fuer Ihre Einladung.',
+            ],
+            'gaps' => [
+                ['no' => 40, 'options' => ['A' => 'dass', 'B' => 'ob', 'C' => 'wann'], 'correct' => 'B', 'rationale' => 'Bitten, ob ein neuer Termin moeglich ist.'],
+                ['no' => 41, 'options' => ['A' => 'mich', 'B' => 'ich', 'C' => 'mir'], 'correct' => 'C', 'rationale' => 'mir einen Vorschlag schicken.'],
+                ['no' => 42, 'options' => ['A' => 'damit', 'B' => 'obwohl', 'C' => 'waehrend'], 'correct' => 'A', 'rationale' => 'Zwecksatz mit damit.'],
+                ['no' => 43, 'options' => ['A' => 'ob', 'B' => 'weil', 'C' => 'dass'], 'correct' => 'A', 'rationale' => 'Bitte geben Sie Bescheid, ob ...'],
+                ['no' => 44, 'options' => ['A' => 'an', 'B' => 'unter', 'C' => 'mit'], 'correct' => 'B', 'rationale' => 'unter Handy erreichbar.'],
+                ['no' => 45, 'options' => ['A' => 'fuer', 'B' => 'an', 'C' => 'gegen'], 'correct' => 'A', 'rationale' => 'Vielen Dank fuer Ihr Verstaendnis.'],
             ],
         ],
     ];
