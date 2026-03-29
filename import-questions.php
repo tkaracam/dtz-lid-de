@@ -39,7 +39,7 @@ if (empty($input['questions']) || !is_array($input['questions'])) {
 try {
     $dbPath = '/var/www/html/database/dtz_production.db';
     if (!file_exists($dbPath)) {
-        $dbPath = __DIR__ . '/../database/dtz_learning.db';
+        $dbPath = __DIR__ . '/database/dtz_learning.db';
     }
     
     $pdo = new PDO("sqlite:$dbPath", null, null, [
