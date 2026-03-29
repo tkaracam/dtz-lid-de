@@ -648,7 +648,7 @@
                 
                 <div class="nav-buttons">
                     <button class="btn-nav" onclick="previousQuestion()">← Zurück</button>
-                    <button class="btn-check" onclick="checkAnswer()">Überprüfen</button>
+                    <button id="checkBtn" class="btn-check" onclick="checkAnswer()">Überprüfen</button>
                     <button class="btn-nav" onclick="nextQuestion()">Weiter →</button>
                 </div>
             </div>
@@ -799,25 +799,21 @@
                 return [
                     {
                         id: 'spr1_1',
-                        question_text: 'Sie stellen sich in der Prüfung kurz vor. Welche Antwort passt am besten auf die Frage: "Wie lange leben Sie schon in Deutschland?"',
-                        options: {
-                            A: 'Ich lebe seit drei Jahren in Deutschland.',
-                            B: 'Deutschland ist ein großes Land in Europa.',
-                            C: 'Meine Lieblingsfarbe ist Blau.'
-                        },
-                        correct: 'A',
-                        explanation: 'Teil 1: kurze, direkte Information zur Person geben.'
-                    },
-                    {
-                        id: 'spr1_2',
-                        question_text: 'Welche Struktur ist in Teil 1 am besten?',
-                        options: {
-                            A: 'Name, Herkunft, Beruf, Familie, Sprachen, Hobby',
-                            B: 'Nur das Hobby sehr lange erklären',
-                            C: 'Gar nichts sagen und auf die nächste Frage warten'
-                        },
-                        correct: 'A',
-                        explanation: 'Teil 1 folgt einer klaren Vorstellungsstruktur.'
+                        mode: 'speaking',
+                        question_text: 'Teil 1: Stellen Sie sich vor. Sprechen Sie ca. 1 Minute frei.',
+                        speaking_points: [
+                            'Name, Alter, Herkunft',
+                            'Wohnort und Familie',
+                            'Beruf / Arbeit / Kurs',
+                            'Sprachen und Hobbys'
+                        ],
+                        redemittel: [
+                            'Ich heiße ... und komme aus ...',
+                            'Seit ... lebe ich in ...',
+                            'Zurzeit arbeite ich als ...',
+                            'In meiner Freizeit ...'
+                        ],
+                        explanation: 'Klar, ruhig und in ganzen Sätzen sprechen.'
                     }
                 ];
             }
@@ -827,27 +823,20 @@
                         id: 'spr2_1',
                         image_url: 'https://picsum.photos/seed/dtz-sprechen-teil2-1/1200/675',
                         image_caption: 'Beispielbild für Teil 2: Alltagsszene',
-                        question_text: 'Bildbeschreibung (Teil 2): Was ist ein guter Einstieg?',
-                        options: {
-                            A: 'Auf dem Bild sehe ich ...',
-                            B: 'Ich weiß es nicht.',
-                            C: 'Nächste Frage bitte.'
-                        },
-                        correct: 'A',
-                        explanation: 'Mit einer klaren Beschreibung starten, dann Details nennen.'
-                    },
-                    {
-                        id: 'spr2_2',
-                        image_url: 'https://picsum.photos/seed/dtz-sprechen-teil2-2/1200/675',
-                        image_caption: 'Beispielbild für Teil 2: öffentliche Situation',
-                        question_text: 'Nach der Beschreibung sollen Sie eigene Erfahrungen nennen. Welche Aussage passt?',
-                        options: {
-                            A: 'In meinem Alltag ist das ähnlich, weil ...',
-                            B: 'Ich möchte darüber nicht sprechen.',
-                            C: 'Das ist egal.'
-                        },
-                        correct: 'A',
-                        explanation: 'DTZ Teil 2 verlangt Bezug zur eigenen Situation.'
+                        mode: 'speaking',
+                        question_text: 'Teil 2: Beschreiben Sie das Bild und sprechen Sie danach über eigene Erfahrungen.',
+                        speaking_points: [
+                            'Was sehen Sie? (Personen, Ort, Handlung)',
+                            'Was passiert wahrscheinlich gerade?',
+                            'Wie ist Ihre eigene Erfahrung zu diesem Thema?'
+                        ],
+                        redemittel: [
+                            'Auf dem Bild sehe ich ...',
+                            'Im Vordergrund / Hintergrund ...',
+                            'Ich denke, dass ...',
+                            'Bei mir ist das ähnlich / anders, weil ...'
+                        ],
+                        explanation: 'Zuerst Bildbeschreibung, dann persönlicher Bezug.'
                     }
                 ];
             }
@@ -855,26 +844,22 @@
                 {
                     id: 'spr3_1',
                     topic: 'Thema: Einen gemeinsamen Lernplan für die DTZ-Prüfung organisieren',
-                    question_text: 'Teil 3 (gemeinsam planen): Was ist kommunikativ am besten?',
-                    options: {
-                        A: 'Wir könnten am Samstag um 10 Uhr starten. Passt dir das?',
-                        B: 'Ich entscheide alles alleine.',
-                        C: 'Wir sprechen nicht über Details.'
-                    },
-                    correct: 'A',
-                    explanation: 'Vorschlag machen, nachfragen, gemeinsam entscheiden.'
-                },
-                {
-                    id: 'spr3_2',
-                    topic: 'Thema: Einen Termin für das gemeinsame Üben im Kurs abstimmen',
-                    question_text: 'Welche Formulierung zeigt gute Kooperation?',
-                    options: {
-                        A: 'Was hältst du davon, wenn wir ...?',
-                        B: 'Du musst das so machen.',
-                        C: 'Mir ist alles egal.'
-                    },
-                    correct: 'A',
-                    explanation: 'Teil 3 bewertet Interaktion und Kooperation.'
+                    mode: 'speaking',
+                    question_text: 'Teil 3: Planen Sie gemeinsam. Finden Sie eine konkrete Lösung.',
+                    speaking_points: [
+                        'Wann treffen wir uns?',
+                        'Wo lernen wir?',
+                        'Was bringt jede Person mit?',
+                        'Wie lange üben wir?',
+                        'Wer macht was zuerst?'
+                    ],
+                    redemittel: [
+                        'Was hältst du davon, wenn wir ...?',
+                        'Ich schlage vor, dass ...',
+                        'Einverstanden, dann machen wir ...',
+                        'Können wir uns auf ... einigen?'
+                    ],
+                    explanation: 'Interaktion zeigen: vorschlagen, reagieren, entscheiden.'
                 }
             ];
         }
@@ -1181,12 +1166,32 @@
             
             // Update options
             const optionsDiv = document.getElementById('answer-options');
-            const optionEntries = normalizeOptionEntries(q.options || q.content?.options);
-            optionsDiv.innerHTML = optionEntries.map((opt) => `
-                <div class="answer-option" onclick="selectAnswer('${opt.key}', this)">
-                    ${opt.key}) ${opt.text}
-                </div>
-            `).join('');
+            if (q.mode === 'speaking') {
+                const points = Array.isArray(q.speaking_points) ? q.speaking_points : [];
+                const redemittel = Array.isArray(q.redemittel) ? q.redemittel : [];
+                optionsDiv.innerHTML = `
+                    <div class="question-panel" style="margin-bottom:12px;">
+                        <span class="question-panel-title">Aufgabe</span>
+                        <div class="question-lines">${points.map((p) => `<div>• ${escapeHtml(p)}</div>`).join('')}</div>
+                    </div>
+                    <div class="question-panel">
+                        <span class="question-panel-title">Nützliche Redemittel</span>
+                        <div class="question-lines">${redemittel.map((r) => `<div>• ${escapeHtml(r)}</div>`).join('')}</div>
+                    </div>
+                `;
+                const checkBtn = document.getElementById('checkBtn');
+                if (checkBtn) checkBtn.textContent = 'Aufgabe erledigt';
+                selectedAnswer = 'SELF';
+            } else {
+                const optionEntries = normalizeOptionEntries(q.options || q.content?.options);
+                optionsDiv.innerHTML = optionEntries.map((opt) => `
+                    <div class="answer-option" onclick="selectAnswer('${opt.key}', this)">
+                        ${opt.key}) ${opt.text}
+                    </div>
+                `).join('');
+                const checkBtn = document.getElementById('checkBtn');
+                if (checkBtn) checkBtn.textContent = 'Überprüfen';
+            }
             
             // Show/hide audio player
             document.getElementById('audio-player').style.display = 
@@ -1209,10 +1214,22 @@
         }
         
         function checkAnswer() {
-            if (!selectedAnswer || answered) return;
+            if (answered) return;
             
             answered = true;
             const q = questions[currentQuestion];
+            if (q.mode === 'speaking') {
+                const feedbackBox = document.getElementById('feedback-box');
+                const feedbackText = document.getElementById('feedback-text');
+                feedbackBox.className = 'feedback-box correct show';
+                feedbackText.innerHTML = '<strong>✓ Sprechen-Aufgabe markiert</strong><br>Sprechen Sie flüssig, klar und in ganzen Sätzen. Danach mit Weiter fortfahren.';
+                correctCount++;
+                streak++;
+                updateStats();
+                return;
+            }
+
+            if (!selectedAnswer) return;
             const correct = String(q.correct || q.correct_answer?.answer || 'A');
             
             // Show correct/wrong
