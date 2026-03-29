@@ -27,9 +27,24 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Get and verify token
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+// Get and verify token (Apache/PHP fix)
 $token = '';
+$authHeader = '';
+
+// Try different methods to get Authorization header
+if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+} elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+    $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+} elseif (function_exists('getallheaders')) {
+    $headers = getallheaders();
+    foreach ($headers as $key => $value) {
+        if (strtolower($key) === 'authorization') {
+            $authHeader = $value;
+            break;
+        }
+    }
+}
 
 if (preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
     $token = $matches[1];
