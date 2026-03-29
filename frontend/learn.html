@@ -235,11 +235,193 @@
         .audio-btn:hover {
             transform: scale(1.1);
         }
+
+        .audio-btn.playing {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+        }
         
         .question-text {
             font-size: 1.2rem;
             margin-bottom: 1.5rem;
             line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .question-media {
+            display: none;
+            margin-bottom: 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            background: var(--glass-bg);
+            overflow: hidden;
+        }
+
+        .question-media.active {
+            display: block;
+        }
+
+        .question-media img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .question-media-caption {
+            padding: 0.55rem 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .sprechteil-topic {
+            margin-bottom: 0.9rem;
+            padding: 0.7rem 0.8rem;
+            border-radius: 10px;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            background: rgba(34, 197, 94, 0.1);
+            color: #dcfce7;
+            font-size: 0.95rem;
+        }
+        
+        .question-rich {
+            display: grid;
+            gap: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-panel {
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 0.95rem 1.05rem;
+        }
+        
+        .question-panel-title {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.55rem;
+        }
+        
+        .question-lines {
+            display: grid;
+            gap: 0.4rem;
+            font-size: 0.98rem;
+            line-height: 1.42;
+        }
+
+        .source-wayfinder {
+            display: grid;
+            gap: 0.55rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 1px solid rgba(96, 165, 250, 0.35);
+            background:
+                linear-gradient(180deg, rgba(30, 64, 175, 0.25), rgba(15, 23, 42, 0.22)),
+                repeating-linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.03) 0,
+                    rgba(255, 255, 255, 0.03) 8px,
+                    rgba(255, 255, 255, 0.01) 8px,
+                    rgba(255, 255, 255, 0.01) 16px
+                );
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 28px rgba(2, 6, 23, 0.35);
+        }
+
+        .source-wayfinder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.45rem 0.6rem;
+            border-radius: 8px;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.35), rgba(37, 99, 235, 0.2));
+            border: 1px solid rgba(147, 197, 253, 0.35);
+            margin-bottom: 0.35rem;
+        }
+
+        .source-wayfinder-header-title {
+            font-size: 0.86rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #dbeafe;
+        }
+
+        .source-wayfinder-header-sub {
+            font-size: 0.75rem;
+            color: #bfdbfe;
+        }
+
+        .source-wayfinder-row {
+            display: grid;
+            grid-template-columns: 92px 1fr 30px;
+            gap: 0.55rem;
+            align-items: center;
+            padding: 0.45rem 0.55rem;
+            border-radius: 8px;
+            background: linear-gradient(90deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.72));
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
+
+        .source-wayfinder-level {
+            font-weight: 700;
+            color: #dbeafe;
+            text-align: center;
+            border-right: 1px solid rgba(148, 163, 184, 0.35);
+            padding-right: 0.35rem;
+        }
+
+        .source-wayfinder-items {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #e2e8f0;
+        }
+
+        .source-wayfinder-arrow {
+            text-align: center;
+            font-size: 1.05rem;
+            color: #93c5fd;
+            font-weight: 700;
+        }
+
+        .source-info-list {
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .source-info-card {
+            padding: 0.55rem 0.65rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .source-info-label {
+            font-weight: 700;
+            color: var(--accent);
+            margin-right: 0.35rem;
+        }
+
+        .question-source-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .question-source-body {
+            font-size: 0.98rem;
+            line-height: 1.55;
+            color: var(--text);
+        }
+        
+        .question-main {
+            font-size: 1.03rem;
+            line-height: 1.5;
+            font-weight: 600;
         }
         
         .answer-options {
@@ -447,12 +629,14 @@
             
             <div class="question-area" id="question-area">
                 <div class="audio-player" id="audio-player" style="display: none;">
-                    <button class="audio-btn" onclick="playAudio()">▶️</button>
+                    <button id="audioBtn" class="audio-btn" onclick="playAudio()">▶️</button>
                     <div>
                         <div style="font-weight: 600;">🎧 Audio abspielen</div>
-                        <div style="font-size: 0.875rem; color: var(--text-muted);">Klicken Sie zum Hören</div>
+                        <div id="audioStatus" style="font-size: 0.875rem; color: var(--text-muted);">Klicken Sie zum Hören</div>
                     </div>
                 </div>
+
+                <div id="questionMedia" class="question-media"></div>
                 
                 <div class="question-text" id="question-text"></div>
                 
@@ -464,7 +648,7 @@
                 
                 <div class="nav-buttons">
                     <button class="btn-nav" onclick="previousQuestion()">← Zurück</button>
-                    <button class="btn-check" onclick="checkAnswer()">Überprüfen</button>
+                    <button id="checkBtn" class="btn-check" onclick="checkAnswer()">Überprüfen</button>
                     <button class="btn-nav" onclick="nextQuestion()">Weiter →</button>
                 </div>
             </div>
@@ -484,6 +668,10 @@
         let correctCount = 0;
         let streak = 0;
         let answered = false;
+        let currentAudioText = '';
+        let currentPlaybackToken = 0;
+        let currentAudioPlayer = null;
+        let currentTtsSegments = [];
         
         const moduleInfo = {
             hoeren: {
@@ -583,27 +771,339 @@
         
         async function loadQuestions() {
             try {
-                const response = await fetch(`${API_BASE}/questions.php?module=${currentModule}&teil=${currentTeil}&limit=20`);
-                
-                const data = await response.json();
-                
-                if (data.success && data.questions && data.questions.length > 0) {
-                    questions = data.questions.map(q => ({
-                        id: q.id,
-                        question_text: q.content?.question || q.content?.text || 'Frage',
-                        options: q.content?.options || ['A', 'B', 'C', 'D'],
-                        correct: q.correct_answer,
-                        explanation: q.explanation,
-                        content: q.content
-                    }));
-                } else {
-                    console.log('No questions from API, using fallback');
-                    generateMockQuestions();
+                if (currentModule === 'sprechen') {
+                    questions = buildSprechenTasks(currentTeil);
+                    return;
                 }
+                if (currentModule !== 'hoeren' && currentModule !== 'lesen') {
+                    questions = [];
+                    return;
+                }
+                const response = await fetch(`${API_BASE}/dtz_${currentModule}_teil${currentTeil}_public.php`);
+                const data = await response.json().catch(() => ({}));
+                const parsed = parseDtzQuestions(currentModule, currentTeil, data);
+                if (!parsed.length) {
+                    throw new Error('Keine DTZ-Fragen gefunden.');
+                }
+                questions = parsed;
             } catch (err) {
                 console.error('Failed to load questions:', err);
-                generateMockQuestions();
+                questions = [];
+                document.getElementById('question-text').textContent = 'Fragen konnten nicht geladen werden.';
+                document.getElementById('answer-options').innerHTML = '';
             }
+        }
+
+        function buildSprechenTasks(teil) {
+            if (teil === 1) {
+                return [
+                    {
+                        id: 'spr1_1',
+                        mode: 'speaking',
+                        question_text: 'Teil 1: Stellen Sie sich vor. Sprechen Sie ca. 1 Minute frei.',
+                        speaking_points: [
+                            'Name, Alter, Herkunft',
+                            'Wohnort und Familie',
+                            'Beruf / Arbeit / Kurs',
+                            'Sprachen und Hobbys'
+                        ],
+                        redemittel: [
+                            'Ich heiße ... und komme aus ...',
+                            'Seit ... lebe ich in ...',
+                            'Zurzeit arbeite ich als ...',
+                            'In meiner Freizeit ...'
+                        ],
+                        explanation: 'Klar, ruhig und in ganzen Sätzen sprechen.'
+                    }
+                ];
+            }
+            if (teil === 2) {
+                return [
+                    {
+                        id: 'spr2_1',
+                        image_url: 'https://picsum.photos/seed/dtz-sprechen-teil2-1/1200/675',
+                        image_caption: 'Beispielbild für Teil 2: Alltagsszene',
+                        mode: 'speaking',
+                        question_text: 'Teil 2: Beschreiben Sie das Bild und sprechen Sie danach über eigene Erfahrungen.',
+                        speaking_points: [
+                            'Was sehen Sie? (Personen, Ort, Handlung)',
+                            'Was passiert wahrscheinlich gerade?',
+                            'Wie ist Ihre eigene Erfahrung zu diesem Thema?'
+                        ],
+                        redemittel: [
+                            'Auf dem Bild sehe ich ...',
+                            'Im Vordergrund / Hintergrund ...',
+                            'Ich denke, dass ...',
+                            'Bei mir ist das ähnlich / anders, weil ...'
+                        ],
+                        explanation: 'Zuerst Bildbeschreibung, dann persönlicher Bezug.'
+                    }
+                ];
+            }
+            return [
+                {
+                    id: 'spr3_1',
+                    topic: 'Thema: Einen gemeinsamen Lernplan für die DTZ-Prüfung organisieren',
+                    mode: 'speaking',
+                    question_text: 'Teil 3: Planen Sie gemeinsam. Finden Sie eine konkrete Lösung.',
+                    speaking_points: [
+                        'Wann treffen wir uns?',
+                        'Wo lernen wir?',
+                        'Was bringt jede Person mit?',
+                        'Wie lange üben wir?',
+                        'Wer macht was zuerst?'
+                    ],
+                    redemittel: [
+                        'Was hältst du davon, wenn wir ...?',
+                        'Ich schlage vor, dass ...',
+                        'Einverstanden, dann machen wir ...',
+                        'Können wir uns auf ... einigen?'
+                    ],
+                    explanation: 'Interaktion zeigen: vorschlagen, reagieren, entscheiden.'
+                }
+            ];
+        }
+
+        function parseDtzQuestions(module, teil, payload) {
+            const set = payload && payload.set ? payload.set : {};
+            const item = Array.isArray(set.items) ? (set.items[0] || null) : null;
+            if (!item) return [];
+
+            if (module === 'hoeren') {
+                const rawQuestions = Array.isArray(item.questions) ? item.questions : [];
+                return rawQuestions.map((q, idx) => ({
+                    id: q.id || `h${teil}_${idx + 1}`,
+                    question_text: q.question || 'Frage',
+                    options: q.options || {},
+                    correct: q.correct || 'A',
+                    explanation: q.explanation || '',
+                    audio_script: q.audio_script || item.audio_script || ''
+                }));
+            }
+
+            const schema = String(item.dtz_schema || '');
+            if (schema === 'lesen_teil1_wegweiser') {
+                const wegweiserText = Array.isArray(item.wegweiser) ? item.wegweiser.join('\n') : '';
+                const situations = Array.isArray(item.situations) ? item.situations : [];
+                return situations.map((s, idx) => ({
+                    id: s.id || `l1_${idx + 1}`,
+                    question_text: `${wegweiserText}\n\n${s.no}. ${s.prompt}`,
+                    options: s.options || {},
+                    correct: s.correct || 'A',
+                    explanation: s.explanation || ''
+                }));
+            }
+
+            if (schema === 'lesen_teil2_matching') {
+                const ads = item.ads && typeof item.ads === 'object' ? item.ads : {};
+                const labels = Array.isArray(item.labels) ? item.labels : Object.keys(ads);
+                const adsText = Object.keys(ads).map((key) => `${key}) ${ads[key]}`).join('\n');
+                const optionMap = {};
+                labels.forEach((key) => {
+                    optionMap[key] = key === 'X' ? 'X' : key;
+                });
+                const situations = Array.isArray(item.situations) ? item.situations : [];
+                return situations.map((s, idx) => ({
+                    id: s.id || `l2_${idx + 1}`,
+                    question_text: `${adsText}\n\n${s.no}. ${s.prompt}\nAntworten Sie mit A-H oder X.`,
+                    options: optionMap,
+                    correct: s.correct || 'X',
+                    explanation: s.explanation || ''
+                }));
+            }
+
+            if (schema === 'lesen_teil3_textblock_mix') {
+                const blocks = Array.isArray(item.blocks) ? item.blocks : [];
+                const out = [];
+                blocks.forEach((b, idx) => {
+                    const baseText = `${b.title || `Text ${idx + 1}`}\n${b.text || ''}`;
+                    if (b.true_false) {
+                        out.push({
+                            id: b.true_false.id || `l3_tf_${idx + 1}`,
+                            question_text: `${baseText}\n\n${b.true_false.no}. ${b.true_false.statement}`,
+                            options: { A: 'Richtig', B: 'Falsch' },
+                            correct: b.true_false.correct || 'A',
+                            explanation: b.true_false.explanation || ''
+                        });
+                    }
+                    if (b.mc) {
+                        out.push({
+                            id: b.mc.id || `l3_mc_${idx + 1}`,
+                            question_text: `${baseText}\n\n${b.mc.no}. ${b.mc.question}`,
+                            options: b.mc.options || {},
+                            correct: b.mc.correct || 'A',
+                            explanation: b.mc.explanation || ''
+                        });
+                    }
+                });
+                return out;
+            }
+
+            if (schema === 'lesen_teil4_richtig_falsch_text') {
+                const sourceText = String(item.text || '');
+                const statements = Array.isArray(item.statements) ? item.statements : [];
+                return statements.map((s, idx) => ({
+                    id: s.id || `l4_${idx + 1}`,
+                    question_text: `${sourceText}\n\n${s.no}. ${s.statement}`,
+                    options: { A: 'Richtig', B: 'Falsch' },
+                    correct: s.correct || 'A',
+                    explanation: s.explanation || ''
+                }));
+            }
+
+            if (schema === 'lesen_teil5_lueckentext') {
+                const textTemplate = String(item.text_template || '');
+                const out = [];
+                if (item.example && item.example.options) {
+                    out.push({
+                        id: 'l5_example',
+                        question_text: `${textTemplate}\n\n0. Beispiel`,
+                        options: item.example.options,
+                        correct: item.example.correct || 'A',
+                        explanation: item.example.rationale || ''
+                    });
+                }
+                const gaps = Array.isArray(item.gaps) ? item.gaps : [];
+                gaps.forEach((g, idx) => {
+                    out.push({
+                        id: g.id || `l5_${idx + 1}`,
+                        question_text: `${textTemplate}\n\n${g.no}. Lücke`,
+                        options: g.options || {},
+                        correct: g.correct || 'A',
+                        explanation: g.rationale || ''
+                    });
+                });
+                return out;
+            }
+
+            return [];
+        }
+
+        function normalizeOptionEntries(options) {
+            if (Array.isArray(options)) {
+                return options.map((value, idx) => ({
+                    key: String.fromCharCode(65 + idx),
+                    text: String(value || '')
+                }));
+            }
+            if (options && typeof options === 'object') {
+                return Object.keys(options).map((key) => ({
+                    key: String(key),
+                    text: String(options[key] || '')
+                }));
+            }
+            return [];
+        }
+
+        function escapeHtml(text) {
+            return String(text || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function renderQuestionText(questionTextRaw) {
+            const el = document.getElementById('question-text');
+            const text = String(questionTextRaw || '').trim();
+            if (!text) {
+                el.textContent = 'Frage lädt...';
+                return;
+            }
+
+            const sections = text.split('\n\n').map((s) => s.trim()).filter(Boolean);
+            if (sections.length < 2) {
+                el.textContent = text;
+                return;
+            }
+
+            let header = sections[0];
+            let body = sections.slice(1).join('\n\n');
+            let topicHtml = '';
+            const hasTopicHeader = /^Thema:/i.test(header);
+            if (hasTopicHeader) {
+                topicHtml = `<div class="sprechteil-topic">${escapeHtml(header)}</div>`;
+                header = sections[1] || '';
+                body = sections.slice(2).join('\n\n') || body;
+            }
+            if (hasTopicHeader && sections.length <= 2) {
+                el.innerHTML = `
+                    <div class="question-rich">
+                        ${topicHtml}
+                        <div class="question-panel question-main">${escapeHtml(header || body)}</div>
+                    </div>
+                `;
+                return;
+            }
+            const lines = header.split('\n').map((l) => l.trim()).filter(Boolean);
+            const firstLine = lines[0] || '';
+            const hasTextHeading = /^Text\s+\d+/i.test(firstLine);
+            const hasAds = lines.some((line) => /^[A-H]\)/.test(line));
+            const looksLikeWayfinder = lines.some((line) => /^(UG|EG|OG|\d+\.\s*Stock|\d+\.\s*Etage)\s*:/i.test(line));
+            let sourceLabel = 'Information';
+            if (hasTextHeading) sourceLabel = 'Lesetext';
+            else if (looksLikeWayfinder) sourceLabel = 'Wegweiser';
+            else if (hasAds) sourceLabel = 'Information';
+            let linesHtml = '';
+
+            if (hasTextHeading) {
+                const textTitle = firstLine;
+                const textBody = lines.slice(1).join('\n');
+                linesHtml = `
+                    <div class="question-source-title">${escapeHtml(textTitle)}</div>
+                    <div class="question-source-body">${escapeHtml(textBody)}</div>
+                `;
+            } else if (looksLikeWayfinder) {
+                const rows = lines.map((line) => {
+                    const match = line.match(/^([^:]+):\s*(.+)$/);
+                    if (!match) {
+                        return `
+                            <div class="source-wayfinder-row">
+                                <div class="source-wayfinder-level">Bereich</div>
+                                <div class="source-wayfinder-items">${escapeHtml(line)}</div>
+                                <div class="source-wayfinder-arrow">&rarr;</div>
+                            </div>
+                        `;
+                    }
+                    return `
+                        <div class="source-wayfinder-row">
+                            <div class="source-wayfinder-level">${escapeHtml(match[1])}</div>
+                            <div class="source-wayfinder-items">${escapeHtml(match[2])}</div>
+                            <div class="source-wayfinder-arrow">&rarr;</div>
+                        </div>
+                    `;
+                }).join('');
+                linesHtml = `
+                    <div class="source-wayfinder">
+                        <div class="source-wayfinder-header">
+                            <span class="source-wayfinder-header-title">Lageplan / Wegweiser</span>
+                            <span class="source-wayfinder-header-sub">Bitte Bereich auswählen</span>
+                        </div>
+                        ${rows}
+                    </div>
+                `;
+            } else if (hasAds) {
+                const cards = lines.map((line) => {
+                    const match = line.match(/^([A-H])\)\s*(.+)$/);
+                    if (!match) return `<div class="source-info-card">${escapeHtml(line)}</div>`;
+                    return `<div class="source-info-card"><span class="source-info-label">${match[1]})</span>${escapeHtml(match[2])}</div>`;
+                }).join('');
+                linesHtml = `<div class="source-info-list">${cards}</div>`;
+            } else {
+                linesHtml = lines.map((line) => `<div class="source-info-card">${escapeHtml(line)}</div>`).join('');
+            }
+
+            el.innerHTML = `
+                <div class="question-rich">
+                    ${topicHtml}
+                    <div class="question-panel">
+                        <span class="question-panel-title">${escapeHtml(sourceLabel)}</span>
+                        <div class="question-lines">${linesHtml}</div>
+                    </div>
+                    <div class="question-panel question-main">${escapeHtml(body)}</div>
+                </div>
+            `;
         }
         
         function generateMockQuestions() {
@@ -623,6 +1123,12 @@
         }
         
         function showQuestion() {
+            if (!questions.length) {
+                document.getElementById('question-text').textContent = 'Bu bölüm için soru bulunamadı.';
+                document.getElementById('answer-options').innerHTML = '';
+                document.getElementById('audio-player').style.display = 'none';
+                return;
+            }
             if (currentQuestion >= questions.length) {
                 showResults();
                 return;
@@ -634,20 +1140,58 @@
             
             // Update question text
             const questionText = q.question_text || q.content?.question || q.content?.text || 'Frage lädt...';
-            document.getElementById('question-text').textContent = questionText;
+            renderQuestionText((q.topic ? `${q.topic}\n\n` : '') + questionText);
+            currentAudioText = String(q.audio_script || '');
+            currentTtsSegments = [];
+            const audioStatus = document.getElementById('audioStatus');
+            if (audioStatus) {
+                audioStatus.textContent = currentAudioText ? 'Klicken Sie zum Hören' : 'Kein Audio für diese Frage';
+            }
+
+            const mediaEl = document.getElementById('questionMedia');
+            if (mediaEl) {
+                const imgUrl = String(q.image_url || '').trim();
+                if (imgUrl) {
+                    mediaEl.classList.add('active');
+                    const caption = String(q.image_caption || 'Bildbeschreibung (Teil 2)');
+                    mediaEl.innerHTML = `
+                        <img src="${escapeHtml(imgUrl)}" alt="Bildbeschreibung Teil 2">
+                        <div class="question-media-caption">${escapeHtml(caption)}</div>
+                    `;
+                } else {
+                    mediaEl.classList.remove('active');
+                    mediaEl.innerHTML = '';
+                }
+            }
             
             // Update options
             const optionsDiv = document.getElementById('answer-options');
-            let options = q.options || q.content?.options;
-            if (!options || !Array.isArray(options)) {
-                options = ['A', 'B', 'C', 'D'];
+            if (q.mode === 'speaking') {
+                const points = Array.isArray(q.speaking_points) ? q.speaking_points : [];
+                const redemittel = Array.isArray(q.redemittel) ? q.redemittel : [];
+                optionsDiv.innerHTML = `
+                    <div class="question-panel" style="margin-bottom:12px;">
+                        <span class="question-panel-title">Aufgabe</span>
+                        <div class="question-lines">${points.map((p) => `<div>• ${escapeHtml(p)}</div>`).join('')}</div>
+                    </div>
+                    <div class="question-panel">
+                        <span class="question-panel-title">Nützliche Redemittel</span>
+                        <div class="question-lines">${redemittel.map((r) => `<div>• ${escapeHtml(r)}</div>`).join('')}</div>
+                    </div>
+                `;
+                const checkBtn = document.getElementById('checkBtn');
+                if (checkBtn) checkBtn.textContent = 'Aufgabe erledigt';
+                selectedAnswer = 'SELF';
+            } else {
+                const optionEntries = normalizeOptionEntries(q.options || q.content?.options);
+                optionsDiv.innerHTML = optionEntries.map((opt) => `
+                    <div class="answer-option" onclick="selectAnswer('${opt.key}', this)">
+                        ${opt.key}) ${opt.text}
+                    </div>
+                `).join('');
+                const checkBtn = document.getElementById('checkBtn');
+                if (checkBtn) checkBtn.textContent = 'Überprüfen';
             }
-            
-            optionsDiv.innerHTML = options.map((opt, idx) => `
-                <div class="answer-option" onclick="selectAnswer('${String.fromCharCode(65 + idx)}', this)">
-                    ${opt}
-                </div>
-            `).join('');
             
             // Show/hide audio player
             document.getElementById('audio-player').style.display = 
@@ -670,15 +1214,27 @@
         }
         
         function checkAnswer() {
-            if (!selectedAnswer || answered) return;
+            if (answered) return;
             
             answered = true;
             const q = questions[currentQuestion];
-            const correct = q.correct || q.correct_answer?.answer || 'A';
+            if (q.mode === 'speaking') {
+                const feedbackBox = document.getElementById('feedback-box');
+                const feedbackText = document.getElementById('feedback-text');
+                feedbackBox.className = 'feedback-box correct show';
+                feedbackText.innerHTML = '<strong>✓ Sprechen-Aufgabe markiert</strong><br>Sprechen Sie flüssig, klar und in ganzen Sätzen. Danach mit Weiter fortfahren.';
+                correctCount++;
+                streak++;
+                updateStats();
+                return;
+            }
+
+            if (!selectedAnswer) return;
+            const correct = String(q.correct || q.correct_answer?.answer || 'A');
             
             // Show correct/wrong
-            document.querySelectorAll('.answer-option').forEach((el, idx) => {
-                const letter = String.fromCharCode(65 + idx);
+            document.querySelectorAll('.answer-option').forEach((el) => {
+                const letter = String(el.textContent || '').split(')')[0].trim();
                 if (letter === correct) {
                     el.classList.add('correct');
                 } else if (letter === selectedAnswer && selectedAnswer !== correct) {
@@ -753,12 +1309,81 @@
         }
         
         function playAudio() {
-            // Demo audio or use speech synthesis
-            if ('speechSynthesis' in window) {
-                const text = `Beispielaudio für ${currentModule} Teil ${currentTeil}, Frage ${currentQuestion + 1}`;
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'de-DE';
-                speechSynthesis.speak(utterance);
+            void playAudioAsync();
+        }
+
+        async function playAudioAsync() {
+            const btn = document.getElementById('audioBtn');
+            const statusEl = document.getElementById('audioStatus');
+            const text = (currentAudioText || '').trim();
+            if (!text) {
+                if (statusEl) statusEl.textContent = 'Kein Audio für diese Frage';
+                return;
+            }
+
+            if (currentAudioPlayer) {
+                try { currentAudioPlayer.pause(); } catch (_) {}
+                currentAudioPlayer = null;
+            }
+
+            currentPlaybackToken += 1;
+            const token = currentPlaybackToken;
+            if (btn) {
+                btn.classList.add('playing');
+                btn.textContent = '⏸';
+            }
+            if (statusEl) statusEl.textContent = 'Audio wird geladen...';
+
+            try {
+                if (!currentTtsSegments.length) {
+                    const response = await fetch(`${API_BASE}/dtz_tts_public.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ script: text })
+                    });
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok || !payload.ok) {
+                        throw new Error(String(payload.error || `Fehler ${response.status}`));
+                    }
+                    currentTtsSegments = Array.isArray(payload.segments) ? payload.segments : [];
+                }
+
+                if (!currentTtsSegments.length) {
+                    throw new Error('Keine Audio-Segmente erzeugt.');
+                }
+                if (statusEl) statusEl.textContent = 'Wiedergabe läuft...';
+
+                for (const seg of currentTtsSegments) {
+                    if (token !== currentPlaybackToken) return;
+                    const url = String(seg && seg.url ? seg.url : '');
+                    if (!url) continue;
+                    const audio = new Audio(url);
+                    currentAudioPlayer = audio;
+                    await new Promise((resolve, reject) => {
+                        audio.onended = resolve;
+                        audio.onerror = () => reject(new Error('Audio konnte nicht abgespielt werden.'));
+                        audio.play().catch(reject);
+                    });
+                    const pause = Math.max(0, Number(seg && seg.pause_ms ? seg.pause_ms : 0));
+                    if (pause > 0) {
+                        await new Promise((resolve) => setTimeout(resolve, pause));
+                    }
+                }
+                if (statusEl) statusEl.textContent = 'Audio fertig';
+            } catch (err) {
+                if (statusEl) statusEl.textContent = 'Audio-Fehler';
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'de-DE';
+                    speechSynthesis.cancel();
+                    speechSynthesis.speak(utterance);
+                }
+            } finally {
+                if (token === currentPlaybackToken && btn) {
+                    btn.classList.remove('playing');
+                    btn.textContent = '▶️';
+                }
+                currentAudioPlayer = null;
             }
         }
     </script>
