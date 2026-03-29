@@ -240,6 +240,25 @@ class QuestionController
     public function dashboard(array $user): array
     {
         $userId = $user['id'];
+        $moduleStatsRaw = $this->answerModel->getModuleStats($userId, 30);
+        $moduleStats = [
+            'lesen' => ['total_questions' => 0, 'correct_count' => 0, 'accuracy_rate' => 0.0],
+            'hoeren' => ['total_questions' => 0, 'correct_count' => 0, 'accuracy_rate' => 0.0],
+            'schreiben' => ['total_questions' => 0, 'correct_count' => 0, 'accuracy_rate' => 0.0],
+            'sprechen' => ['total_questions' => 0, 'correct_count' => 0, 'accuracy_rate' => 0.0],
+            'lid' => ['total_questions' => 0, 'correct_count' => 0, 'accuracy_rate' => 0.0],
+        ];
+        foreach ($moduleStatsRaw as $row) {
+            $module = (string)($row['module'] ?? '');
+            if (!isset($moduleStats[$module])) {
+                continue;
+            }
+            $moduleStats[$module] = [
+                'total_questions' => (int)($row['total_questions'] ?? 0),
+                'correct_count' => (int)($row['correct_count'] ?? 0),
+                'accuracy_rate' => (float)($row['accuracy_rate'] ?? 0.0),
+            ];
+        }
         
         return [
             'success' => true,
@@ -251,6 +270,7 @@ class QuestionController
             'progress' => [
                 'total_questions_available' => $this->questionModel->count(),
                 'weak_areas' => $this->questionModel->getWeakTopics($userId, 'lesen'),
+                'module_stats' => $moduleStats,
             ]
         ];
     }

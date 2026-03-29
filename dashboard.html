@@ -372,6 +372,7 @@
       <div class="nav-user">
         <span class="nav-user-level" id="userLevel">A2</span>
         <span class="nav-user-name" id="userName">...</span>
+        <a id="adminPanelBtn" href="/frontend/admin/dashboard.html" class="btn-logout" style="display:none;text-decoration:none;">Admin</a>
         <button class="btn-logout" onclick="logout()">Abmelden</button>
       </div>
     </div>
@@ -422,7 +423,7 @@
     <!-- Modules -->
     <h2 class="section-title">Wähle ein Modul</h2>
     <div class="modules-grid">
-      <a href="/learn.html?module=lesen" class="module-card">
+      <a href="/learn.html?module=lesen" class="module-card" data-module="lesen">
         <div class="module-header">
           <div class="module-icon lesen">📖</div>
           <div class="module-title">Lesen</div>
@@ -430,13 +431,13 @@
         <p class="module-desc">Textverständnis und Lesekompetenz üben</p>
         <div class="module-progress">
           <div class="module-progress-bar">
-            <div class="module-progress-fill" style="width: 0%"></div>
+            <div class="module-progress-fill" id="mod-fill-lesen" style="width: 0%"></div>
           </div>
-          <span class="module-progress-text">0%</span>
+          <span class="module-progress-text" id="mod-text-lesen">0%</span>
         </div>
       </a>
 
-      <a href="/learn.html?module=hoeren" class="module-card">
+      <a href="/learn.html?module=hoeren" class="module-card" data-module="hoeren">
         <div class="module-header">
           <div class="module-icon hoeren">🎧</div>
           <div class="module-title">Hören</div>
@@ -444,13 +445,13 @@
         <p class="module-desc">Hörverständnis mit Audio-Übungen</p>
         <div class="module-progress">
           <div class="module-progress-bar">
-            <div class="module-progress-fill" style="width: 0%"></div>
+            <div class="module-progress-fill" id="mod-fill-hoeren" style="width: 0%"></div>
           </div>
-          <span class="module-progress-text">0%</span>
+          <span class="module-progress-text" id="mod-text-hoeren">0%</span>
         </div>
       </a>
 
-      <a href="/learn.html?module=schreiben" class="module-card">
+      <a href="/learn.html?module=schreiben" class="module-card" data-module="schreiben">
         <div class="module-header">
           <div class="module-icon schreiben">✍️</div>
           <div class="module-title">Schreiben</div>
@@ -458,13 +459,13 @@
         <p class="module-desc">Briefe schreiben mit KI-Korrektur</p>
         <div class="module-progress">
           <div class="module-progress-bar">
-            <div class="module-progress-fill" style="width: 0%"></div>
+            <div class="module-progress-fill" id="mod-fill-schreiben" style="width: 0%"></div>
           </div>
-          <span class="module-progress-text">0%</span>
+          <span class="module-progress-text" id="mod-text-schreiben">0%</span>
         </div>
       </a>
 
-      <a href="/learn.html?module=sprechen" class="module-card">
+      <a href="/learn.html?module=sprechen" class="module-card" data-module="sprechen">
         <div class="module-header">
           <div class="module-icon sprechen">🗣️</div>
           <div class="module-title">Sprechen</div>
@@ -472,13 +473,13 @@
         <p class="module-desc">Mündliche Kommunikation trainieren</p>
         <div class="module-progress">
           <div class="module-progress-bar">
-            <div class="module-progress-fill" style="width: 0%"></div>
+            <div class="module-progress-fill" id="mod-fill-sprechen" style="width: 0%"></div>
           </div>
-          <span class="module-progress-text">0%</span>
+          <span class="module-progress-text" id="mod-text-sprechen">0%</span>
         </div>
       </a>
 
-      <a href="/learn.html?module=lid" class="module-card">
+      <a href="/learn.html?module=lid" class="module-card" data-module="lid">
         <div class="module-header">
           <div class="module-icon lid">🇩🇪</div>
           <div class="module-title">Leben in Deutschland</div>
@@ -486,9 +487,9 @@
         <p class="module-desc">300 Fragen zur Orientierungskurs-Prüfung</p>
         <div class="module-progress">
           <div class="module-progress-bar">
-            <div class="module-progress-fill" style="width: 0%"></div>
+            <div class="module-progress-fill" id="mod-fill-lid" style="width: 0%"></div>
           </div>
-          <span class="module-progress-text">0%</span>
+          <span class="module-progress-text" id="mod-text-lid">0%</span>
         </div>
       </a>
     </div>
@@ -517,6 +518,10 @@
       document.getElementById('userName').textContent = user.display_name;
       document.getElementById('userLevel').textContent = user.level;
       document.getElementById('welcomeName').textContent = user.display_name.split(' ')[0];
+      if (user.role === 'admin') {
+        const adminBtn = document.getElementById('adminPanelBtn');
+        if (adminBtn) adminBtn.style.display = 'inline-block';
+      }
 
       // Show trial banner if trialing
       if (user.subscription_status === 'trialing') {
@@ -528,6 +533,7 @@
       try {
         const statsData = await api.getStats();
         if (statsData.success) {
+          window.statsData = statsData;
           stats = statsData.stats;
           updateStats(stats);
         }
@@ -560,6 +566,16 @@
       if (solved > 0) {
         document.getElementById('activityEmpty').style.display = 'none';
       }
+
+      const moduleStats = (window.statsData && window.statsData.progress && window.statsData.progress.module_stats) || {};
+      ['lesen', 'hoeren', 'schreiben', 'sprechen', 'lid'].forEach((module) => {
+        const item = moduleStats[module] || { accuracy_rate: 0, total_questions: 0 };
+        const accuracy = Math.max(0, Math.min(100, Number(item.accuracy_rate || 0)));
+        const fill = document.getElementById(`mod-fill-${module}`);
+        const text = document.getElementById(`mod-text-${module}`);
+        if (fill) fill.style.width = `${accuracy}%`;
+        if (text) text.textContent = `${Math.round(accuracy)}%`;
+      });
     }
 
     async function logout() {

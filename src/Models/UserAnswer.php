@@ -175,6 +175,27 @@ class UserAnswer
             'total_points' => (int) ($result['total_points'] ?? 0),
         ];
     }
+
+    public function getModuleStats(int $userId, int $days = 30): array
+    {
+        $days = max(1, min(365, $days));
+        return $this->db->select("
+            SELECT
+                q.module AS module,
+                COUNT(*) AS total_questions,
+                SUM(CASE WHEN ua.is_correct THEN 1 ELSE 0 END) AS correct_count,
+                ROUND(
+                    100.0 * SUM(CASE WHEN ua.is_correct THEN 1 ELSE 0 END) / COUNT(*),
+                    2
+                ) AS accuracy_rate
+            FROM user_answers ua
+            JOIN question_pools q ON q.id = ua.question_id
+            WHERE ua.user_id = ?
+              AND ua.created_at >= datetime('now', '-' || ? || ' days')
+            GROUP BY q.module
+            ORDER BY total_questions DESC
+        ", [$userId, $days]);
+    }
     
     /**
      * Check if user has answered question today

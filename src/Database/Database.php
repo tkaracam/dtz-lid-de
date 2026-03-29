@@ -11,15 +11,15 @@ class Database {
     private PDO $pdo;
     
     private function __construct() {
-        $driver = $_ENV['DB_DRIVER'] ?? 'sqlite';
+        $driver = $this->env('DB_DRIVER', 'sqlite');
         
         try {
             if ($driver === 'pgsql') {
-                $host = $_ENV['DB_HOST'] ?? 'localhost';
-                $port = $_ENV['DB_PORT'] ?? '5432';
-                $name = $_ENV['DB_NAME'] ?? 'dtz_learning';
-                $user = $_ENV['DB_USER'] ?? 'postgres';
-                $pass = $_ENV['DB_PASS'] ?? '';
+                $host = $this->env('DB_HOST', 'localhost');
+                $port = $this->env('DB_PORT', '5432');
+                $name = $this->env('DB_NAME', 'dtz_learning');
+                $user = $this->env('DB_USER', 'postgres');
+                $pass = $this->env('DB_PASS', '');
                 $dsn = "pgsql:host=$host;port=$port;dbname=$name";
                 
                 $this->pdo = new PDO($dsn, $user, $pass, [
@@ -29,7 +29,7 @@ class Database {
                 ]);
             } else {
                 // SQLite - try multiple paths
-                $dbPath = $_ENV['DB_PATH'] ?? '/var/www/html/database/dtz_production.db';
+                $dbPath = $this->env('DB_PATH', '/var/www/html/database/dtz_production.db');
                 
                 // Ensure directory exists
                 $dbDir = dirname($dbPath);
@@ -57,15 +57,18 @@ class Database {
             throw new \Exception('Database connection failed: ' . $e->getMessage());
         }
     }
+
+    private function env(string $key, $default = null)
+    {
+        $val = $_ENV[$key] ?? getenv($key);
+        if ($val === false || $val === null || $val === '') {
+            return $default;
+        }
+        return $val;
+    }
     
     private function initializeTables(): void {
         try {
-            // Check if users table exists
-            $result = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='users'");
-            if ($result->fetch()) {
-                return; // Tables already exist
-            }
-            
             // Create users table
             $this->pdo->exec("CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -89,6 +92,79 @@ class Database {
             
             // Create indexes
             $this->pdo->exec("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)");
+
+            // Core learning tables
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS question_pools (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                module VARCHAR(20) NOT NULL,
+                teil INTEGER NOT NULL,
+                level VARCHAR(2) NOT NULL,
+                question_type VARCHAR(30) NOT NULL,
+                content TEXT NOT NULL,
+                media_urls TEXT,
+                correct_answer TEXT NOT NULL,
+                explanation TEXT,
+                hints TEXT,
+                difficulty INTEGER DEFAULT 5,
+                points INTEGER DEFAULT 10,
+                usage_count INTEGER DEFAULT 0,
+                correct_rate DECIMAL(5,2),
+                avg_time_seconds INTEGER,
+                last_used_at TIMESTAMP,
+                is_active BOOLEAN DEFAULT 1,
+                is_premium_only BOOLEAN DEFAULT 0,
+                created_by INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+            $this->pdo->exec("CREATE INDEX IF NOT EXISTS idx_questions_module_level_active ON question_pools(module, level, is_active)");
+
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS user_answers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                question_id INTEGER NOT NULL,
+                session_id VARCHAR(64) NOT NULL,
+                user_answer TEXT NOT NULL,
+                is_correct BOOLEAN NOT NULL,
+                points_earned INTEGER DEFAULT 0,
+                time_spent_seconds INTEGER DEFAULT 0,
+                attempts_count INTEGER DEFAULT 1,
+                ai_feedback TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+            $this->pdo->exec("CREATE INDEX IF NOT EXISTS idx_user_answers_user_date ON user_answers(user_id, created_at)");
+            $this->pdo->exec("CREATE INDEX IF NOT EXISTS idx_user_answers_question ON user_answers(question_id)");
+
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS daily_stats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                date DATE NOT NULL,
+                total_questions INTEGER DEFAULT 0,
+                correct_count INTEGER DEFAULT 0,
+                total_points INTEGER DEFAULT 0,
+                total_time_minutes INTEGER DEFAULT 0,
+                module_breakdown TEXT,
+                goal_reached BOOLEAN DEFAULT 0,
+                streak_maintained BOOLEAN DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, date)
+            )");
+
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS user_question_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                question_id INTEGER NOT NULL,
+                first_seen_at TIMESTAMP,
+                last_seen_at TIMESTAMP,
+                times_seen INTEGER DEFAULT 0,
+                times_correct INTEGER DEFAULT 0,
+                next_review_at TIMESTAMP,
+                ease_factor DECIMAL(3,2) DEFAULT 2.50,
+                interval_days INTEGER DEFAULT 0,
+                UNIQUE(user_id, question_id)
+            )");
+            $this->pdo->exec("CREATE INDEX IF NOT EXISTS idx_history_user_review ON user_question_history(user_id, next_review_at)");
             
         } catch (PDOException $e) {
             error_log('Table initialization error: ' . $e->getMessage());
@@ -146,6 +222,12 @@ class Database {
     
     public function delete(string $table, string $where, array $params = []): int {
         $sql = "DELETE FROM $table WHERE $where";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->rowCount();
+    }
+
+    public function execute(string $sql, array $params = []): int {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->rowCount();

@@ -265,6 +265,11 @@
                     <div class="action-title">Schreiben prüfen</div>
                     <div class="action-desc">Wartende Einsendungen</div>
                 </a>
+                <a href="#" class="action-card" onclick="expandPool(); return false;">
+                    <div class="action-icon">📦</div>
+                    <div class="action-title">Havuzu genişlet</div>
+                    <div class="action-desc">Hören/Lesen/Schreiben/Sprechen</div>
+                </a>
             </div>
             
             <h2 class="section-title">Aktivität (30 Tage)</h2>
@@ -336,6 +341,31 @@
         }
         
         loadStats();
+
+        async function expandPool() {
+            if (!confirm('Soru havuzu genişletilsin mi?')) return;
+            try {
+                const response = await fetch(`${API_BASE}/admin/pool_expand.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({
+                        modules: ['hoeren', 'lesen', 'schreiben', 'sprechen'],
+                        min_count: 180
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Pool genişletme başarısız');
+                }
+                alert(`Tamamlandı. Eklenen: ${data.inserted_total}`);
+                loadStats();
+            } catch (err) {
+                alert(`Hata: ${err.message}`);
+            }
+        }
     </script>
 </body>
 </html>
