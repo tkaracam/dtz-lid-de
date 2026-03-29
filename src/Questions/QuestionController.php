@@ -66,6 +66,7 @@ class QuestionController
         
         // Parse content
         $content = json_decode($question['content'], true);
+        $content = $this->normalizeGermanPayload($content);
         
         // Generate session ID if not exists
         $sessionId = $params['session_id'] ?? bin2hex(random_bytes(16));
@@ -164,7 +165,7 @@ class QuestionController
             'result' => [
                 'is_correct' => $result['is_correct'],
                 'correct_answer' => $result['correct_answer'],
-                'explanation' => $question['explanation'],
+                'explanation' => $this->normalizeGermanString((string)($question['explanation'] ?? '')),
                 'points_earned' => $points,
             ],
             'stats' => [
@@ -290,5 +291,57 @@ class QuestionController
             return file_get_contents($secretFile);
         }
         return bin2hex(random_bytes(32));
+    }
+
+    private function normalizeGermanPayload($value)
+    {
+        if (is_string($value)) {
+            return $this->normalizeGermanString($value);
+        }
+        if (is_array($value)) {
+            $out = [];
+            foreach ($value as $k => $v) {
+                $out[$k] = $this->normalizeGermanPayload($v);
+            }
+            return $out;
+        }
+        return $value;
+    }
+
+    private function normalizeGermanString(string $text): string
+    {
+        if ($text === '') {
+            return $text;
+        }
+
+        $text = str_replace(
+            ['Ae', 'Oe', 'Ue', 'ae', 'oe', 'ue'],
+            ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü'],
+            $text
+        );
+
+        $wordFixes = [
+            'heisse' => 'heiße',
+            'tschues' => 'tschüss',
+            'Ruecksendung' => 'Rücksendung',
+            'Ruecksendungen' => 'Rücksendungen',
+            'Rueckfrage' => 'Rückfrage',
+            'Rueckmeldung' => 'Rückmeldung',
+            'Gruessen' => 'Grüßen',
+            'fuer' => 'für',
+            'muessen' => 'müssen',
+            'koennen' => 'können',
+            'aendert' => 'ändert',
+            'geaendert' => 'geändert',
+            'laenger' => 'länger',
+            'noetig' => 'nötig',
+        ];
+
+        foreach ($wordFixes as $from => $to) {
+            $text = preg_replace('/\b' . preg_quote($from, '/') . '\b/u', $to, $text) ?? $text;
+            $text = preg_replace('/\b' . preg_quote(ucfirst($from), '/') . '\b/u', ucfirst($to), $text) ?? $text;
+        }
+
+        return $text;
     }
 }

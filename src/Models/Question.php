@@ -269,16 +269,16 @@ class Question
     private function buildLesenRows(): array
     {
         $contexts = [
-            ['title' => 'Bürgeramt', 'text' => 'Personalausweis nur mit Termin. Bitte bringen Sie ein biometrisches Foto mit.', 'q' => 'Was brauchen Sie fuer den Antrag?', 'ok' => 'Ein biometrisches Foto', 'wrong' => ['Einen Reisekoffer', 'Ein Fahrrad', 'Ein Ticket'], 'teil' => 1],
-            ['title' => 'Supermarkt', 'text' => 'Heute: Vollkornbrot 1,20 Euro. Angebot nur bis 18 Uhr gueltig.', 'q' => 'Bis wann gilt das Angebot?', 'ok' => 'Bis 18 Uhr', 'wrong' => ['Bis 12 Uhr', 'Bis morgen', 'Die ganze Woche'], 'teil' => 1],
-            ['title' => 'Jobcenter', 'text' => 'Unterlagen bitte spaetestens bis Freitag einreichen. Ohne Unterlagen kann der Termin nicht bearbeitet werden.', 'q' => 'Was passiert ohne Unterlagen?', 'ok' => 'Der Termin wird nicht bearbeitet', 'wrong' => ['Sie bekommen sofort Geld', 'Der Termin dauert kuerzer', 'Sie muessen nichts tun'], 'teil' => 2],
-            ['title' => 'Hausverwaltung', 'text' => 'Wegen Wartung faellt das Warmwasser am Dienstag von 8 bis 14 Uhr aus.', 'q' => 'Wann gibt es kein Warmwasser?', 'ok' => 'Dienstag von 8 bis 14 Uhr', 'wrong' => ['Montag ab 14 Uhr', 'Dienstag nur 30 Minuten', 'Jeden Tag abends'], 'teil' => 2],
-            ['title' => 'Arbeit', 'text' => 'Die Teamsitzung beginnt diese Woche nicht um 9:00, sondern um 8:30 Uhr in Raum 4.', 'q' => 'Was hat sich geaendert?', 'ok' => 'Die Uhrzeit der Sitzung', 'wrong' => ['Der Wochentag', 'Die Firma', 'Der Abteilungsname'], 'teil' => 3],
-            ['title' => 'Kurszentrum', 'text' => 'Hausaufgaben muessen bis Sonntag 20 Uhr im Portal hochgeladen werden.', 'q' => 'Bis wann muessen die Hausaufgaben hochgeladen sein?', 'ok' => 'Bis Sonntag 20 Uhr', 'wrong' => ['Bis Samstag 10 Uhr', 'Bis Montagmittag', 'Es gibt keine Frist'], 'teil' => 3],
-            ['title' => 'Bank', 'text' => 'Die Filiale hat donnerstags bis 18:30 Uhr geoeffnet. Sonst bis 16:00 Uhr.', 'q' => 'An welchem Tag ist laenger geoeffnet?', 'ok' => 'Am Donnerstag', 'wrong' => ['Am Montag', 'Am Dienstag', 'Am Freitag'], 'teil' => 4],
+            ['title' => 'Bürgeramt', 'text' => 'Personalausweise gibt es nur mit Termin. Bitte bringen Sie ein biometrisches Foto mit.', 'q' => 'Was brauchen Sie für den Antrag?', 'ok' => 'Ein biometrisches Foto', 'wrong' => ['Einen Reisekoffer', 'Ein Fahrrad', 'Ein Ticket'], 'teil' => 1],
+            ['title' => 'Supermarkt', 'text' => 'Heute: Vollkornbrot 1,20 Euro. Das Angebot gilt nur bis 18 Uhr.', 'q' => 'Bis wann gilt das Angebot?', 'ok' => 'Bis 18 Uhr', 'wrong' => ['Bis 12 Uhr', 'Bis morgen', 'Die ganze Woche'], 'teil' => 1],
+            ['title' => 'Jobcenter', 'text' => 'Bitte reichen Sie die Unterlagen spätestens bis Freitag ein. Ohne Unterlagen kann der Termin nicht bearbeitet werden.', 'q' => 'Was passiert ohne Unterlagen?', 'ok' => 'Der Termin wird nicht bearbeitet', 'wrong' => ['Sie bekommen sofort Geld', 'Der Termin dauert kürzer', 'Sie müssen nichts tun'], 'teil' => 2],
+            ['title' => 'Hausverwaltung', 'text' => 'Wegen Wartungsarbeiten fällt das Warmwasser am Dienstag von 8 bis 14 Uhr aus.', 'q' => 'Wann gibt es kein Warmwasser?', 'ok' => 'Dienstag von 8 bis 14 Uhr', 'wrong' => ['Montag ab 14 Uhr', 'Dienstag nur 30 Minuten', 'Jeden Tag abends'], 'teil' => 2],
+            ['title' => 'Arbeit', 'text' => 'Die Teamsitzung beginnt diese Woche nicht um 9:00 Uhr, sondern um 8:30 Uhr in Raum 4.', 'q' => 'Was hat sich geändert?', 'ok' => 'Die Uhrzeit der Sitzung', 'wrong' => ['Der Wochentag', 'Die Firma', 'Der Abteilungsname'], 'teil' => 3],
+            ['title' => 'Kurszentrum', 'text' => 'Die Hausaufgaben müssen bis Sonntag 20 Uhr im Portal hochgeladen werden.', 'q' => 'Bis wann müssen die Hausaufgaben hochgeladen sein?', 'ok' => 'Bis Sonntag 20 Uhr', 'wrong' => ['Bis Samstag 10 Uhr', 'Bis Montagmittag', 'Es gibt keine Frist'], 'teil' => 3],
+            ['title' => 'Bank', 'text' => 'Die Filiale hat donnerstags bis 18:30 Uhr geöffnet, sonst bis 16:00 Uhr.', 'q' => 'An welchem Tag ist länger geöffnet?', 'ok' => 'Am Donnerstag', 'wrong' => ['Am Montag', 'Am Dienstag', 'Am Freitag'], 'teil' => 4],
             ['title' => 'Schule', 'text' => 'Der Elternabend findet am 10. April um 19 Uhr in Raum 2 statt.', 'q' => 'Wo findet der Elternabend statt?', 'ok' => 'In Raum 2', 'wrong' => ['Im Sportplatz', 'Online per App', 'In der Bibliothek'], 'teil' => 4],
-            ['title' => 'Kundenservice', 'text' => 'Ruecksendungen sind innerhalb von 14 Tagen moeglich. Bitte legen Sie den Kassenbon bei.', 'q' => 'Was brauchen Sie fuer die Ruecksendung?', 'ok' => 'Den Kassenbon', 'wrong' => ['Einen Reisepass', 'Eine Mitgliedskarte', 'Ein Foto vom Laden'], 'teil' => 5],
-            ['title' => 'Stadtbibliothek', 'text' => 'Neue Ausweise koennen montags bis freitags von 10 bis 16 Uhr erstellt werden.', 'q' => 'Wann koennen neue Ausweise erstellt werden?', 'ok' => 'Montag bis Freitag 10-16 Uhr', 'wrong' => ['Nur samstags', 'Jeden Abend', 'Nur online'], 'teil' => 5],
+            ['title' => 'Kundenservice', 'text' => 'Rücksendungen sind innerhalb von 14 Tagen möglich. Bitte legen Sie den Kassenbon bei.', 'q' => 'Was brauchen Sie für die Rücksendung?', 'ok' => 'Den Kassenbon', 'wrong' => ['Einen Reisepass', 'Eine Mitgliedskarte', 'Ein Foto vom Laden'], 'teil' => 5],
+            ['title' => 'Stadtbibliothek', 'text' => 'Neue Ausweise können montags bis freitags von 10 bis 16 Uhr erstellt werden.', 'q' => 'Wann können neue Ausweise erstellt werden?', 'ok' => 'Montag bis Freitag 10-16 Uhr', 'wrong' => ['Nur samstags', 'Jeden Abend', 'Nur online'], 'teil' => 5],
         ];
 
         return $this->buildChoiceRows('lesen', $contexts, [10, 12], 20);
@@ -287,14 +287,14 @@ class Question
     private function buildHoerenRows(): array
     {
         $contexts = [
-            ['title' => 'Telefonansage Praxis', 'text' => 'Praxis Dr. Weber: Heute geschlossen. In dringenden Faellen bitte 116117 waehlen.', 'q' => 'Was sollen Sie in dringenden Faellen tun?', 'ok' => 'Die 116117 waehlen', 'wrong' => ['Morgen anrufen', 'Zur Apotheke gehen', 'Eine SMS schreiben'], 'teil' => 1],
-            ['title' => 'Bahnhof', 'text' => 'Achtung: Der RE 8 nach Koeln faehrt heute von Gleis 5 statt Gleis 3.', 'q' => 'Von welchem Gleis faehrt der RE 8?', 'ok' => 'Von Gleis 5', 'wrong' => ['Von Gleis 1', 'Von Gleis 3', 'Von Gleis 9'], 'teil' => 1],
+            ['title' => 'Telefonansage Praxis', 'text' => 'Praxis Dr. Weber: Heute geschlossen. In dringenden Fällen wählen Sie bitte die 116117.', 'q' => 'Was sollen Sie in dringenden Fällen tun?', 'ok' => 'Die 116117 wählen', 'wrong' => ['Morgen anrufen', 'Zur Apotheke gehen', 'Eine SMS schreiben'], 'teil' => 1],
+            ['title' => 'Bahnhof', 'text' => 'Achtung: Der RE 8 nach Köln fährt heute von Gleis 5 statt von Gleis 3.', 'q' => 'Von welchem Gleis fährt der RE 8?', 'ok' => 'Von Gleis 5', 'wrong' => ['Von Gleis 1', 'Von Gleis 3', 'Von Gleis 9'], 'teil' => 1],
             ['title' => 'Supermarktansage', 'text' => 'Angebot im Markt: Tomaten 1,99 Euro pro Kilo, nur heute.', 'q' => 'Was kosten die Tomaten?', 'ok' => '1,99 Euro pro Kilo', 'wrong' => ['0,99 Euro', '2,99 Euro', '3,50 Euro'], 'teil' => 2],
             ['title' => 'Arbeitsteam', 'text' => 'Die Schicht beginnt morgen ausnahmsweise um 5:30 Uhr.', 'q' => 'Wann beginnt die Schicht morgen?', 'ok' => 'Um 5:30 Uhr', 'wrong' => ['Um 6:30 Uhr', 'Um 7:00 Uhr', 'Um 8:00 Uhr'], 'teil' => 2],
             ['title' => 'Dialog Kurs', 'text' => 'A: Kommst du heute zum Kurs? B: Nein, ich habe einen Arzttermin um 17 Uhr.', 'q' => 'Warum kommt Person B nicht zum Kurs?', 'ok' => 'Wegen eines Arzttermins', 'wrong' => ['Wegen Urlaub', 'Wegen Arbeit im Nachtdienst', 'Wegen eines Umzugs'], 'teil' => 3],
             ['title' => 'Dialog Familie', 'text' => 'A: Treffen wir uns Samstag? B: Samstag arbeite ich, Sonntag passt besser.', 'q' => 'Wann passt das Treffen besser?', 'ok' => 'Am Sonntag', 'wrong' => ['Am Freitag', 'Am Samstagvormittag', 'Gar nicht'], 'teil' => 3],
-            ['title' => 'Radiohinweis', 'text' => 'Wegen Bauarbeiten faehrt die Buslinie 12 bis Freitag nur bis Rathaus.', 'q' => 'Wie lange gilt die Aenderung?', 'ok' => 'Bis Freitag', 'wrong' => ['Bis Montag', 'Nur heute', 'Den ganzen Monat'], 'teil' => 4],
-            ['title' => 'Infoveranstaltung', 'text' => 'Der Infoabend startet um 18 Uhr im Saal 2. Eine Anmeldung ist nicht noetig.', 'q' => 'Muss man sich anmelden?', 'ok' => 'Nein, das ist nicht noetig', 'wrong' => ['Ja, telefonisch', 'Ja, per Brief', 'Nur mit Einladung'], 'teil' => 4],
+            ['title' => 'Radiohinweis', 'text' => 'Wegen Bauarbeiten fährt die Buslinie 12 bis Freitag nur bis Rathaus.', 'q' => 'Wie lange gilt die Änderung?', 'ok' => 'Bis Freitag', 'wrong' => ['Bis Montag', 'Nur heute', 'Den ganzen Monat'], 'teil' => 4],
+            ['title' => 'Infoveranstaltung', 'text' => 'Der Infoabend startet um 18 Uhr in Saal 2. Eine Anmeldung ist nicht nötig.', 'q' => 'Muss man sich anmelden?', 'ok' => 'Nein, das ist nicht nötig', 'wrong' => ['Ja, telefonisch', 'Ja, per Brief', 'Nur mit Einladung'], 'teil' => 4],
         ];
 
         return $this->buildChoiceRows('hoeren', $contexts, [10, 12], 22, true);
@@ -304,9 +304,9 @@ class Question
     {
         $contexts = [
             ['title' => 'Krankmeldung', 'text' => 'Sie schreiben eine E-Mail an die Kursleitung, weil Sie morgen fehlen.', 'q' => 'Was muss in die E-Mail unbedingt hinein?', 'ok' => 'Grund und Bitte um Entschuldigung', 'wrong' => ['Nur ein Smiley', 'Keine Anrede', 'Nur ein Foto'], 'teil' => 1],
-            ['title' => 'Termin verschieben', 'text' => 'Sie koennen zum Behoerdentermin nicht kommen und schreiben eine Nachricht.', 'q' => 'Welche Formulierung ist am besten?', 'ok' => 'Koennen wir bitte einen neuen Termin vereinbaren?', 'wrong' => ['Ich komme vielleicht nie.', 'Termin egal.', 'Sie sind schuld.'], 'teil' => 1],
+            ['title' => 'Termin verschieben', 'text' => 'Sie können zu einem Behördentermin nicht kommen und schreiben eine Nachricht.', 'q' => 'Welche Formulierung ist am besten?', 'ok' => 'Können wir bitte einen neuen Termin vereinbaren?', 'wrong' => ['Ich komme vielleicht nie.', 'Termin egal.', 'Sie sind schuld.'], 'teil' => 1],
             ['title' => 'Beschwerde', 'text' => 'Ein Produkt ist kaputt angekommen. Sie reklamieren schriftlich.', 'q' => 'Was ist ein passender Betreff?', 'ok' => 'Reklamation zur Bestellung', 'wrong' => ['Hallo Leute', 'Wetter heute', 'Keine Ahnung'], 'teil' => 2],
-            ['title' => 'Formelle Mail', 'text' => 'Sie schreiben an die Hausverwaltung wegen einer defekten Heizung.', 'q' => 'Welche Schlussformel passt?', 'ok' => 'Mit freundlichen Gruessen', 'wrong' => ['Ciao', 'Bis spaeter', 'Yo'], 'teil' => 2],
+            ['title' => 'Formelle Mail', 'text' => 'Sie schreiben an die Hausverwaltung wegen einer defekten Heizung.', 'q' => 'Welche Schlussformel passt?', 'ok' => 'Mit freundlichen Grüßen', 'wrong' => ['Ciao', 'Bis später', 'Yo'], 'teil' => 2],
         ];
 
         return $this->buildChoiceRows('schreiben', $contexts, [12, 15], 45);
@@ -315,10 +315,10 @@ class Question
     private function buildSprechenRows(): array
     {
         $contexts = [
-            ['title' => 'Vorstellung', 'text' => 'Sie stellen sich kurz in einem Kurs vor.', 'q' => 'Welcher Einstieg ist DTZ-gerecht?', 'ok' => 'Guten Tag, ich heisse ... und komme aus ...', 'wrong' => ['Ich sage nichts.', 'Nur mein Alter.', 'Direkt tschues.'], 'teil' => 1],
-            ['title' => 'Bildbeschreibung', 'text' => 'Sie beschreiben ein Bild mit zwei Personen im Park.', 'q' => 'Was passt als Start?', 'ok' => 'Auf dem Bild sehe ich zwei Personen im Park.', 'wrong' => ['Ich kenne das Bild nicht.', 'Naechste Frage.', 'Bild ist egal.'], 'teil' => 2],
-            ['title' => 'Gemeinsam planen', 'text' => 'Sie planen mit Ihrem Partner einen Lerntag.', 'q' => 'Welche Aussage ist kommunikativ am besten?', 'ok' => 'Was haeltst du davon, wenn wir um 10 Uhr starten?', 'wrong' => ['Ich entscheide alles allein.', 'Wir planen nichts.', 'Du musst machen, was ich sage.'], 'teil' => 3],
-            ['title' => 'Rueckfrage', 'text' => 'Ihr Partner spricht schnell und Sie haben etwas nicht verstanden.', 'q' => 'Welche Rueckfrage passt?', 'ok' => 'Kannst du das bitte noch einmal wiederholen?', 'wrong' => ['Egal, weiter.', 'Ich hoere nie zu.', 'Stop, ich gehe.'], 'teil' => 3],
+            ['title' => 'Vorstellung', 'text' => 'Sie stellen sich kurz in einem Kurs vor.', 'q' => 'Welcher Einstieg ist DTZ-gerecht?', 'ok' => 'Guten Tag, ich heiße ... und komme aus ...', 'wrong' => ['Ich sage nichts.', 'Nur mein Alter.', 'Direkt tschüss.'], 'teil' => 1],
+            ['title' => 'Bildbeschreibung', 'text' => 'Sie beschreiben ein Bild mit zwei Personen im Park.', 'q' => 'Was passt als Einstieg?', 'ok' => 'Auf dem Bild sehe ich zwei Personen im Park.', 'wrong' => ['Ich kenne das Bild nicht.', 'Nächste Frage.', 'Das Bild ist egal.'], 'teil' => 2],
+            ['title' => 'Gemeinsam planen', 'text' => 'Sie planen mit Ihrem Partner einen Lerntag.', 'q' => 'Welche Aussage ist kommunikativ am besten?', 'ok' => 'Was hältst du davon, wenn wir um 10 Uhr starten?', 'wrong' => ['Ich entscheide alles allein.', 'Wir planen nichts.', 'Du musst machen, was ich sage.'], 'teil' => 3],
+            ['title' => 'Rückfrage', 'text' => 'Ihr Partner spricht schnell und Sie haben etwas nicht verstanden.', 'q' => 'Welche Rückfrage passt?', 'ok' => 'Kannst du das bitte noch einmal wiederholen?', 'wrong' => ['Egal, weiter.', 'Ich höre nie zu.', 'Stopp, ich gehe.'], 'teil' => 3],
         ];
 
         return $this->buildChoiceRows('sprechen', $contexts, [12, 15], 45);
@@ -327,8 +327,8 @@ class Question
     private function buildLidRows(): array
     {
         $contexts = [
-            ['title' => 'Grundgesetz', 'text' => 'Frage zur politischen Ordnung in Deutschland.', 'q' => 'Was ist die Hauptstadt von Deutschland?', 'ok' => 'Berlin', 'wrong' => ['Bonn', 'Hamburg', 'Muenchen'], 'teil' => 1],
-            ['title' => 'Wahlen', 'text' => 'Demokratie und Beteiligung.', 'q' => 'Wie oft wird der Bundestag normalerweise gewaehlt?', 'ok' => 'Alle vier Jahre', 'wrong' => ['Jedes Jahr', 'Alle zwei Monate', 'Alle zehn Jahre'], 'teil' => 1],
+            ['title' => 'Grundgesetz', 'text' => 'Frage zur politischen Ordnung in Deutschland.', 'q' => 'Was ist die Hauptstadt von Deutschland?', 'ok' => 'Berlin', 'wrong' => ['Bonn', 'Hamburg', 'München'], 'teil' => 1],
+            ['title' => 'Wahlen', 'text' => 'Demokratie und Beteiligung.', 'q' => 'Wie oft wird der Bundestag normalerweise gewählt?', 'ok' => 'Alle vier Jahre', 'wrong' => ['Jedes Jahr', 'Alle zwei Monate', 'Alle zehn Jahre'], 'teil' => 1],
             ['title' => 'Rechte', 'text' => 'Grundrechte im Alltag.', 'q' => 'Welches Recht steht im Grundgesetz?', 'ok' => 'Meinungsfreiheit', 'wrong' => ['Hausaufgabenfreiheit', 'Parkgebuehrenfreiheit', 'Autopflicht'], 'teil' => 1],
         ];
 
