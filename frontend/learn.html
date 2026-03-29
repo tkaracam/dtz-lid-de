@@ -246,6 +246,43 @@
             line-height: 1.6;
             white-space: pre-wrap;
         }
+
+        .question-media {
+            display: none;
+            margin-bottom: 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            background: var(--glass-bg);
+            overflow: hidden;
+        }
+
+        .question-media.active {
+            display: block;
+        }
+
+        .question-media img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .question-media-caption {
+            padding: 0.55rem 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .sprechteil-topic {
+            margin-bottom: 0.9rem;
+            padding: 0.7rem 0.8rem;
+            border-radius: 10px;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            background: rgba(34, 197, 94, 0.1);
+            color: #dcfce7;
+            font-size: 0.95rem;
+        }
         
         .question-rich {
             display: grid;
@@ -598,6 +635,8 @@
                         <div id="audioStatus" style="font-size: 0.875rem; color: var(--text-muted);">Klicken Sie zum Hören</div>
                     </div>
                 </div>
+
+                <div id="questionMedia" class="question-media"></div>
                 
                 <div class="question-text" id="question-text"></div>
                 
@@ -786,6 +825,8 @@
                 return [
                     {
                         id: 'spr2_1',
+                        image_url: 'https://picsum.photos/seed/dtz-sprechen-teil2-1/1200/675',
+                        image_caption: 'Beispielbild für Teil 2: Alltagsszene',
                         question_text: 'Bildbeschreibung (Teil 2): Was ist ein guter Einstieg?',
                         options: {
                             A: 'Auf dem Bild sehe ich ...',
@@ -797,6 +838,8 @@
                     },
                     {
                         id: 'spr2_2',
+                        image_url: 'https://picsum.photos/seed/dtz-sprechen-teil2-2/1200/675',
+                        image_caption: 'Beispielbild für Teil 2: öffentliche Situation',
                         question_text: 'Nach der Beschreibung sollen Sie eigene Erfahrungen nennen. Welche Aussage passt?',
                         options: {
                             A: 'In meinem Alltag ist das ähnlich, weil ...',
@@ -811,6 +854,7 @@
             return [
                 {
                     id: 'spr3_1',
+                    topic: 'Thema: Einen gemeinsamen Lernplan für die DTZ-Prüfung organisieren',
                     question_text: 'Teil 3 (gemeinsam planen): Was ist kommunikativ am besten?',
                     options: {
                         A: 'Wir könnten am Samstag um 10 Uhr starten. Passt dir das?',
@@ -822,6 +866,7 @@
                 },
                 {
                     id: 'spr3_2',
+                    topic: 'Thema: Einen Termin für das gemeinsame Üben im Kurs abstimmen',
                     question_text: 'Welche Formulierung zeigt gute Kooperation?',
                     options: {
                         A: 'Was hältst du davon, wenn wir ...?',
@@ -988,8 +1033,24 @@
                 return;
             }
 
-            const header = sections[0];
-            const body = sections.slice(1).join('\n\n');
+            let header = sections[0];
+            let body = sections.slice(1).join('\n\n');
+            let topicHtml = '';
+            const hasTopicHeader = /^Thema:/i.test(header);
+            if (hasTopicHeader) {
+                topicHtml = `<div class="sprechteil-topic">${escapeHtml(header)}</div>`;
+                header = sections[1] || '';
+                body = sections.slice(2).join('\n\n') || body;
+            }
+            if (hasTopicHeader && sections.length <= 2) {
+                el.innerHTML = `
+                    <div class="question-rich">
+                        ${topicHtml}
+                        <div class="question-panel question-main">${escapeHtml(header || body)}</div>
+                    </div>
+                `;
+                return;
+            }
             const lines = header.split('\n').map((l) => l.trim()).filter(Boolean);
             const firstLine = lines[0] || '';
             const hasTextHeading = /^Text\s+\d+/i.test(firstLine);
@@ -1050,6 +1111,7 @@
 
             el.innerHTML = `
                 <div class="question-rich">
+                    ${topicHtml}
                     <div class="question-panel">
                         <span class="question-panel-title">${escapeHtml(sourceLabel)}</span>
                         <div class="question-lines">${linesHtml}</div>
@@ -1093,12 +1155,28 @@
             
             // Update question text
             const questionText = q.question_text || q.content?.question || q.content?.text || 'Frage lädt...';
-            renderQuestionText(questionText);
+            renderQuestionText((q.topic ? `${q.topic}\n\n` : '') + questionText);
             currentAudioText = String(q.audio_script || '');
             currentTtsSegments = [];
             const audioStatus = document.getElementById('audioStatus');
             if (audioStatus) {
                 audioStatus.textContent = currentAudioText ? 'Klicken Sie zum Hören' : 'Kein Audio für diese Frage';
+            }
+
+            const mediaEl = document.getElementById('questionMedia');
+            if (mediaEl) {
+                const imgUrl = String(q.image_url || '').trim();
+                if (imgUrl) {
+                    mediaEl.classList.add('active');
+                    const caption = String(q.image_caption || 'Bildbeschreibung (Teil 2)');
+                    mediaEl.innerHTML = `
+                        <img src="${escapeHtml(imgUrl)}" alt="Bildbeschreibung Teil 2">
+                        <div class="question-media-caption">${escapeHtml(caption)}</div>
+                    `;
+                } else {
+                    mediaEl.classList.remove('active');
+                    mediaEl.innerHTML = '';
+                }
             }
             
             // Update options
