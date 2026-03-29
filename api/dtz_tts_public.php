@@ -272,7 +272,7 @@ foreach ($segments as $segment) {
         'speaker' => $speaker,
         'voice' => $voice,
         'pause_ms' => dtz_tts_pause_for_segment($speaker, $text),
-        'url' => './api/tts_stream_public.php?f=' . rawurlencode($file),
+        'url' => '/api/tts_stream_public.php?f=' . rawurlencode($file),
     ];
 }
 
@@ -283,4 +283,3 @@ echo json_encode([
     'model' => $ttsModel,
     'segments' => $outSegments,
 ], JSON_UNESCAPED_UNICODE);
-

@@ -1390,8 +1390,16 @@
 
                 for (const seg of currentTtsSegments) {
                     if (token !== currentPlaybackToken) return;
-                    const url = String(seg && seg.url ? seg.url : '');
-                    if (!url) continue;
+                    const rawUrl = String(seg && seg.url ? seg.url : '');
+                    if (!rawUrl) continue;
+                    let url = rawUrl;
+                    if (rawUrl.startsWith('./api/')) {
+                        url = `${API_BASE}/${rawUrl.replace(/^\.\/api\//, '')}`;
+                    } else if (rawUrl.startsWith('/api/')) {
+                        url = rawUrl;
+                    } else if (!/^https?:\/\//i.test(rawUrl)) {
+                        url = `${API_BASE}/${rawUrl.replace(/^\/+/, '')}`;
+                    }
                     const audio = new Audio(url);
                     currentAudioPlayer = audio;
                     await new Promise((resolve, reject) => {
@@ -1406,12 +1414,14 @@
                 }
                 if (statusEl) statusEl.textContent = 'Audio fertig';
             } catch (err) {
-                if (statusEl) statusEl.textContent = 'Audio-Fehler';
                 if ('speechSynthesis' in window) {
+                    if (statusEl) statusEl.textContent = 'Browser-Stimme aktiv';
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'de-DE';
                     speechSynthesis.cancel();
                     speechSynthesis.speak(utterance);
+                } else if (statusEl) {
+                    statusEl.textContent = 'Audio-Fehler';
                 }
             } finally {
                 if (token === currentPlaybackToken && btn) {
