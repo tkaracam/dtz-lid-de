@@ -563,6 +563,8 @@
         let currentTeil = null;
         let selectedTask = null;
         let targetWordCount = 30;
+        let currentTaskList = [];
+        const WEEKLY_TASK_COUNT = 4;
         
         const tasks = {
             teil1: [
@@ -690,10 +692,84 @@
                 }
             ]
         };
+
+        function getUserTaskKey() {
+            const user = (typeof getUser === 'function') ? getUser() : null;
+            const raw = (user && (user.id || user.email || user.name)) ? String(user.id || user.email || user.name) : 'anonymous';
+            return raw.replace(/[^a-zA-Z0-9@._-]+/g, '_');
+        }
+
+        function getIsoWeekId() {
+            const now = new Date();
+            const date = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+            const dayNum = date.getUTCDay() || 7;
+            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+            return `${date.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+        }
+
+        function shuffleCopy(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function getWeeklyTasksForTeil(teil) {
+            const source = teil === 1 ? tasks.teil1 : tasks.teil2;
+            if (!source.length) return [];
+
+            const userKey = getUserTaskKey();
+            const weekId = getIsoWeekId();
+            const storageKey = `dtz_weekly_writing_topics_v1_${userKey}_teil${teil}`;
+            let state = {};
+            try {
+                state = JSON.parse(localStorage.getItem(storageKey) || '{}') || {};
+            } catch (_) {
+                state = {};
+            }
+
+            const sourceIds = source.map(t => t.id);
+            const sourceSet = new Set(sourceIds);
+            const consumed = Array.isArray(state.consumedIds)
+                ? state.consumedIds.filter(id => sourceSet.has(id))
+                : [];
+
+            if (state.weekId === weekId && Array.isArray(state.weekTaskIds) && state.weekTaskIds.length) {
+                const keep = state.weekTaskIds.filter(id => sourceSet.has(id));
+                const mapped = keep.map(id => source.find(t => t.id === id)).filter(Boolean);
+                if (mapped.length) return mapped;
+            }
+
+            let available = sourceIds.filter(id => !consumed.includes(id));
+            if (available.length < Math.min(WEEKLY_TASK_COUNT, source.length)) {
+                available = [...sourceIds];
+                consumed.length = 0;
+            }
+
+            const shuffled = shuffleCopy(available);
+            const takeCount = Math.min(WEEKLY_TASK_COUNT, source.length, shuffled.length);
+            const weekTaskIds = shuffled.slice(0, takeCount);
+            const nextConsumed = Array.from(new Set([...consumed, ...weekTaskIds]));
+
+            const nextState = {
+                weekId,
+                weekTaskIds,
+                consumedIds: nextConsumed,
+                updatedAt: new Date().toISOString()
+            };
+            localStorage.setItem(storageKey, JSON.stringify(nextState));
+
+            return weekTaskIds.map(id => source.find(t => t.id === id)).filter(Boolean);
+        }
         
         function selectTeil(teil) {
             currentTeil = teil;
             targetWordCount = teil === 1 ? 30 : 80;
+            selectedTask = null;
             
             // Update UI
             document.querySelectorAll('.teil-btn').forEach(btn => btn.classList.remove('active'));
@@ -704,7 +780,8 @@
             
             // Load tasks
             const taskSelector = document.getElementById('task-selector');
-            const taskList = teil === 1 ? tasks.teil1 : tasks.teil2;
+            const taskList = getWeeklyTasksForTeil(teil);
+            currentTaskList = taskList;
             
             taskSelector.innerHTML = taskList.map(task => `
                 <div class="task-card" data-task="${task.id}" onclick="selectTask('${task.id}')">
@@ -722,7 +799,7 @@
         }
         
         function selectTask(taskId) {
-            const taskList = currentTeil === 1 ? tasks.teil1 : tasks.teil2;
+            const taskList = currentTaskList.length ? currentTaskList : (currentTeil === 1 ? tasks.teil1 : tasks.teil2);
             selectedTask = taskList.find(t => t.id === taskId);
             
             if (!selectedTask) return;
