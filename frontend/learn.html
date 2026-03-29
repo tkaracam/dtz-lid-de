@@ -272,6 +272,18 @@
             font-size: 0.98rem;
             line-height: 1.42;
         }
+
+        .question-source-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .question-source-body {
+            font-size: 0.98rem;
+            line-height: 1.55;
+            color: var(--text);
+        }
         
         .question-main {
             font-size: 1.03rem;
@@ -797,12 +809,26 @@
             const header = sections[0];
             const body = sections.slice(1).join('\n\n');
             const lines = header.split('\n').map((l) => l.trim()).filter(Boolean);
-            const linesHtml = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
+            const firstLine = lines[0] || '';
+            const hasTextHeading = /^Text\s+\d+/i.test(firstLine);
+            const sourceLabel = hasTextHeading ? 'Lesetext' : 'Wegweiser / Information';
+            let linesHtml = '';
+
+            if (hasTextHeading) {
+                const textTitle = firstLine;
+                const textBody = lines.slice(1).join('\n');
+                linesHtml = `
+                    <div class="question-source-title">${escapeHtml(textTitle)}</div>
+                    <div class="question-source-body">${escapeHtml(textBody)}</div>
+                `;
+            } else {
+                linesHtml = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
+            }
 
             el.innerHTML = `
                 <div class="question-rich">
                     <div class="question-panel">
-                        <span class="question-panel-title">Wegweiser / Information</span>
+                        <span class="question-panel-title">${escapeHtml(sourceLabel)}</span>
                         <div class="question-lines">${linesHtml}</div>
                     </div>
                     <div class="question-panel question-main">${escapeHtml(body)}</div>
