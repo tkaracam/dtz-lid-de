@@ -6,11 +6,21 @@
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <!-- Security Headers -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
     <title>Lernen - DTZ Lernplattform</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/components-new.css
+    <link rel="stylesheet" href="css/layout.css">">
     <style>
         .dashboard {
             display: grid;
@@ -122,13 +132,31 @@
             padding: 1.5rem;
             border: 1px solid var(--glass-border);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .teil-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transition: transform 0.3s;
         }
         
         .teil-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-6px) scale(1.02);
             border-color: var(--accent);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 25px 50px rgba(124, 92, 255, 0.2);
+        }
+        
+        .teil-card:hover::before {
+            transform: scaleX(1);
         }
         
         .teil-header {
@@ -200,10 +228,14 @@
             border: 1px solid var(--glass-border);
             margin-bottom: 2rem;
             display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         
         .question-area.active {
             display: block;
+            animation: fadeInUp 0.5s ease forwards;
         }
         
         .audio-player {
@@ -587,6 +619,49 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* Speaking Recorder Styles */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+            50% { transform: scale(1.02); box-shadow: 0 0 20px 10px rgba(255, 71, 87, 0.3); }
+        }
+        
+        .speaking-recorder {
+            transition: all 0.3s ease;
+        }
+        
+        .speaking-recorder.recording {
+            border-color: #ff4757 !important;
+            box-shadow: 0 0 30px rgba(255, 71, 87, 0.2);
+        }
+        
+        #recording-timer.recording {
+            color: #ff4757;
+            animation: timerPulse 1s infinite;
+        }
+        
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .recorder-controls button:disabled {
+            opacity: 0.4 !important;
+            cursor: not-allowed;
+        }
+        
+        #audio-visualizer {
+            border-radius: 4px;
+        }
+        
+        #analysis-result {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -678,6 +753,9 @@
                     <div id="feedback-text"></div>
                 </div>
                 
+                <!-- AI Help Buttons -->
+                <div id="ai-help-container" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);"></div>
+                
                 <div class="nav-buttons">
                     <button class="btn-nav" onclick="previousQuestion()">← Zurück</button>
                     <button id="checkBtn" class="btn-check" onclick="checkAnswer()">Überprüfen</button>
@@ -688,7 +766,10 @@
     </div>
     
     <script src="js/config.js"></script>
+    <script src="js/security.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/ai-tutor.js"></script>
     <script>
         checkAuth();
         
@@ -833,6 +914,8 @@
                         id: 'spr1_1',
                         mode: 'speaking',
                         question_text: 'Teil 1: Stellen Sie sich vor. Sprechen Sie ca. 1 Minute frei.',
+                        task_prompt: 'Stellen Sie sich vor. Sprechen Sie etwa 1 Minute über: Name, Alter, Herkunft, Wohnort, Familie, Beruf/Arbeit/Kurs, Sprachen und Hobbys.',
+                        target_duration: 60,
                         speaking_points: [
                             'Name, Alter, Herkunft',
                             'Wohnort und Familie',
@@ -857,6 +940,8 @@
                         image_caption: 'Beispielbild für Teil 2: Alltagsszene',
                         mode: 'speaking',
                         question_text: 'Teil 2: Beschreiben Sie das Bild und sprechen Sie danach über eigene Erfahrungen.',
+                        task_prompt: 'Beschreiben Sie das Bild (Personen, Ort, Handlung). Sprechen Sie dann über Ihre eigenen Erfahrungen zu diesem Thema. Dauer: ca. 1,5 Minuten.',
+                        target_duration: 90,
                         speaking_points: [
                             'Was sehen Sie? (Personen, Ort, Handlung)',
                             'Was passiert wahrscheinlich gerade?',
@@ -878,6 +963,8 @@
                     topic: 'Thema: Einen gemeinsamen Lernplan für die DTZ-Prüfung organisieren',
                     mode: 'speaking',
                     question_text: 'Teil 3: Sie und Ihr Partner möchten in den nächsten 2 Wochen gemeinsam für die DTZ-Prüfung lernen. Wie organisieren Sie konkret Ihren Lernplan?',
+                    task_prompt: 'Sie und Ihr Partner möchten gemeinsam für die DTZ-Prüfung lernen. Organisieren Sie einen Lernplan: Wann treffen Sie sich? Wo lernen Sie? Was bringt jede Person mit? Wie lange üben Sie? Wer macht was?',
+                    target_duration: 120,
                     speaking_points: [
                         'Wann treffen wir uns?',
                         'Wo lernen wir?',
@@ -1199,24 +1286,86 @@
                 }
             }
             
+            // Add AI help buttons
+            const aiContainer = document.getElementById('ai-help-container');
+            if (aiContainer && typeof AITutor !== 'undefined') {
+                aiContainer.innerHTML = '';
+                const helpBtn = AITutor.createHelpButton({
+                    question: questionText,
+                    options: q.options || [],
+                    onExplain: () => AITutor.explainQuestion(questionText, q.options || [], currentModule),
+                    onHint: () => AITutor.getHint(questionText, 0)
+                });
+                aiContainer.appendChild(helpBtn);
+            }
+            
             // Update options
             const optionsDiv = document.getElementById('answer-options');
             if (q.mode === 'speaking') {
                 const points = Array.isArray(q.speaking_points) ? q.speaking_points : [];
                 const redemittel = Array.isArray(q.redemittel) ? q.redemittel : [];
+                const targetDuration = q.target_duration || 60;
+                
                 optionsDiv.innerHTML = `
                     <div class="question-panel" style="margin-bottom:12px;">
-                        <span class="question-panel-title">Aufgabe</span>
+                        <span class="question-panel-title">Aufgabe (${targetDuration}s)</span>
                         <div class="question-lines">${points.map((p) => `<div>• ${escapeHtml(p)}</div>`).join('')}</div>
                     </div>
-                    <div class="question-panel">
+                    
+                    <!-- Speaking Recorder -->
+                    <div class="speaking-recorder" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                        <!-- Recording Timer -->
+                        <div class="recorder-timer" style="text-align: center; margin-bottom: 1rem;">
+                            <div id="recording-timer" style="font-size: 2.5rem; font-weight: 700; font-family: monospace; color: var(--text);">00:00</div>
+                            <div id="recording-status" style="color: var(--text-muted); font-size: 0.9rem;">Bereit zum Aufnehmen</div>
+                        </div>
+                        
+                        <!-- Waveform Visualization -->
+                        <div class="recorder-waveform" style="height: 60px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <canvas id="audio-visualizer" width="400" height="60" style="width: 100%; height: 100%;"></canvas>
+                        </div>
+                        
+                        <!-- Controls -->
+                        <div class="recorder-controls" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <button id="record-btn" onclick="toggleRecording()" class="btn-check" style="display: flex; align-items: center; gap: 0.5rem; min-width: 140px; justify-content: center;">
+                                <span id="record-icon">🔴</span>
+                                <span id="record-text">Aufnehmen</span>
+                            </button>
+                            <button id="play-btn" onclick="playRecording()" disabled class="btn-nav" style="opacity: 0.5; display: flex; align-items: center; gap: 0.5rem;">
+                                ▶️ Abspielen
+                            </button>
+                        </div>
+                        
+                        <!-- Upload Progress -->
+                        <div id="upload-progress" style="display: none; margin-top: 1rem;">
+                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="upload-bar" style="background: linear-gradient(90deg, var(--primary), var(--accent)); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                            <div id="upload-text" style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Wird hochgeladen...</div>
+                        </div>
+                        
+                        <!-- Analysis Results -->
+                        <div id="analysis-result" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);">
+                            <h4 style="margin-bottom: 1rem; color: var(--accent);">🤖 KI-Analyse</h4>
+                            <div id="analysis-content"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="question-panel" style="margin-top: 12px;">
                         <span class="question-panel-title">Nützliche Redemittel</span>
                         <div class="question-lines">${redemittel.map((r) => `<div>• ${escapeHtml(r)}</div>`).join('')}</div>
                     </div>
                 `;
+                
+                // Initialize audio context after DOM update
+                setTimeout(initSpeakingRecorder, 0);
+                
                 const checkBtn = document.getElementById('checkBtn');
-                if (checkBtn) checkBtn.textContent = 'Aufgabe erledigt';
-                selectedAnswer = 'SELF';
+                if (checkBtn) {
+                    checkBtn.textContent = 'Überspringen';
+                    checkBtn.style.opacity = '0.7';
+                }
+                selectedAnswer = 'SPEAKING';
             } else {
                 const optionEntries = normalizeOptionEntries(q.options || q.content?.options);
                 optionsDiv.innerHTML = optionEntries.map((opt) => `
@@ -1254,12 +1403,21 @@
             answered = true;
             const q = questions[currentQuestion];
             if (q.mode === 'speaking') {
+                // For speaking tasks, skip is allowed but encourage recording
                 const feedbackBox = document.getElementById('feedback-box');
                 const feedbackText = document.getElementById('feedback-text');
-                feedbackBox.className = 'feedback-box correct show';
-                feedbackText.innerHTML = '<strong>✓ Sprechen-Aufgabe markiert</strong><br>Sprechen Sie flüssig, klar und in ganzen Sätzen. Danach mit Weiter fortfahren.';
-                correctCount++;
-                streak++;
+                
+                if (currentRecordingBlob) {
+                    feedbackBox.className = 'feedback-box correct show';
+                    feedbackText.innerHTML = '<strong>✓ Aufnahme gespeichert</strong><br>Ihre Aufnahme wurde gespeichert. Die KI-Analyse erscheint in Kürze.';
+                    correctCount++;
+                    streak++;
+                } else {
+                    feedbackBox.className = 'feedback-box show';
+                    feedbackBox.style.background = 'rgba(255, 193, 7, 0.15)';
+                    feedbackBox.style.borderLeftColor = '#ffc107';
+                    feedbackText.innerHTML = '<strong>⚠ Aufgabe übersprungen</strong><br>Für das beste Ergebnis empfehlen wir, jede Sprechaufgabe aufzunehmen und analysieren zu lassen.';
+                }
                 updateStats();
                 return;
             }
@@ -1290,6 +1448,19 @@
                 feedbackBox.className = 'feedback-box wrong show';
                 feedbackText.innerHTML = '<strong>✗ Falsch</strong><br>Richtig wäre: ' + correct + '<br>' + (q.explanation || '');
                 streak = 0;
+                
+                // Add AI analysis button for wrong answers
+                const aiContainer = document.getElementById('ai-help-container');
+                if (aiContainer && typeof AITutor !== 'undefined') {
+                    aiContainer.innerHTML = '';
+                    const helpBtn = AITutor.createHelpButton({
+                        question: q.question_text || '',
+                        showAnalysis: true,
+                        userAnswer: selectedAnswer,
+                        correctAnswer: correct
+                    });
+                    aiContainer.appendChild(helpBtn);
+                }
             }
             
             updateStats();
@@ -1431,6 +1602,505 @@
                 currentAudioPlayer = null;
             }
         }
+        
+        // ===== SPEAKING RECORDER FUNCTIONS =====
+        
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let audioContext = null;
+        let analyser = null;
+        let dataArray = null;
+        let animationId = null;
+        let recordingStartTime = null;
+        let recordingTimerInterval = null;
+        let currentRecordingBlob = null;
+        let audioStream = null;
+        
+        // Speaking recorder state
+        const speakingState = {
+            isRecording: false,
+            hasRecording: false,
+            isPlaying: false,
+            audioUrl: null,
+            submissionId: null
+        };
+        
+        function initSpeakingRecorder() {
+            // Reset state
+            speakingState.isRecording = false;
+            speakingState.hasRecording = false;
+            speakingState.isPlaying = false;
+            currentRecordingBlob = null;
+            
+            // Clear visualizer
+            const canvas = document.getElementById('audio-visualizer');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        
+        async function toggleRecording() {
+            if (speakingState.isRecording) {
+                await stopRecording();
+            } else {
+                await startRecording();
+            }
+        }
+        
+        async function startRecording() {
+            try {
+                // Request microphone access
+                audioStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 44100
+                    } 
+                });
+                
+                // Setup audio context for visualization
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(audioStream);
+                source.connect(analyser);
+                analyser.fftSize = 256;
+                
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                // Setup media recorder
+                const mimeType = getSupportedMimeType();
+                mediaRecorder = new MediaRecorder(audioStream, { mimeType });
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const blob = new Blob(audioChunks, { type: mimeType });
+                    currentRecordingBlob = blob;
+                    speakingState.hasRecording = true;
+                    speakingState.audioUrl = URL.createObjectURL(blob);
+                    
+                    // Enable play button
+                    const playBtn = document.getElementById('play-btn');
+                    if (playBtn) {
+                        playBtn.disabled = false;
+                        playBtn.style.opacity = '1';
+                    }
+                    
+                    // Auto-upload after recording
+                    await uploadRecording(blob);
+                };
+                
+                // Start recording
+                mediaRecorder.start(100); // Collect data every 100ms
+                speakingState.isRecording = true;
+                recordingStartTime = Date.now();
+                
+                // Update UI
+                updateRecordingUI(true);
+                
+                // Start timer
+                startRecordingTimer();
+                
+                // Start visualization
+                visualizeAudio();
+                
+            } catch (err) {
+                console.error('Recording error:', err);
+                alert('Mikrofon-Zugriff fehlgeschlagen: ' + err.message);
+            }
+        }
+        
+        function getSupportedMimeType() {
+            const types = [
+                'audio/webm;codecs=opus',
+                'audio/webm',
+                'audio/mp4',
+                'audio/ogg;codecs=opus',
+                'audio/ogg',
+                'audio/wav'
+            ];
+            
+            for (const type of types) {
+                if (MediaRecorder.isTypeSupported(type)) {
+                    return type;
+                }
+            }
+            
+            return 'audio/webm';
+        }
+        
+        async function stopRecording() {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+            
+            // Stop recorder
+            mediaRecorder.stop();
+            speakingState.isRecording = false;
+            
+            // Stop timer
+            if (recordingTimerInterval) {
+                clearInterval(recordingTimerInterval);
+                recordingTimerInterval = null;
+            }
+            
+            // Stop visualization
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            // Stop audio context
+            if (audioContext) {
+                await audioContext.close();
+                audioContext = null;
+            }
+            
+            // Stop all tracks
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+            
+            // Update UI
+            updateRecordingUI(false);
+        }
+        
+        function startRecordingTimer() {
+            const timerEl = document.getElementById('recording-timer');
+            const statusEl = document.getElementById('recording-status');
+            
+            recordingTimerInterval = setInterval(() => {
+                if (!recordingStartTime) return;
+                
+                const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                
+                if (timerEl) {
+                    timerEl.textContent = `${minutes}:${seconds}`;
+                    
+                    // Color warning for long recordings
+                    const q = questions[currentQuestion];
+                    const targetDuration = q?.target_duration || 60;
+                    if (elapsed > targetDuration + 30) {
+                        timerEl.style.color = '#ff4757';
+                    } else if (elapsed >= targetDuration) {
+                        timerEl.style.color = '#2ed573';
+                    }
+                }
+                
+                if (statusEl) {
+                    statusEl.textContent = 'Nehme auf... (Klicken zum Beenden)';
+                }
+            }, 100);
+        }
+        
+        function updateRecordingUI(isRecording) {
+            const recordBtn = document.getElementById('record-btn');
+            const recordIcon = document.getElementById('record-icon');
+            const recordText = document.getElementById('record-text');
+            const statusEl = document.getElementById('recording-status');
+            
+            if (isRecording) {
+                if (recordBtn) {
+                    recordBtn.style.background = 'linear-gradient(135deg, #ff4757 0%, #ff6b81 100%)';
+                    recordBtn.style.animation = 'pulse 1.5s infinite';
+                }
+                if (recordIcon) recordIcon.textContent = '⏹️';
+                if (recordText) recordText.textContent = 'Stoppen';
+                if (statusEl) statusEl.textContent = 'Nehme auf...';
+            } else {
+                if (recordBtn) {
+                    recordBtn.style.background = '';
+                    recordBtn.style.animation = '';
+                }
+                if (recordIcon) recordIcon.textContent = '🔴';
+                if (recordText) recordText.textContent = 'Neu aufnehmen';
+                if (statusEl) statusEl.textContent = speakingState.hasRecording ? 'Aufnahme bereit' : 'Bereit zum Aufnehmen';
+            }
+        }
+        
+        function visualizeAudio() {
+            const canvas = document.getElementById('audio-visualizer');
+            if (!canvas || !analyser) return;
+            
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            
+            function draw() {
+                if (!speakingState.isRecording) return;
+                
+                animationId = requestAnimationFrame(draw);
+                
+                analyser.getByteFrequencyData(dataArray);
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+                
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = (dataArray[i] / 255) * canvas.height * 0.8;
+                    
+                    const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
+                    gradient.addColorStop(0, '#6366f1');
+                    gradient.addColorStop(1, '#8b5cf6');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    
+                    x += barWidth + 1;
+                }
+            }
+            
+            draw();
+        }
+        
+        async function uploadRecording(blob) {
+            const progressDiv = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('upload-bar');
+            const progressText = document.getElementById('upload-text');
+            
+            if (!progressDiv || !blob) return;
+            
+            progressDiv.style.display = 'block';
+            progressBar.style.width = '20%';
+            progressText.textContent = 'Wird hochgeladen...';
+            
+            try {
+                const q = questions[currentQuestion];
+                const formData = new FormData();
+                formData.append('audio', blob, 'recording.webm');
+                formData.append('task_id', q.id || 'unknown');
+                formData.append('teil', currentTeil);
+                formData.append('duration', Math.floor((Date.now() - recordingStartTime) / 1000));
+                
+                progressBar.style.width = '50%';
+                
+                // Get auth token
+                const token = localStorage.getItem('access_token') || '';
+                
+                const response = await fetch('/api/sprechen/upload.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                progressBar.style.width = '80%';
+                
+                const result = await response.json();
+                
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Upload fehlgeschlagen');
+                }
+                
+                speakingState.submissionId = result.submission_id;
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Hochgeladen! Analyse wird gestartet...';
+                
+                // Start transcription and analysis
+                setTimeout(() => {
+                    startAnalysis(result.submission_id);
+                }, 1000);
+                
+            } catch (err) {
+                console.error('Upload error:', err);
+                progressText.textContent = 'Fehler: ' + err.message;
+                progressBar.style.background = '#ff4757';
+            }
+        }
+        
+        async function startAnalysis(submissionId) {
+            const progressText = document.getElementById('upload-text');
+            const token = localStorage.getItem('access_token') || '';
+            
+            try {
+                // Step 1: Transcription
+                if (progressText) progressText.textContent = 'Transkribiere...';
+                
+                const transcribeRes = await fetch('/api/sprechen/transcribe.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ submission_id: submissionId })
+                });
+                
+                const transcribeData = await transcribeRes.json();
+                
+                if (!transcribeRes.ok) {
+                    throw new Error(transcribeData.error || 'Transkription fehlgeschlagen');
+                }
+                
+                // Step 2: Analysis
+                if (progressText) progressText.textContent = 'KI analysiert...';
+                
+                const analyzeRes = await fetch('/api/sprechen/analyze.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ submission_id: submissionId })
+                });
+                
+                const analyzeData = await analyzeRes.json();
+                
+                if (!analyzeRes.ok) {
+                    throw new Error(analyzeData.error || 'Analyse fehlgeschlagen');
+                }
+                
+                // Show results
+                displayAnalysis(analyzeData.analysis, transcribeData.transcription);
+                
+            } catch (err) {
+                console.error('Analysis error:', err);
+                if (progressText) {
+                    progressText.textContent = 'Analyse-Fehler: ' + err.message;
+                }
+            }
+        }
+        
+        function displayAnalysis(analysis, transcription) {
+            const resultDiv = document.getElementById('analysis-result');
+            const contentDiv = document.getElementById('analysis-content');
+            
+            if (!resultDiv || !contentDiv || !analysis) return;
+            
+            const score = analysis.overall_score || 0;
+            const level = analysis.dtz_level || 'A2';
+            
+            let scoreColor = '#ff4757';
+            if (score >= 80) scoreColor = '#2ed573';
+            else if (score >= 60) scoreColor = '#ffa502';
+            
+            contentDiv.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    <!-- Overall Score -->
+                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 3rem; font-weight: 700; color: ${scoreColor};">${score}/100</div>
+                        <div style="font-size: 1.2rem; color: var(--accent);">DTZ-Niveau: ${level}</div>
+                    </div>
+                    
+                    <!-- Transcription -->
+                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+                        <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--primary);">📝 Transkription</div>
+                        <div style="font-size: 0.95rem; line-height: 1.5; color: var(--text);">${escapeHtml(transcription || '')}</div>
+                    </div>
+                    
+                    <!-- Detailed Scores -->
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                        ${renderScoreBar('Flüssigkeit', analysis.fluency)}
+                        ${renderScoreBar('Grammatik', analysis.grammar)}
+                        ${renderScoreBar('Wortschatz', analysis.vocabulary)}
+                        ${renderScoreBar('Aufgabe', analysis.task_completion)}
+                    </div>
+                    
+                    <!-- Strengths -->
+                    ${analysis.strengths?.length ? `
+                        <div style="background: rgba(46, 213, 115, 0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #2ed573;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem; color: #2ed573;">✓ Stärken</div>
+                            <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.9rem;">
+                                ${analysis.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Improvements -->
+                    ${analysis.improvements?.length ? `
+                        <div style="background: rgba(255, 71, 87, 0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #ff4757;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem; color: #ff4757;">→ Verbesserungen</div>
+                            <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.9rem;">
+                                ${analysis.improvements.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Suggestions -->
+                    ${analysis.suggestions?.length ? `
+                        <div style="background: rgba(99, 102, 241, 0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary);">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--primary);">💡 Übungsvorschläge</div>
+                            <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.9rem;">
+                                ${analysis.suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function renderScoreBar(label, data) {
+            if (!data) return '';
+            const score = data.score || 0;
+            let color = '#ff4757';
+            if (score >= 80) color = '#2ed573';
+            else if (score >= 60) color = '#ffa502';
+            
+            return `
+                <div style="background: rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 6px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.3rem;">
+                        <span>${label}</span>
+                        <span style="color: ${color}; font-weight: 600;">${score}%</span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: ${color}; height: 100%; width: ${score}%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function playRecording() {
+            if (!speakingState.audioUrl) return;
+            
+            const playBtn = document.getElementById('play-btn');
+            
+            if (speakingState.isPlaying) {
+                // Stop playing
+                const audio = document.getElementById('playback-audio');
+                if (audio) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+                speakingState.isPlaying = false;
+                if (playBtn) {
+                    playBtn.innerHTML = '▶️ Abspielen';
+                }
+            } else {
+                // Start playing
+                let audio = document.getElementById('playback-audio');
+                if (!audio) {
+                    audio = document.createElement('audio');
+                    audio.id = 'playback-audio';
+                    document.body.appendChild(audio);
+                }
+                
+                audio.src = speakingState.audioUrl;
+                audio.onended = () => {
+                    speakingState.isPlaying = false;
+                    if (playBtn) playBtn.innerHTML = '▶️ Abspielen';
+                };
+                
+                audio.play();
+                speakingState.isPlaying = true;
+                if (playBtn) {
+                    playBtn.innerHTML = '⏹️ Stoppen';
+                }
+            }
+        }
     </script>
 <!-- Bottom Navigation (Mobile) -->
 <nav class="bottom-nav mobile-only">
@@ -1452,6 +2122,9 @@
     </a>
 </nav>
 
-<script src="js/app.js"></script>
+<script src="js/db.js"></script>
+    <script src="js/lazy-load.js"></script>
+    <script src="js/performance.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

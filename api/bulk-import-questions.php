@@ -56,11 +56,22 @@ if (empty($token)) {
     exit;
 }
 
+// Get JWT secret
+$jwtSecret = $_ENV['JWT_SECRET'] ?? null;
+if (!$jwtSecret) {
+    $secretFile = __DIR__ . '/../.jwt_secret';
+    if (file_exists($secretFile)) {
+        $jwtSecret = trim(file_get_contents($secretFile));
+    } else {
+        $jwtSecret = 'dtz-learning-secret-key-change-in-production';
+    }
+}
+
 try {
-    $jwt = new JWT();
-    $payload = $jwt->decode($token);
+    $jwt = new JWT($jwtSecret);
+    $payload = $jwt->verify($token);
     
-    if (!$payload || ($payload['role'] ?? '') !== 'admin') {
+    if (!$payload || (($payload['role'] ?? '') !== 'admin' && ($payload['role'] ?? '') !== 'owner')) {
         http_response_code(403);
         echo json_encode(['error' => 'Admin yetkisi gerekli']);
         exit;

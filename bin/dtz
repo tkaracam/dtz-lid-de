@@ -1,0 +1,88 @@
+#!/usr/bin/env php
+<?php
+/**
+ * DTZ Database Management CLI
+ * Usage: php bin/dtz [command]
+ */
+
+$commands = [
+    'migrate' => 'Run all pending migrations',
+    'migrate:rollback' => 'Rollback last migration',
+    'migrate:status' => 'Show migration status',
+    'seed' => 'Run database seeders',
+    'fresh' => 'Drop all tables and re-run migrations',
+    'reset' => 'Rollback all migrations',
+    'help' => 'Show this help message',
+];
+
+$command = $argv[1] ?? 'help';
+
+function runPhinx(string $command): void {
+    $phinx = 'vendor/bin/phinx';
+    if (!file_exists($phinx)) {
+        echo "❌ Phinx not found. Run: composer install\n";
+        exit(1);
+    }
+    
+    $fullCommand = "php $phinx $command -c phinx.php";
+    echo "▶ Running: $fullCommand\n\n";
+    passthru($fullCommand, $exitCode);
+    exit($exitCode);
+}
+
+switch ($command) {
+    case 'migrate':
+        runPhinx('migrate');
+        break;
+        
+    case 'migrate:rollback':
+        runPhinx('rollback');
+        break;
+        
+    case 'migrate:status':
+        runPhinx('status');
+        break;
+        
+    case 'seed':
+        runPhinx('seed:run');
+        break;
+        
+    case 'fresh':
+        echo "⚠️  This will delete all data!\n";
+        echo "Are you sure? (yes/no): ";
+        $confirm = trim(fgets(STDIN));
+        if ($confirm !== 'yes') {
+            echo "Aborted.\n";
+            exit(0);
+        }
+        runPhinx('rollback -t 0');
+        runPhinx('migrate');
+        runPhinx('seed:run');
+        break;
+        
+    case 'reset':
+        echo "⚠️  This will rollback ALL migrations!\n";
+        echo "Are you sure? (yes/no): ";
+        $confirm = trim(fgets(STDIN));
+        if ($confirm !== 'yes') {
+            echo "Aborted.\n";
+            exit(0);
+        }
+        runPhinx('rollback -t 0');
+        break;
+        
+    case 'help':
+    default:
+        echo "DTZ Database Management CLI\n";
+        echo "===========================\n\n";
+        echo "Usage: php bin/dtz [command]\n\n";
+        echo "Commands:\n";
+        foreach ($commands as $cmd => $desc) {
+            printf("  %-20s %s\n", $cmd, $desc);
+        }
+        echo "\nExamples:\n";
+        echo "  php bin/dtz migrate        # Run pending migrations\n";
+        echo "  php bin/dtz seed           # Seed the database\n";
+        echo "  php bin/dtz fresh          # Fresh install with sample data\n";
+        break;
+}

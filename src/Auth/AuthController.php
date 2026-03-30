@@ -13,9 +13,17 @@ class AuthController {
     private Database $db;
     
     public function __construct() {
-        $secret = $_ENV['JWT_SECRET'] ?? 'dtz-learning-secret-key-change-in-production';
+        $secret = $_ENV['JWT_SECRET'] ?? $this->getFallbackSecret();
         $this->jwt = new JWT($secret, 86400 * 7); // 7 days
         $this->db = Database::getInstance();
+    }
+    
+    private function getFallbackSecret(): string {
+        $secretFile = __DIR__ . '/../../.jwt_secret';
+        if (file_exists($secretFile)) {
+            return trim(file_get_contents($secretFile));
+        }
+        return 'dtz-learning-secret-key-change-in-production';
     }
     
     public function authenticate(): ?array {

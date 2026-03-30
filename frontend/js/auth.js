@@ -14,8 +14,14 @@ function clearAuth() {
 }
 
 function getUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    try {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    } catch (e) {
+        console.error('Error parsing user data:', e);
+        localStorage.removeItem('user');
+        return null;
+    }
 }
 
 function setUser(user) {

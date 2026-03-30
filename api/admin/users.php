@@ -3,136 +3,287 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../src/Auth/AuthController.php';
 require_once __DIR__ . '/../../src/Database/Database.php';
+require_once __DIR__ . '/../../src/Security/SecurityHeaders.php';
+require_once __DIR__ . '/../../src/Security/InputValidator.php';
 
 use DTZ\Auth\AuthController;
 use DTZ\Database\Database;
+use DTZ\Security\SecurityHeaders;
+use DTZ\Security\InputValidator;
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS');
+SecurityHeaders::set();
+SecurityHeaders::setCors();
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
-
-// Auth check
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$token = '';
-if (preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
-    $token = $matches[1];
-}
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Nicht autorisiert']);
-    exit;
-}
-
+// Check admin authentication
 $auth = new AuthController();
-$user = $auth->me($token);
+$adminUser = $auth->authenticate();
 
-if (!$user || $user['role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Admin erforderlich']);
-    exit;
+if (!$adminUser || $adminUser['role'] !== 'admin') {
+    SecurityHeaders::jsonResponse(['error' => 'Unauthorized'], 401);
 }
 
-$db = Database::getInstance();
 $method = $_SERVER['REQUEST_METHOD'];
 
 try {
+    $db = Database::getInstance();
+    
     switch ($method) {
         case 'GET':
-            // List users
-            $page = max(1, intval($_GET['page'] ?? 1));
-            $limit = min(100, max(1, intval($_GET['limit'] ?? 20)));
-            $offset = ($page - 1) * $limit;
-            $search = $_GET['search'] ?? '';
+            // Get single user or list
+            $id = isset($_GET['id']) ? InputValidator::int($_GET['id']) : null;
             
-            $where = '';
-            $params = [];
-            if ($search) {
-                $where = "WHERE email LIKE ? OR display_name LIKE ?";
-                $params = ["%$search%", "%$search%"];
+            if ($id) {
+                // Get specific user
+                $user = $db->selectOne("
+                    SELECT u.id, u.email, u.display_name as name, u.level, 
+                           u.subscription_status, u.trial_ends_at, u.is_active,
+                           u.created_at, u.last_activity_at, u.streak_count, u.daily_goal,
+                           (SELECT COUNT(*) FROM user_answers WHERE user_id = u.id) as total_answers,
+                           (SELECT COUNT(*) FROM writing_submissions WHERE user_id = u.id) as writing_count,
+                           (SELECT COUNT(*) FROM speaking_submissions WHERE user_id = u.id) as speaking_count
+                    FROM users u
+                    WHERE u.id = ?
+                ", [$id]);
+                
+                if (!$user) {
+                    SecurityHeaders::jsonResponse(['error' => 'User not found'], 404);
+                }
+                
+                SecurityHeaders::jsonResponse(['user' => $user]);
             }
             
-            $users = $db->select(
-                "SELECT id, email, display_name, level, subscription_status, is_active, created_at, last_activity_at 
-                 FROM users $where 
-                 ORDER BY created_at DESC 
-                 LIMIT ? OFFSET ?",
-                array_merge($params, [$limit, $offset])
-            );
+            // List users with filters
+            $page = max(1, InputValidator::int($_GET['page'] ?? 1) ?: 1);
+            $perPage = min(100, max(10, InputValidator::int($_GET['per_page'] ?? 20) ?: 20));
+            $offset = ($page - 1) * $perPage;
             
-            $total = $db->selectOne(
-                "SELECT COUNT(*) as c FROM users $where",
-                $params
-            )['c'];
+            $search = InputValidator::string($_GET['search'] ?? '', 100);
+            $status = InputValidator::string($_GET['status'] ?? '', 20);
+            $level = InputValidator::string($_GET['level'] ?? '', 2);
             
-            echo json_encode([
-                'success' => true,
+            // Build query
+            $where = ['1=1'];
+            $params = [];
+            
+            if ($search) {
+                $where[] = '(email LIKE ? OR display_name LIKE ?)';
+                $params[] = "%$search%";
+                $params[] = "%$search%";
+            }
+            
+            if ($status) {
+                $where[] = 'subscription_status = ?';
+                $params[] = $status;
+            }
+            
+            if ($level) {
+                $where[] = 'level = ?';
+                $params[] = $level;
+            }
+            
+            $whereClause = implode(' AND ', $where);
+            
+            // Get total count
+            $countResult = $db->selectOne("SELECT COUNT(*) as total FROM users WHERE $whereClause", $params);
+            $total = (int)$countResult['total'];
+            
+            // Get users
+            $users = $db->selectAll("
+                SELECT id, email, display_name as name, level, subscription_status, 
+                       is_active, created_at, last_activity_at, streak_count
+                FROM users 
+                WHERE $whereClause
+                ORDER BY created_at DESC
+                LIMIT ? OFFSET ?
+            ", array_merge($params, [$perPage, $offset]));
+            
+            SecurityHeaders::jsonResponse([
                 'users' => $users,
-                'total' => $total,
-                'page' => $page,
-                'pages' => ceil($total / $limit)
+                'pagination' => [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $total,
+                    'total_pages' => ceil($total / $perPage)
+                ]
             ]);
+            break;
+            
+        case 'POST':
+            // Create new user
+            $input = InputValidator::getJsonInput();
+            if (!$input) {
+                SecurityHeaders::jsonResponse(['error' => 'Invalid input'], 400);
+            }
+            
+            $email = InputValidator::email($input['email'] ?? '');
+            $password = $input['password'] ?? '';
+            $name = InputValidator::string($input['name'] ?? '', 100);
+            $level = InputValidator::string($input['level'] ?? 'A2', 2);
+            $subscription = InputValidator::string($input['subscription_status'] ?? 'free', 20);
+            
+            if (!$email || !$password || !$name) {
+                SecurityHeaders::jsonResponse(['error' => 'Email, password and name are required'], 400);
+            }
+            
+            // Check if email exists
+            $existing = $db->selectOne("SELECT id FROM users WHERE email = ?", [$email]);
+            if ($existing) {
+                SecurityHeaders::jsonResponse(['error' => 'Email already exists'], 409);
+            }
+            
+            // Validate password
+            $passwordCheck = InputValidator::password($password);
+            if (!$passwordCheck['valid']) {
+                SecurityHeaders::jsonResponse(['error' => 'Password too weak', 'requirements' => $passwordCheck['errors']], 400);
+            }
+            
+            // Create user
+            $userId = $db->insert('users', [
+                'email' => $email,
+                'password_hash' => password_hash($password, PASSWORD_ARGON2ID),
+                'display_name' => $name,
+                'level' => $level,
+                'subscription_status' => $subscription,
+                'is_active' => true,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            // Create progress cache
+            $db->insert('user_progress_cache', [
+                'user_id' => $userId,
+                'current_level' => $level
+            ]);
+            
+            // Log action
+            $db->insert('audit_logs', [
+                'user_id' => $adminUser['id'],
+                'action' => 'user_created',
+                'entity_type' => 'user',
+                'entity_id' => $userId,
+                'new_values' => json_encode(['email' => $email, 'name' => $name]),
+                'ip_address' => InputValidator::getClientIp(),
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            SecurityHeaders::jsonResponse([
+                'success' => true,
+                'user_id' => $userId,
+                'message' => 'User created successfully'
+            ], 201);
             break;
             
         case 'PUT':
             // Update user
-            $input = json_decode(file_get_contents('php://input'), true);
-            $userId = $input['id'] ?? 0;
-            
-            if (!$userId) {
-                http_response_code(400);
-                echo json_encode(['error' => 'ID erforderlich']);
-                exit;
+            $input = InputValidator::getJsonInput();
+            if (!$input || empty($input['id'])) {
+                SecurityHeaders::jsonResponse(['error' => 'User ID required'], 400);
             }
             
-            $allowedFields = ['display_name', 'level', 'subscription_status', 'is_active', 'daily_goal'];
-            $updateData = [];
-            foreach ($allowedFields as $field) {
-                if (isset($input[$field])) {
-                    $updateData[$field] = $input[$field];
-                }
+            $id = InputValidator::int($input['id']);
+            $user = $db->selectOne("SELECT * FROM users WHERE id = ?", [$id]);
+            
+            if (!$user) {
+                SecurityHeaders::jsonResponse(['error' => 'User not found'], 404);
             }
             
-            if (empty($updateData)) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Keine Daten zum Aktualisieren']);
-                exit;
+            $updates = [];
+            $oldValues = [];
+            $newValues = [];
+            
+            if (isset($input['name'])) {
+                $updates['display_name'] = InputValidator::string($input['name'], 100);
+                $oldValues['name'] = $user['display_name'];
+                $newValues['name'] = $updates['display_name'];
             }
             
-            $db->update('users', $updateData, 'id = ?', [$userId]);
+            if (isset($input['level'])) {
+                $updates['level'] = InputValidator::string($input['level'], 2);
+                $oldValues['level'] = $user['level'];
+                $newValues['level'] = $updates['level'];
+            }
             
-            echo json_encode(['success' => true, 'message' => 'Benutzer aktualisiert']);
+            if (isset($input['subscription_status'])) {
+                $updates['subscription_status'] = InputValidator::string($input['subscription_status'], 20);
+                $oldValues['subscription_status'] = $user['subscription_status'];
+                $newValues['subscription_status'] = $updates['subscription_status'];
+            }
+            
+            if (isset($input['is_active'])) {
+                $updates['is_active'] = $input['is_active'] ? 1 : 0;
+                $oldValues['is_active'] = $user['is_active'];
+                $newValues['is_active'] = $updates['is_active'];
+            }
+            
+            if (isset($input['password']) && !empty($input['password'])) {
+                $updates['password_hash'] = password_hash($input['password'], PASSWORD_ARGON2ID);
+                $newValues['password'] = '[CHANGED]';
+            }
+            
+            if (empty($updates)) {
+                SecurityHeaders::jsonResponse(['error' => 'No fields to update'], 400);
+            }
+            
+            $db->update('users', $updates, 'id = ?', [$id]);
+            
+            // Log action
+            $db->insert('audit_logs', [
+                'user_id' => $adminUser['id'],
+                'action' => 'user_updated',
+                'entity_type' => 'user',
+                'entity_id' => $id,
+                'old_values' => json_encode($oldValues),
+                'new_values' => json_encode($newValues),
+                'ip_address' => InputValidator::getClientIp(),
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            SecurityHeaders::jsonResponse([
+                'success' => true,
+                'message' => 'User updated successfully'
+            ]);
             break;
             
         case 'DELETE':
             // Delete user
-            $userId = $_GET['id'] ?? 0;
-            
-            if (!$userId) {
-                http_response_code(400);
-                echo json_encode(['error' => 'ID erforderlich']);
-                exit;
+            $id = InputValidator::int($_GET['id'] ?? null);
+            if (!$id) {
+                SecurityHeaders::jsonResponse(['error' => 'User ID required'], 400);
             }
             
-            // Prevent self-deletion
-            if ($userId == $user['id']) {
-                http_response_code(403);
-                echo json_encode(['error' => 'Eigener Account kann nicht gelöscht werden']);
-                exit;
+            $user = $db->selectOne("SELECT id, email FROM users WHERE id = ?", [$id]);
+            if (!$user) {
+                SecurityHeaders::jsonResponse(['error' => 'User not found'], 404);
             }
             
-            $db->delete('users', 'id = ?', [$userId]);
+            // Prevent deleting self
+            if ($id === $adminUser['id']) {
+                SecurityHeaders::jsonResponse(['error' => 'Cannot delete yourself'], 400);
+            }
             
-            echo json_encode(['success' => true, 'message' => 'Benutzer gelöscht']);
+            $db->delete('users', 'id = ?', [$id]);
+            
+            // Log action
+            $db->insert('audit_logs', [
+                'user_id' => $adminUser['id'],
+                'action' => 'user_deleted',
+                'entity_type' => 'user',
+                'entity_id' => $id,
+                'old_values' => json_encode(['email' => $user['email']]),
+                'ip_address' => InputValidator::getClientIp(),
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            SecurityHeaders::jsonResponse([
+                'success' => true,
+                'message' => 'User deleted successfully'
+            ]);
             break;
+            
+        default:
+            SecurityHeaders::jsonResponse(['error' => 'Method not allowed'], 405);
     }
+    
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Fehler: ' . $e->getMessage()]);
+    error_log('Admin users API error: ' . $e->getMessage());
+    SecurityHeaders::jsonResponse(['error' => 'Internal server error'], 500);
 }

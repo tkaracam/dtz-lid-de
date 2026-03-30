@@ -2,58 +2,69 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../src/Database/Database.php';
+require_once __DIR__ . '/../../src/Security/SecurityHeaders.php';
+require_once __DIR__ . '/../../src/Security/InputValidator.php';
 
 use DTZ\Database\Database;
+use DTZ\Security\SecurityHeaders;
+use DTZ\Security\InputValidator;
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
+// Set security headers
+SecurityHeaders::set();
+SecurityHeaders::setCors();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Nur POST erlaubt']);
-    exit;
+    SecurityHeaders::jsonResponse(['error' => 'Nur POST erlaubt'], 405);
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
-$email = $input['email'] ?? '';
+// Rate limiting by IP
+$clientIp = InputValidator::getClientIp();
+if (!InputValidator::rateLimit('register_' . $clientIp, 3, 3600)) {
+    SecurityHeaders::jsonResponse(['error' => 'Zu viele Registrierungsversuche. Bitte später erneut versuchen.'], 429);
+}
+
+// Get and validate input
+$input = InputValidator::getJsonInput();
+if (!$input) {
+    SecurityHeaders::jsonResponse(['error' => 'Ungültige Eingabe'], 400);
+}
+
+$email = InputValidator::email($input['email'] ?? '');
 $password = $input['password'] ?? '';
-$name = $input['name'] ?? '';
+$name = InputValidator::string($input['name'] ?? '', 100);
 
-if (empty($email) || empty($password) || empty($name)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Alle Felder sind erforderlich']);
-    exit;
+if (!$email || empty($password) || empty($name)) {
+    SecurityHeaders::jsonResponse(['error' => 'Alle Felder sind erforderlich'], 400);
 }
 
-if (strlen($password) < 8) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Passwort muss mindestens 8 Zeichen lang sein']);
-    exit;
+// Validate password strength
+$passwordCheck = InputValidator::password($password);
+if (!$passwordCheck['valid']) {
+    SecurityHeaders::jsonResponse([
+        'error' => 'Passwort ist zu schwach',
+        'requirements' => $passwordCheck['errors']
+    ], 400);
+}
+
+// Check for suspicious input
+if (InputValidator::hasXss($name)) {
+    SecurityHeaders::jsonResponse(['error' => 'Ungültige Eingabe'], 400);
 }
 
 try {
     $db = Database::getInstance();
     
-    // Check if email exists
+    // Check if email exists (case-insensitive)
     $existing = $db->selectOne(
-        "SELECT id FROM users WHERE email = ?",
+        "SELECT id FROM users WHERE LOWER(email) = LOWER(?)",
         [$email]
     );
     
     if ($existing) {
-        http_response_code(409);
-        echo json_encode(['error' => 'E-Mail bereits registriert']);
-        exit;
+        SecurityHeaders::jsonResponse(['error' => 'E-Mail bereits registriert'], 409);
     }
     
-    // Create user
+    // Create user with Argon2id
     $passwordHash = password_hash($password, PASSWORD_ARGON2ID);
     
     $userId = $db->insert('users', [
@@ -61,10 +72,12 @@ try {
         'display_name' => $name,
         'password_hash' => $passwordHash,
         'subscription_status' => 'trialing',
-        'trial_ends_at' => date('Y-m-d H:i:s', strtotime('+7 days'))
+        'trial_ends_at' => date('Y-m-d H:i:s', strtotime('+7 days')),
+        'is_active' => true,
+        'created_at' => date('Y-m-d H:i:s')
     ]);
     
-    echo json_encode([
+    SecurityHeaders::jsonResponse([
         'success' => true,
         'message' => 'Registrierung erfolgreich',
         'user_id' => $userId
@@ -72,6 +85,5 @@ try {
     
 } catch (Exception $e) {
     error_log('Registration error: ' . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['error' => 'Registrierung fehlgeschlagen: ' . $e->getMessage()]);
+    SecurityHeaders::jsonResponse(['error' => 'Registrierung fehlgeschlagen'], 500);
 }

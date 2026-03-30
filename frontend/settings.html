@@ -6,6 +6,13 @@
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <!-- Security Headers -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
     <title>Einstellungen - DTZ Lernplattform</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
@@ -432,18 +439,32 @@
         </a>
     </nav>
 
+    <script src="js/security.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/lazy-load.js"></script>
+    <script src="js/performance.js"></script>
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     <script>
         // Load user data
         async function loadUserData() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            let user = {};
+            let settings = {};
+            try {
+                user = JSON.parse(localStorage.getItem('user') || '{}');
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
             if (user.email) {
                 document.getElementById('user-email').textContent = user.email;
             }
             
             // Load saved settings
-            const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            try {
+                settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            } catch (e) {
+                console.error('Error parsing settings:', e);
+            }
             if (settings.notifications) {
                 document.getElementById('toggle-notifications').classList.add('active');
             }
@@ -460,7 +481,12 @@
             element.classList.toggle('active');
             const isActive = element.classList.contains('active');
             
-            const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            let settings = {};
+            try {
+                settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            } catch (e) {
+                console.error('Error parsing settings:', e);
+            }
             settings[key] = isActive;
             localStorage.setItem('settings', JSON.stringify(settings));
             
@@ -569,7 +595,7 @@
         getCacheVersion();
         
         function logout() {
-            localStorage.removeItem('token');
+            localStorage.removeItem('access_token');
             localStorage.removeItem('user');
             window.location.href = 'login.html';
         }

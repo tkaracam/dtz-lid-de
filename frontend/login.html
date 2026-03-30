@@ -6,12 +6,20 @@
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <!-- Security Headers -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - DTZ Lernplattform</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components-new.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
     <style>
         .auth-container {
             min-height: 100vh;
@@ -29,6 +37,28 @@
             border-radius: 24px;
             padding: 2.5rem;
             border: 1px solid var(--glass-border);
+            animation: fadeInScale 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        
+        .form-group input {
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 92, 255, 0.2);
         }
         
         .auth-box h1 {
@@ -123,7 +153,9 @@
                 
                 <div class="error-message" id="error"></div>
                 
-                <button type="submit" class="btn btn-primary btn-full">Anmelden</button>
+                <button type="submit" class="btn btn-primary btn-full ripple" id="submit-btn">
+                    <span>Anmelden</span>
+                </button>
             </form>
             
             <div class="auth-links">
@@ -133,7 +165,9 @@
     </div>
     
     <script src="js/config.js"></script>
+    <script src="js/security.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
     <script>
         // Redirect if already logged in
         if (isAuthenticated()) {
@@ -143,9 +177,37 @@
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            
+            // XSS Protection: Sanitize inputs
+            const email = Security.sanitizeInput(emailInput.value).trim();
+            const password = passwordInput.value; // Don't sanitize password
+            
+            // Client-side validation
+            if (!Security.isValidEmail(email)) {
+                Toast.error('Bitte geben Sie eine gültige E-Mail-Adresse ein');
+                return;
+            }
+            
+            if (password.length < 8 || password.length > 128) {
+                Toast.error('Passwort muss zwischen 8 und 128 Zeichen lang sein');
+                return;
+            }
+            
+            // Check for suspicious input
+            if (Security.isSuspiciousInput(email)) {
+                Toast.error('Ungültige Eingabe');
+                return;
+            }
             const errorEl = document.getElementById('error');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // Hide previous errors
+            errorEl.classList.remove('show');
+            
+            // Show loading state
+            Loading.button(submitBtn, true);
             
             try {
                 const response = await fetch(`${API_BASE}/auth/login.php`, {
@@ -157,19 +219,35 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    Toast.success('Anmeldung erfolgreich!', 'Willkommen zurück');
                     setToken(data.access_token);
                     setUser(data.user);
-                    window.location.href = 'dashboard.html';
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
                 } else {
+                    Loading.button(submitBtn, false);
                     errorEl.textContent = data.error || 'Anmeldung fehlgeschlagen';
                     errorEl.classList.add('show');
+                    Toast.error(data.error || 'Anmeldung fehlgeschlagen');
+                    
+                    // Shake animation on error
+                    document.querySelector('.auth-box').classList.add('animate-shake');
+                    setTimeout(() => {
+                        document.querySelector('.auth-box').classList.remove('animate-shake');
+                    }, 500);
                 }
             } catch (err) {
+                Loading.button(submitBtn, false);
                 errorEl.textContent = 'Verbindungsfehler';
                 errorEl.classList.add('show');
+                Toast.error('Verbindungsfehler. Bitte versuchen Sie es später erneut.');
             }
         });
     </script>
-<script src="js/app.js"></script>
+<script src="js/db.js"></script>
+    <script src="js/lazy-load.js"></script>
+    <script src="js/performance.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

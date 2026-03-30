@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <title>Community - DTZ Lernplattform</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components-new.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        .social-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .social-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+        }
+        
+        .social-tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .social-tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .social-tab.active {
+            background: rgba(124, 92, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Leaderboard */
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        
+        .leaderboard-item:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+        }
+        
+        .leaderboard-item.top-1 {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), var(--glass-bg));
+            border-color: #ffd700;
+        }
+        
+        .leaderboard-item.top-2 {
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.1), var(--glass-bg));
+            border-color: #c0c0c0;
+        }
+        
+        .leaderboard-item.top-3 {
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.1), var(--glass-bg));
+            border-color: #cd7f32;
+        }
+        
+        .leaderboard-rank {
+            font-size: 1.5rem;
+            font-weight: 700;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .leaderboard-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        
+        .leaderboard-info {
+            flex: 1;
+        }
+        
+        .leaderboard-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .leaderboard-stats {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .leaderboard-points {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        /* Friends */
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .friend-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .friend-card:hover {
+            border-color: var(--accent);
+        }
+        
+        .friend-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .friend-info {
+            flex: 1;
+        }
+        
+        .friend-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .friend-status {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .friend-status.online::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+        }
+        
+        .friend-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Multiplayer */
+        .quiz-rooms {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .quiz-room {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quiz-room:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+        
+        .quiz-room-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .quiz-room-status.waiting {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        
+        .quiz-room-status.playing {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+        
+        .quiz-room-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quiz-room-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-room-players {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .player-avatars {
+            display: flex;
+        }
+        
+        .player-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: -8px;
+            border: 2px solid var(--glass-bg);
+        }
+        
+        .player-avatar:first-child {
+            margin-left: 0;
+        }
+        
+        .quiz-room-join {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quiz-room-join:hover {
+            filter: brightness(1.2);
+        }
+        
+        /* Create Room Button */
+        .create-room-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .create-room-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 92, 255, 0.4);
+        }
+        
+        /* Activity Feed */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border-radius: 12px;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .activity-icon.achievement {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .activity-icon.streak {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .activity-icon.friend {
+            background: rgba(34, 197, 94, 0.2);
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">DTZ Learning</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+                    <li class="nav-item"><a href="learn.html" class="nav-link">📚 Lernen</a></li>
+                    <li class="nav-item"><a href="flashcards.html" class="nav-link">🎴 Vokabeln</a></li>
+                    <li class="nav-item"><a href="grammar.html" class="nav-link">📖 Grammatik</a></li>
+                    <li class="nav-item"><a href="modelltest.html" class="nav-link">📝 Modelltest</a></li>
+                    <li class="nav-item"><a href="social.html" class="nav-link active">👥 Community</a></li>
+                    <li class="nav-item"><a href="#" onclick="logout()" class="nav-link">🚪 Abmelden</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>👥 Community</h1>
+            </div>
+            
+            <div class="social-container">
+                <div class="social-tabs">
+                    <button class="social-tab active" onclick="switchTab('leaderboard')">
+                        🏆 Rangliste
+                    </button>
+                    <button class="social-tab" onclick="switchTab('friends')">
+                        👥 Freunde
+                    </button>
+                    <button class="social-tab" onclick="switchTab('multiplayer')">
+                        🎮 Multiplayer
+                    </button>
+                    <button class="social-tab" onclick="switchTab('activity')">
+                        📰 Aktivität
+                    </button>
+                </div>
+                
+                <!-- Leaderboard Tab -->
+                <div class="tab-content active" id="tab-leaderboard">
+                    <h2 style="margin-bottom: 1.5rem;">🏆 Bestenliste</h2>
+                    <div class="leaderboard-list" id="leaderboard-list">
+                        <!-- Leaderboard items will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Friends Tab -->
+                <div class="tab-content" id="tab-friends">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2>👥 Meine Freunde</h2>
+                        <button class="btn btn-primary" onclick="findFriends()">
+                            ➕ Freunde finden
+                        </button>
+                    </div>
+                    <div class="friends-grid" id="friends-grid">
+                        <!-- Friends will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Multiplayer Tab -->
+                <div class="tab-content" id="tab-multiplayer">
+                    <button class="create-room-btn" onclick="createQuizRoom()">
+                        ➕ Neuen Quiz-Raum erstellen
+                    </button>
+                    <h2 style="margin-bottom: 1.5rem;">🎮 Verfügbare Räume</h2>
+                    <div class="quiz-rooms" id="quiz-rooms">
+                        <!-- Quiz rooms will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Activity Tab -->
+                <div class="tab-content" id="tab-activity">
+                    <h2 style="margin-bottom: 1.5rem;">📰 Aktivitäten</h2>
+                    <div class="activity-list" id="activity-list">
+                        <!-- Activities will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/ai-tutor.js"></script>
+    <script>
+        checkAuth();
+        
+        // Mock data
+        const leaderboardData = [
+            { rank: 1, name: 'Maria S.', points: 12500, avatar: 'M', streak: 45, lessons: 230 },
+            { rank: 2, name: 'Ahmet K.', points: 11200, avatar: 'A', streak: 38, lessons: 195 },
+            { rank: 3, name: 'Lisa M.', points: 10800, avatar: 'L', streak: 42, lessons: 180 },
+            { rank: 4, name: 'John D.', points: 9500, avatar: 'J', streak: 25, lessons: 165 },
+            { rank: 5, name: 'Fatma Y.', points: 9200, avatar: 'F', streak: 30, lessons: 158 },
+            { rank: 6, name: 'Hans B.', points: 8900, avatar: 'H', streak: 20, lessons: 145 },
+            { rank: 7, name: 'Chen W.', points: 8500, avatar: 'C', streak: 28, lessons: 132 },
+            { rank: 8, name: 'Sofia R.', points: 8200, avatar: 'S', streak: 22, lessons: 128 },
+            { rank: 9, name: 'Mehmet A.', points: 7800, avatar: 'M', streak: 18, lessons: 115 },
+            { rank: 10, name: 'Emma L.', points: 7500, avatar: 'E', streak: 15, lessons: 105 }
+        ];
+        
+        const friendsData = [
+            { name: 'Maria S.', status: 'online', lastActive: 'Jetzt', avatar: 'M', streak: 45 },
+            { name: 'Ahmet K.', status: 'offline', lastActive: 'vor 2 Stunden', avatar: 'A', streak: 38 },
+            { name: 'Lisa M.', status: 'online', lastActive: 'Jetzt', avatar: 'L', streak: 42 },
+            { name: 'John D.', status: 'offline', lastActive: 'vor 5 Stunden', avatar: 'J', streak: 25 },
+            { name: 'Fatma Y.', status: 'online', lastActive: 'Jetzt', avatar: 'F', streak: 30 }
+        ];
+        
+        const quizRooms = [
+            { id: 1, name: 'A2 Leseverstehen', topic: 'Lesen', maxPlayers: 4, currentPlayers: 2, status: 'waiting', players: ['M', 'A'] },
+            { id: 2, name: 'Hörverstehen Übung', topic: 'Hören', maxPlayers: 6, currentPlayers: 4, status: 'waiting', players: ['L', 'J', 'F', 'H'] },
+            { id: 3, name: 'Grammatik Challenge', topic: 'Grammatik', maxPlayers: 4, currentPlayers: 4, status: 'playing', players: ['C', 'S', 'M', 'E'] },
+            { id: 4, name: 'Wortschatz Quiz', topic: 'Vokabeln', maxPlayers: 8, currentPlayers: 3, status: 'waiting', players: ['M', 'L', 'J'] }
+        ];
+        
+        const activities = [
+            { type: 'achievement', icon: '🏆', text: 'Maria hat die Auszeichnung "7-Tage-Serie" erhalten!', time: 'vor 5 Minuten' },
+            { type: 'streak', icon: '🔥', text: 'Ahmet hat eine 30-Tage-Lernserie erreicht!', time: 'vor 15 Minuten' },
+            { type: 'friend', icon: '👥', text: 'Lisa und John sind jetzt Freunde.', time: 'vor 30 Minuten' },
+            { type: 'achievement', icon: '🏆', text: 'Fatma hat 100 Lektionen abgeschlossen!', time: 'vor 1 Stunde' },
+            { type: 'streak', icon: '🔥', text: 'Chen hat eine 25-Tage-Lernserie erreicht!', time: 'vor 2 Stunden' }
+        ];
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.social-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Load content
+            switch(tabName) {
+                case 'leaderboard':
+                    renderLeaderboard();
+                    break;
+                case 'friends':
+                    renderFriends();
+                    break;
+                case 'multiplayer':
+                    renderQuizRooms();
+                    break;
+                case 'activity':
+                    renderActivity();
+                    break;
+            }
+        }
+        
+        function renderLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            const user = getUser();
+            
+            list.innerHTML = leaderboardData.map((item, index) => {
+                const rankClass = index < 3 ? `top-${index + 1}` : '';
+                const isUser = user && item.name.startsWith(user.name?.[0] || '');
+                
+                return `
+                    <div class="leaderboard-item ${rankClass} ${isUser ? 'current-user' : ''}">
+                        <div class="leaderboard-rank">
+                            ${index < 3 ? ['🥇', '🥈', '🥉'][index] : item.rank}
+                        </div>
+                        <div class="leaderboard-avatar">${item.avatar}</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">${item.name} ${isUser ? '(Du)' : ''}</div>
+                            <div class="leaderboard-stats">
+                                🔥 ${item.streak} Tage Serie • 📚 ${item.lessons} Lektionen
+                            </div>
+                        </div>
+                        <div class="leaderboard-points">${item.points.toLocaleString()} XP</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderFriends() {
+            const grid = document.getElementById('friends-grid');
+            
+            grid.innerHTML = friendsData.map(friend => `
+                <div class="friend-card">
+                    <div class="friend-avatar">${friend.avatar}</div>
+                    <div class="friend-info">
+                        <div class="friend-name">${friend.name}</div>
+                        <div class="friend-status ${friend.status}">
+                            ${friend.status === 'online' ? 'Online' : friend.lastActive}
+                        </div>
+                    </div>
+                    <div class="friend-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="challengeFriend('${friend.name}')">
+                            ⚔️
+                        </button>
+                        <button class="btn btn-sm btn-ghost" onclick="messageFriend('${friend.name}')">
+                            💬
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderQuizRooms() {
+            const container = document.getElementById('quiz-rooms');
+            
+            container.innerHTML = quizRooms.map(room => `
+                <div class="quiz-room">
+                    <span class="quiz-room-status ${room.status}">
+                        ${room.status === 'waiting' ? '🟢 Wartet' : '🟡 Spielt'}
+                    </span>
+                    <div class="quiz-room-title">${room.name}</div>
+                    <div class="quiz-room-info">Thema: ${room.topic} • ${room.maxPlayers} Spieler max</div>
+                    <div class="quiz-room-players">
+                        <div class="player-avatars">
+                            ${room.players.map(p => `<div class="player-avatar">${p}</div>`).join('')}
+                        </div>
+                        <span>${room.currentPlayers}/${room.maxPlayers}</span>
+                    </div>
+                    <button class="quiz-room-join" 
+                            ${room.status === 'playing' || room.currentPlayers >= room.maxPlayers ? 'disabled' : ''}
+                            onclick="joinQuizRoom(${room.id})">
+                        ${room.status === 'playing' ? 'Beobachten' : 'Beitreten'}
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        function renderActivity() {
+            const list = document.getElementById('activity-list');
+            
+            list.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon ${activity.type}">${activity.icon}</div>
+                    <div class="activity-content">
+                        <div class="activity-text">${activity.text}</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function findFriends() {
+            Modal.alert('Freunde suchen ist bald verfügbar!', 'Demnächst');
+        }
+        
+        function challengeFriend(name) {
+            Toast.info(`Du hast ${name} zu einem Duell herausgefordert!`);
+        }
+        
+        function messageFriend(name) {
+            Toast.info(`Nachricht an ${name} wird vorbereitet...`);
+        }
+        
+        function createQuizRoom() {
+            Modal.create({
+                title: '🎮 Quiz-Raum erstellen',
+                content: `
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <label>Raum-Name</label>
+                            <input type="text" class="input-field" placeholder="z.B. A2 Übung" id="room-name">
+                        </div>
+                        <div>
+                            <label>Thema</label>
+                            <select class="input-field" id="room-topic">
+                                <option value="lesen">Lesen</option>
+                                <option value="hoeren">Hören</option>
+                                <option value="grammatik">Grammatik</option>
+                                <option value="vokabeln">Vokabeln</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Max. Spieler</label>
+                            <select class="input-field" id="room-players">
+                                <option value="4">4 Spieler</option>
+                                <option value="6">6 Spieler</option>
+                                <option value="8">8 Spieler</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                onClose: () => {
+                    Toast.success('Quiz-Raum erstellt!');
+                }
+            });
+        }
+        
+        function joinQuizRoom(roomId) {
+            const room = quizRooms.find(r => r.id === roomId);
+            if (room) {
+                Toast.success(`Du bist "${room.name}" beigetreten!`);
+            }
+        }
+        
+        // Initialize
+        renderLeaderboard();
+    </script>
+    <script src="js/app.js"></script>
+</body>
+</html>

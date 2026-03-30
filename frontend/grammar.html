@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <!-- Security Headers -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+    <title>Grammatik - DTZ Lernplattform</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components-new.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        .grammar-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .grammar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .grammar-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .grammar-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(124, 92, 255, 0.2);
+        }
+        
+        .grammar-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .grammar-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .grammar-card.completed {
+            border-color: #22c55e;
+        }
+        
+        .grammar-card.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 28px;
+            height: 28px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .grammar-level {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .grammar-level.a1 { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .grammar-level.a2 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .grammar-level.b1 { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+        
+        .grammar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .grammar-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .grammar-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .grammar-progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .grammar-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s;
+        }
+        
+        .grammar-progress-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            min-width: 40px;
+            text-align: right;
+        }
+        
+        .lesson-modal .modal {
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .lesson-content {
+            line-height: 1.8;
+        }
+        
+        .lesson-content h2 {
+            color: var(--accent);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .lesson-content h3 {
+            color: var(--text);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .lesson-content p {
+            margin-bottom: 1rem;
+        }
+        
+        .lesson-content ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .lesson-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .example-box {
+            background: rgba(124, 92, 255, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .example-box .de {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .example-box .tr {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        .rule-box {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+        
+        .rule-box h4 {
+            color: #4ade80;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .practice-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+        }
+        
+        .practice-question {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .practice-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .practice-option {
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .practice-option:hover {
+            border-color: var(--accent);
+            background: rgba(124, 92, 255, 0.1);
+        }
+        
+        .practice-option.correct {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.2);
+        }
+        
+        .practice-option.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        th {
+            background: rgba(124, 92, 255, 0.1);
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">DTZ Learning</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+                    <li class="nav-item"><a href="learn.html" class="nav-link">📚 Lernen</a></li>
+                    <li class="nav-item"><a href="flashcards.html" class="nav-link">🎴 Vokabeln</a></li>
+                    <li class="nav-item"><a href="grammar.html" class="nav-link active">📖 Grammatik</a></li>
+                    <li class="nav-item"><a href="modelltest.html" class="nav-link">📝 Modelltest</a></li>
+                    <li class="nav-item"><a href="social.html" class="nav-link">👥 Community</a></li>
+                    <li class="nav-item"><a href="#" onclick="logout()" class="nav-link">🚪 Abmelden</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>📖 Grammatik-Lektionen</h1>
+            </div>
+            
+            <div class="grammar-container">
+                <div class="grammar-grid" id="grammar-grid">
+                    <!-- Grammar lessons will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/security.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/ai-tutor.js"></script>
+    <script>
+        checkAuth();
+        
+        const grammarLessons = [
+            {
+                id: 'artikel',
+                level: 'a1',
+                title: 'Artikel: der, die, das',
+                desc: 'Grundlagen der deutschen Artikel und Genus',
+                progress: 0,
+                content: `
+                    <h2>📖 Artikel im Deutschen</h2>
+                    <p>Im Deutschen gibt es drei bestimmte Artikel: <strong>der</strong> (maskulin), <strong>die</strong> (feminin) und <strong>das</strong> (neutral).</p>
+                    
+                    <div class="rule-box">
+                        <h4>📌 Merkregel</h4>
+                        <p>Das Genus eines Nomens ist im Deutschen oft willkürlich und muss mitgelernt werden. Es gibt jedoch einige typische Endungen:</p>
+                        <ul>
+                            <li><strong>-ung, -heit, -keit, -schaft, -tion</strong> → meistens <strong>die</strong> (die Bildung, die Freiheit)</li>
+                            <li><strong>-chen, -lein</strong> → immer <strong>das</strong> (das Mädchen, das Büchlein)</li>
+                            <li><strong>-er</strong> → oft <strong>der</strong> (der Lehrer, der Computer)</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Beispiele</h3>
+                    <div class="example-box">
+                        <div class="de">der Mann, die Frau, das Kind</div>
+                        <div class="tr">adam, kadın, çocuk</div>
+                    </div>
+                    <div class="example-box">
+                        <div class="de">der Tisch, die Tür, das Fenster</div>
+                        <div class="tr">masa, kapı, pencere</div>
+                    </div>
+                    
+                    <h3>Unbestimmte Artikel</h3>
+                    <p>Unbestimmte Artikel werden verwendet, wenn etwas nicht spezifisch ist:</p>
+                    <div class="example-box">
+                        <div class="de">ein Mann, eine Frau, ein Kind</div>
+                        <div class="tr">bir adam, bir kadın, bir çocuk</div>
+                    </div>
+                `,
+                practice: [
+                    { question: '___ Apfel (elma)', options: ['der', 'die', 'das'], correct: 0 },
+                    { question: '___ Milch (süt)', options: ['der', 'die', 'das'], correct: 1 },
+                    { question: '___ Brot (ekmek)', options: ['der', 'die', 'das'], correct: 2 }
+                ]
+            },
+            {
+                id: 'akkusativ',
+                level: 'a2',
+                title: 'Akkusativ',
+                desc: 'Das erste Kasus-System im Deutschen',
+                progress: 0,
+                content: `
+                    <h2>📖 Der Akkusativ</h2>
+                    <p>Der Akkusativ wird verwendet für das <strong>direkte Objekt</strong> - das Objekt, auf das die Handlung direkt einwirkt.</p>
+                    
+                    <div class="rule-box">
+                        <h4>📌 Bildung des Akkusativs</h4>
+                        <p>Im Akkusativ ändern sich nur die Artikel:</p>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <tr>
+                                <th>Kasus</th>
+                                <th>Maskulin</th>
+                                <th>Feminin</th>
+                                <th>Neutral</th>
+                                <th>Plural</th>
+                            </tr>
+                            <tr>
+                                <td>Nominativ</td>
+                                <td>der</td>
+                                <td>die</td>
+                                <td>das</td>
+                                <td>die</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Akkusativ</strong></td>
+                                <td><strong>den</strong></td>
+                                <td>die</td>
+                                <td>das</td>
+                                <td>die</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <p><strong>Wichtig:</strong> Nur der maskuline Artikel ändert sich!</p>
+                    
+                    <h3>Beispiele</h3>
+                    <div class="example-box">
+                        <div class="de">Ich sehe <strong>den</strong> Mann.</div>
+                        <div class="tr">Adama görüyorum. (Nominativ: der Mann)</div>
+                    </div>
+                    <div class="example-box">
+                        <div class="de">Ich kaufe <strong>ein</strong> Buch.</div>
+                        <div class="tr">Bir kitap alıyorum. (Neutral ändert sich nicht)</div>
+                    </div>
+                    
+                    <h3>Verben mit Akkusativ</h3>
+                    <p>Diese Verben verlangen ein Akkusativ-Objekt:</p>
+                    <ul>
+                        <li>sehen (görmek), hören (duymak)</li>
+                        <li>kaufen (satın almak), verkaufen (satmak)</li>
+                        <li>essen (yemek), trinken (içmek)</li>
+                        <li>lieben (sevmek), mögen (hoşlanmak)</li>
+                    </ul>
+                `,
+                practice: [
+                    { question: 'Ich sehe ___ Mann.', options: ['der', 'den', 'dem'], correct: 1 },
+                    { question: 'Ich kaufe ___ Blumen.', options: ['der', 'die', 'den'], correct: 1 },
+                    { question: 'Er liebt ___ Frau.', options: ['der', 'die', 'das'], correct: 1 }
+                ]
+            },
+            {
+                id: 'dativ',
+                level: 'a2',
+                title: 'Dativ',
+                desc: 'Der Dativ für indirekte Objekte',
+                progress: 0,
+                content: `
+                    <h2>📖 Der Dativ</h2>
+                    <p>Der Dativ wird verwendet für das <strong>indirekte Objekt</strong> - meistens der Empfänger oder Betroffene.</p>
+                    
+                    <div class="rule-box">
+                        <h4>📌 Wann verwendet man Dativ?</h4>
+                        <ul>
+                            <li>Nach bestimmten Verben (helfen, danken, antworten)</li>
+                            <li>Nach Präpositionen (mit, nach, zu, bei, seit)</li>
+                            <li>Als indirektes Objekt (wem?)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <tr>
+                                <th>Kasus</th>
+                                <th>Maskulin</th>
+                                <th>Feminin</th>
+                                <th>Neutral</th>
+                                <th>Plural</th>
+                            </tr>
+                            <tr>
+                                <td>Nominativ</td>
+                                <td>der</td>
+                                <td>die</td>
+                                <td>das</td>
+                                <td>die</td>
+                            </tr>
+                            <tr>
+                                <td>Akkusativ</td>
+                                <td>den</td>
+                                <td>die</td>
+                                <td>das</td>
+                                <td>die</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dativ</strong></td>
+                                <td><strong>dem</strong></td>
+                                <td><strong>der</strong></td>
+                                <td><strong>dem</strong></td>
+                                <td><strong>den + n</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <h3>Beispiele</h3>
+                    <div class="example-box">
+                        <div class="de">Ich helfe <strong>dem</strong> Mann.</div>
+                        <div class="tr">Adama yardım ediyorum.</div>
+                    </div>
+                    <div class="example-box">
+                        <div class="de">Das Geschenk ist für <strong>die</strong> Frau.</div>
+                        <div class="tr">Hediye kadın için.</div>
+                    </div>
+                    <div class="example-box">
+                        <div class="de">Ich spreche mit <strong>den</strong> Kind<strong>ern</strong>.</div>
+                        <div class="tr">Çocuklarla konuşuyorum. (Plural: +n)</div>
+                    </div>
+                    
+                    <h3>Dativ-Verben</h3>
+                    <ul>
+                        <li>helfen (yardım etmek), danken (teşekkür etmek)</li>
+                        <li>antworten (cevap vermek), gratulieren (tebrik etmek)</li>
+                        <li>gefallen (hoşlanmak), gehören (ait olmak)</li>
+                    </ul>
+                    
+                    <h3>Wechselpräpositionen</h3>
+                    <p>Manche Präpositionen können Akkusativ ODER Dativ haben:</p>
+                    <ul>
+                        <li><strong>Akkusativ</strong> = Bewegung (Wohin?) - Ich gehe <strong>in den</strong> Park.</li>
+                        <li><strong>Dativ</strong> = Ort (Wo?) - Ich bin <strong>im</strong> Park.</li>
+                    </ul>
+                `,
+                practice: [
+                    { question: 'Ich helfe ___ Frau.', options: ['die', 'der', 'den'], correct: 1 },
+                    { question: 'Das Buch ist von ___ Mann.', options: ['der', 'den', 'dem'], correct: 2 },
+                    { question: 'Ich spreche mit ___ Kindern.', options: ['die', 'den', 'dem'], correct: 1 }
+                ]
+            },
+            {
+                id: 'perfekt',
+                level: 'a2',
+                title: 'Perfekt',
+                desc: 'Vergangenheit bilden',
+                progress: 0,
+                content: `
+                    <h2>📖 Das Perfekt</h2>
+                    <p>Das Perfekt wird im gesprochenen Deutsch am häufigsten verwendet, um über die Vergangenheit zu sprechen.</p>
+                    
+                    <div class="rule-box">
+                        <h4>📌 Bildung</h4>
+                        <p><strong>haben/sein</strong> (konjugiert) + <strong>Partizip II</strong></p>
+                    </div>
+                    
+                    <h3>Haben oder sein?</h3>
+                    <ul>
+                        <li><strong>haben</strong> - die meisten Verben</li>
+                        <li><strong>sein</strong> - Bewegungsverben (gehen, fahren, kommen) und Zustandsänderungen (werden, sterben)</li>
+                    </ul>
+                    
+                    <h3>Partizip II bilden</h3>
+                    <div class="table-container">
+                        <table>
+                            <tr>
+                                <th>Typ</th>
+                                <th>Bildung</th>
+                                <th>Beispiel</th>
+                            </tr>
+                            <tr>
+                                <td>Regelmäßige Verben</td>
+                                <td>ge- + Stamm + -t</td>
+                                <td>mach<strong>en</strong> → ge-mach-t</td>
+                            </tr>
+                            <tr>
+                                <td>Unregelmäßige Verben</td>
+                                <td>ge- + Stamm (verändert) + -en</td>
+                                <td>geh<strong>en</strong> → ge-gang-en</td>
+                            </tr>
+                            <tr>
+                                <td>Trennbare Verben</td>
+                                <td>Präfix ge- + Stamm + -t</td>
+                                <td>aufstehen → ist auf-gestand-en</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <h3>Beispiele</h3>
+                    <div class="example-box">
+                        <div class="de">Ich <strong>habe</strong> ein Buch <strong>gelesen</strong>.</div>
+                        <div class="tr">Bir kitap okudum.</div>
+                    </div>
+                    <div class="example-box">
+                        <div class="de">Er <strong>ist</strong> nach Hause <strong>gegangen</strong>.</div>
+                        <div class="tr">Eve gitti.</div>
+                    </div>
+                    <div class="example-box">
+                        <div class="de">Wir <strong>haben</strong> Pizza <strong>gegessen</strong>.</div>
+                        <div class="tr">Pizza yedik.</div>
+                    </div>
+                `,
+                practice: [
+                    { question: 'Ich ___ ein Buch gelesen.', options: ['bin', 'habe', 'hatte'], correct: 1 },
+                    { question: 'Er ___ nach Hause gegangen.', options: ['ist', 'hat', 'war'], correct: 0 },
+                    { question: 'Wir ___ Pizza ___ (essen).', options: ['haben...gegessen', 'sind...gegessen', 'haben...geessen'], correct: 0 }
+                ]
+            },
+            {
+                id: 'neben',
+                level: 'b1',
+                title: 'Nebensätze',
+                desc: 'Komplexe Satzstrukturen',
+                progress: 0,
+                content: `
+                    <h2>📖 Nebensätze</h2>
+                    <p>Nebensätze machen Ihre Sätze komplexer und Ihr Deutsch eleganter.</p>
+                    
+                    <h3>Nebensatz mit "dass"</h3>
+                    <div class="rule-box">
+                        <h4>📌 Regel</h4>
+                        <p>Nach "dass" kommt das konjugierte Verb ans <strong>Ende</strong>!</p>
+                    </div>
+                    
+                    <div class="example-box">
+                        <div class="de">Ich hoffe, <strong>dass</strong> du komm<strong>st</strong>.</div>
+                        <div class="tr">Geleceğini umuyorum.</div>
+                    </div>
+                    <div class="example-box">
+                        <div class="de">Er sagt, <strong>dass</strong> er müde <strong>ist</strong>.</div>
+                        <div class="tr">Yorgun olduğunu söylüyor.</div>
+                    </div>
+                    
+                    <h3>Fragewörter als Nebensatz</h3>
+                    <p>Wer, was, wo, wann, warum, wie...</p>
+                    <div class="example-box">
+                        <div class="de">Ich weiß nicht, <strong>wo</strong> er <strong>wohnt</strong>.</div>
+                        <div class="tr">Nerede yaşadığını bilmiyorum.</div>
+                    </div>
+                    
+                    <h3>Relativsätze</h3>
+                    <p>Relativsätze beschreiben ein Nomen näher:</p>
+                    <div class="example-box">
+                        <div class="de">Der Mann, <strong>der</strong> dort <strong>steht</strong>, ist mein Lehrer.</div>
+                        <div class="tr">Orada duran adam benim öğretmenim.</div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <tr>
+                                <th>Nominativ</th>
+                                <th>Relativpronomen</th>
+                            </tr>
+                            <tr><td>der Mann</td><td>der</td></tr>
+                            <tr><td>die Frau</td><td>die</td></tr>
+                            <tr><td>das Kind</td><td>das</td></tr>
+                            <tr><td>die Leute</td><td>die</td></tr>
+                        </table>
+                    </div>
+                `,
+                practice: [
+                    { question: 'Ich denke, dass er ___ (kommen).', options: ['kommt', 'kommen', 'ist gekommen'], correct: 0 },
+                    { question: 'Die Frau, ___ dort steht...', options: ['die', 'der', 'das'], correct: 0 },
+                    { question: 'Ich weiß nicht, wo ___ .', options: ['er wohnt', 'wohnt er', 'er wohnen'], correct: 0 }
+                ]
+            }
+        ];
+        
+        let currentLesson = null;
+        
+        function renderGrammarGrid() {
+            const grid = document.getElementById('grammar-grid');
+            
+            grid.innerHTML = grammarLessons.map(lesson => `
+                <div class="grammar-card ${lesson.progress === 100 ? 'completed' : ''}" onclick="openLesson('${lesson.id}')">
+                    <div class="grammar-level ${lesson.level}">${lesson.level.toUpperCase()}</div>
+                    <div class="grammar-title">${lesson.title}</div>
+                    <div class="grammar-desc">${lesson.desc}</div>
+                    <div class="grammar-progress">
+                        <div class="grammar-progress-bar">
+                            <div class="grammar-progress-fill" style="width: ${lesson.progress}%"></div>
+                        </div>
+                        <div class="grammar-progress-text">${lesson.progress}%</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function openLesson(lessonId) {
+            currentLesson = grammarLessons.find(l => l.id === lessonId);
+            if (!currentLesson) return;
+            
+            const practiceHtml = currentLesson.practice ? `
+                <div class="practice-section">
+                    <h2>✏️ Übung</h2>
+                    ${currentLesson.practice.map((q, idx) => `
+                        <div class="practice-question" data-index="${idx}">
+                            <p><strong>Frage ${idx + 1}:</strong> ${q.question}</p>
+                            <div class="practice-options">
+                                ${q.options.map((opt, optIdx) => `
+                                    <div class="practice-option" onclick="checkPracticeAnswer(${idx}, ${optIdx}, ${q.correct}, this)">
+                                        ${opt}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+            
+            const content = `
+                <div class="lesson-content">
+                    ${currentLesson.content}
+                    ${practiceHtml}
+                </div>
+            `;
+            
+            Modal.create({
+                title: `<span class="badge badge-${currentLesson.level}">${currentLesson.level.toUpperCase()}</span> ${currentLesson.title}`,
+                content: content,
+                className: 'lesson-modal',
+                onClose: () => {
+                    // Save progress
+                    if (currentLesson) {
+                        currentLesson.progress = Math.min(currentLesson.progress + 20, 100);
+                        renderGrammarGrid();
+                    }
+                }
+            });
+        }
+        
+        function checkPracticeAnswer(questionIdx, selectedIdx, correctIdx, element) {
+            const questionEl = element.closest('.practice-question');
+            const options = questionEl.querySelectorAll('.practice-option');
+            
+            options.forEach((opt, idx) => {
+                opt.style.pointerEvents = 'none';
+                if (idx === correctIdx) {
+                    opt.classList.add('correct');
+                } else if (idx === selectedIdx && idx !== correctIdx) {
+                    opt.classList.add('wrong');
+                }
+            });
+            
+            if (selectedIdx === correctIdx) {
+                Toast.success('Richtig! 🎉');
+            } else {
+                Toast.error('Falsch. Versuche es nochmal!');
+            }
+        }
+        
+        // Initialize
+        renderGrammarGrid();
+    </script>
+    <script src="js/app.js"></script>
+</body>
+</html>

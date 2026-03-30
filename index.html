@@ -11,8 +11,10 @@
     <title>DTZ Lernplattform - Deutsch-Test für Zuwanderer</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
-    <link rel="stylesheet" href="frontend/css/styles.css">
-    <link rel="stylesheet" href="frontend/css/mobile.css">
+    <link rel="stylesheet" href="frontend/css/theme.css">
+    <link rel="stylesheet" href="frontend/css/components-new.css">
+    <link rel="stylesheet" href="frontend/css/layout.css">
+    <link rel="stylesheet" href="frontend/css/animations.css">
     <style>
         * {
             margin: 0;
@@ -108,6 +110,15 @@
             background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .hero-text p {
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        
+        .hero-buttons {
+            animation: fadeInUp 0.8s ease-out 0.4s both;
         }
         
         .hero-text p {
@@ -188,15 +199,41 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s;
         }
         
         .module-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px) scale(1.02);
             border-color: #8b5cf6;
-            box-shadow: 0 20px 40px rgba(124, 92, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(124, 92, 255, 0.25);
+        }
+        
+        .module-card:hover::before {
+            opacity: 1;
+        }
+        
+        .module-card .module-icon {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .module-card:hover .module-icon {
+            transform: scale(1.2);
         }
         
         .module-icon {
@@ -244,6 +281,17 @@
             padding: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-card:hover .feature-icon {
+            animation: float 2s ease-in-out infinite;
         }
         
         .feature-icon {
@@ -349,23 +397,23 @@
             </div>
             
             <div class="hero-visual" id="modules">
-                <div class="modules-grid">
-                    <a href="frontend/learn.html?module=hoeren" class="module-card">
+                <div class="modules-grid stagger-children">
+                    <a href="frontend/learn.html?module=hoeren" class="module-card tilt-card">
                         <div class="module-icon">🎧</div>
                         <div class="module-name">Hören</div>
                         <div class="module-desc">4 Teile • 20 Fragen</div>
                     </a>
-                    <a href="frontend/learn.html?module=lesen" class="module-card">
+                    <a href="frontend/learn.html?module=lesen" class="module-card tilt-card">
                         <div class="module-icon">📖</div>
                         <div class="module-name">Lesen</div>
                         <div class="module-desc">5 Teile • 25 Fragen</div>
                     </a>
-                    <a href="frontend/writing.html" class="module-card">
+                    <a href="frontend/writing.html" class="module-card tilt-card">
                         <div class="module-icon">✍️</div>
                         <div class="module-name">Schreiben</div>
                         <div class="module-desc">2 Teile • 25 Punkte</div>
                     </a>
-                    <a href="frontend/learn.html?module=sprechen" class="module-card">
+                    <a href="frontend/learn.html?module=sprechen" class="module-card tilt-card">
                         <div class="module-icon">🗣️</div>
                         <div class="module-name">Sprechen</div>
                         <div class="module-desc">3 Teile • Übungen</div>
@@ -377,8 +425,8 @@
     
     <section class="features" id="features">
         <div class="features-container">
-            <h2>Warum DTZ Learning?</h2>
-            <div class="features-grid">
+            <h2 class="reveal">Warum DTZ Learning?</h2>
+            <div class="features-grid stagger-children">
                 <div class="feature-card">
                     <div class="feature-icon">🎯</div>
                     <div class="feature-title">DTZ Format</div>
@@ -403,28 +451,25 @@
         </div>
     </section>
     
-    <section class="cta-section">
+    <section class="cta-section reveal">
         <h2>Bereit für den Test?</h2>
         <p>Starte jetzt deine Vorbereitung mit einem kostenlosen Modelltest</p>
-        <a href="frontend/modelltest.html" class="btn-primary">📝 Modelltest starten</a>
+        <a href="frontend/modelltest.html" class="btn-primary hover-glow">📝 Modelltest starten</a>
     </section>
     
     <footer>
         <p>&copy; 2024 DTZ Learning Plattform. Alle Rechte vorbehalten.</p>
     </footer>
+<script src="frontend/js/ui.js"></script>
+<script src="frontend/js/db.js"></script>
+<script src="frontend/js/lazy-load.js"></script>
+<script src="frontend/js/performance.js"></script>
 <script src="frontend/js/app.js"></script>
 <script>
-    // Clear old service worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-            for (const reg of regs) reg.unregister();
-        });
-        if ('caches' in window) {
-            caches.keys().then(keys => {
-                for (const key of keys) caches.delete(key);
-            });
-        }
-    }
+    // Initialize tilt effect on module cards
+    document.addEventListener('DOMContentLoaded', () => {
+        TiltEffect.init('.tilt-card');
+    });
 </script>
 </body>
 </html>

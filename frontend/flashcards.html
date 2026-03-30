@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <!-- Security Headers -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+    <title>Vokabelkarten - DTZ Lernplattform</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/frontend/img/icon-192x192.png">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components-new.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        .flashcard-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .flashcard {
+            width: 100%;
+            height: 400px;
+            perspective: 1000px;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+        
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .flashcard-front {
+            background: linear-gradient(135deg, var(--glass-bg) 0%, rgba(99, 102, 241, 0.1) 100%);
+            border: 2px solid var(--accent);
+        }
+        
+        .flashcard-back {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, var(--glass-bg) 100%);
+            border: 2px solid var(--accent);
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-word {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .flashcard-type {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .flashcard-translation {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .flashcard-example {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .flashcard-hint {
+            position: absolute;
+            bottom: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .difficulty-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .difficulty-btn {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .difficulty-btn.hard {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+        
+        .difficulty-btn.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+        
+        .difficulty-btn.easy {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        
+        .difficulty-btn:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.2);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s ease;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border-radius: 12px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .category-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        
+        .category-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-btn:hover, .category-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .session-complete {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        
+        .session-complete h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .session-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .session-stat {
+            background: var(--glass-bg);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        
+        .session-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .streak-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .streak-flame {
+            font-size: 1.5rem;
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">DTZ Learning</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+                    <li class="nav-item"><a href="learn.html" class="nav-link">📚 Lernen</a></li>
+                    <li class="nav-item"><a href="flashcards.html" class="nav-link active">🎴 Vokabeln</a></li>
+                    <li class="nav-item"><a href="grammar.html" class="nav-link">📖 Grammatik</a></li>
+                    <li class="nav-item"><a href="modelltest.html" class="nav-link">📝 Modelltest</a></li>
+                    <li class="nav-item"><a href="social.html" class="nav-link">👥 Community</a></li>
+                    <li class="nav-item"><a href="#" onclick="logout()" class="nav-link">🚪 Abmelden</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>🎴 Vokabelkarten</h1>
+            </div>
+            
+            <div class="category-selector" id="category-selector">
+                <button class="category-btn active" data-category="all">Alle</button>
+                <button class="category-btn" data-category="a1">A1</button>
+                <button class="category-btn" data-category="a2">A2</button>
+                <button class="category-btn" data-category="b1">B1</button>
+                <button class="category-btn" data-category="arbeit">Arbeit</button>
+                <button class="category-btn" data-category="alltag">Alltag</button>
+                <button class="category-btn" data-category="freizeit">Freizeit</button>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="session-progress" style="width: 0%"></div>
+            </div>
+            
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="cards-learned">0</div>
+                    <div class="stat-label">Gelernt</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="cards-remaining">0</div>
+                    <div class="stat-label">Verbleibend</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="session-accuracy">0%</div>
+                    <div class="stat-label">Richtig</div>
+                </div>
+            </div>
+            
+            <div class="streak-indicator" id="streak-indicator" style="display: none;">
+                <span class="streak-flame">🔥</span>
+                <span id="streak-count">0</span> richtige hintereinander!
+            </div>
+            
+            <div class="flashcard-container" id="flashcard-container">
+                <!-- Flashcard will be rendered here -->
+            </div>
+            
+            <div class="session-complete" id="session-complete" style="display: none;">
+                <h2>🎉 Sitzung abgeschlossen!</h2>
+                <p>Großartige Arbeit! Hier ist deine Zusammenfassung:</p>
+                
+                <div class="session-stats">
+                    <div class="session-stat">
+                        <div class="session-stat-value" id="stat-total">0</div>
+                        <div class="stat-label">Karten</div>
+                    </div>
+                    <div class="session-stat">
+                        <div class="session-stat-value" id="stat-correct">0</div>
+                        <div class="stat-label">Richtig</div>
+                    </div>
+                    <div class="session-stat">
+                        <div class="session-stat-value" id="stat-accuracy">0%</div>
+                        <div class="stat-label">Quote</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="startNewSession()">
+                    Neue Sitzung starten
+                </button>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/security.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/ai-tutor.js"></script>
+    <script>
+        checkAuth();
+        
+        // Vocabulary database
+        const vocabularyDB = {
+            a1: [
+                { de: 'Hallo', tr: 'Merhaba', en: 'Hello', type: 'Interjektion', example: 'Hallo! Wie geht es dir?' },
+                { de: 'Tschüss', tr: 'Hoşça kal', en: 'Goodbye', type: 'Interjektion', example: 'Tschüss! Bis morgen!' },
+                { de: 'Danke', tr: 'Teşekkürler', en: 'Thank you', type: 'Interjektion', example: 'Danke schön!' },
+                { de: 'Ja', tr: 'Evet', en: 'Yes', type: 'Adverb', example: 'Ja, das ist richtig.' },
+                { de: 'Nein', tr: 'Hayır', en: 'No', type: 'Adverb', example: 'Nein, das stimmt nicht.' },
+                { de: 'bitte', tr: 'lütfen', en: 'please', type: 'Adverb', example: 'Ein Kaffee, bitte.' },
+                { de: 'der Mann', tr: 'adam', en: 'man', type: 'Nomen', example: 'Der Mann liest Zeitung.' },
+                { de: 'die Frau', tr: 'kadın', en: 'woman', type: 'Nomen', example: 'Die Frau arbeitet im Büro.' },
+                { de: 'das Kind', tr: 'çocuk', en: 'child', type: 'Nomen', example: 'Das Kind spielt im Garten.' },
+                { de: 'gut', tr: 'iyi', en: 'good', type: 'Adjektiv', example: 'Das Essen ist gut.' }
+            ],
+            a2: [
+                { de: 'die Bewerbung', tr: 'iş başvurusu', en: 'application', type: 'Nomen', example: 'Ich schreibe eine Bewerbung.' },
+                { de: 'der Termin', tr: 'randevu', en: 'appointment', type: 'Nomen', example: 'Ich habe einen Termin beim Arzt.' },
+                { de: 'die Rechnung', tr: 'fatura', en: 'bill', type: 'Nomen', example: 'Die Rechnung, bitte.' },
+                { de: 'reservieren', tr: 'rezervasyon yapmak', en: 'to reserve', type: 'Verb', example: 'Ich möchte einen Tisch reservieren.' },
+                { de: 'stornieren', tr: 'iptal etmek', en: 'to cancel', type: 'Verb', example: 'Ich muss den Termin stornieren.' },
+                { de: 'die Erfahrung', tr: 'deneyim', en: 'experience', type: 'Nomen', example: 'Ich habe viel Erfahrung.' },
+                { de: 'die Frist', tr: 'son tarih', en: 'deadline', type: 'Nomen', example: 'Die Frist ist morgen.' },
+                { de: 'beantragen', tr: 'başvurmak', en: 'to apply', type: 'Verb', example: 'Ich beantrage ein Visum.' }
+            ],
+            b1: [
+                { de: 'die Herausforderung', tr: 'meydan okuma', en: 'challenge', type: 'Nomen', example: 'Das ist eine große Herausforderung.' },
+                { de: 'sich engagieren', tr: 'gönüllü olmak', en: 'to volunteer', type: 'Verb', example: 'Er engagiert sich für Umweltschutz.' },
+                { de: 'die Auswirkung', tr: 'etki', en: 'impact', type: 'Nomen', example: 'Das hat große Auswirkungen.' },
+                { de: 'hinterfragen', tr: 'sorgulamak', en: 'to question', type: 'Verb', example: 'Man sollte alles hinterfragen.' },
+                { de: 'die Verantwortung', tr: 'sorumluluk', en: 'responsibility', type: 'Nomen', example: 'Das ist meine Verantwortung.' },
+                { de: 'bereitstellen', tr: 'sağlamak', en: 'to provide', type: 'Verb', example: 'Wir stellen Informationen bereit.' }
+            ],
+            arbeit: [
+                { de: 'die Stellenanzeige', tr: 'iş ilanı', en: 'job advertisement', type: 'Nomen', example: 'Ich habe eine Stellenanzeige gelesen.' },
+                { de: 'der Lebenslauf', tr: 'özgeçmiş', en: 'CV', type: 'Nomen', example: 'Mein Lebenslauf ist aktuell.' },
+                { de: 'das Anschreiben', tr: 'motivasyon mektubu', en: 'cover letter', type: 'Nomen', example: 'Das Anschreiben ist wichtig.' },
+                { de: 'das Vorstellungsgespräch', tr: 'mülakat', en: 'job interview', type: 'Nomen', example: 'Das Vorstellungsgespräch war gut.' },
+                { de: 'die Kündigung', tr: 'işten çıkarma', en: 'dismissal', type: 'Nomen', example: 'Er erhielt eine Kündigung.' },
+                { de: 'befristet', tr: 'süreli', en: 'temporary', type: 'Adjektiv', example: 'Ein befristeter Vertrag.' }
+            ],
+            alltag: [
+                { de: 'der Supermarkt', tr: 'süpermarket', en: 'supermarket', type: 'Nomen', example: 'Ich gehe zum Supermarkt.' },
+                { de: 'die Apotheke', tr: 'eczane', en: 'pharmacy', type: 'Nomen', example: 'Die Apotheke ist geöffnet.' },
+                { de: 'der Termin', tr: 'randevu', en: 'appointment', type: 'Nomen', example: 'Ich habe einen Termin.' },
+                { de: 'öffnen', tr: 'açmak', en: 'to open', type: 'Verb', example: 'Wann öffnet der Laden?' },
+                { de: 'schließen', tr: 'kapatmak', en: 'to close', type: 'Verb', example: 'Wir schließen um 18 Uhr.' }
+            ],
+            freizeit: [
+                { de: 'das Hobby', tr: 'hobi', en: 'hobby', type: 'Nomen', example: 'Mein Hobby ist Lesen.' },
+                { de: 'wandern', tr: 'yürüyüş yapmak', en: 'to hike', type: 'Verb', example: 'Am Wochenende wandere ich gerne.' },
+                { de: 'das Konzert', tr: 'konser', en: 'concert', type: 'Nomen', example: 'Wir gehen zu einem Konzert.' },
+                { de: 'der Sportverein', tr: 'spor kulübü', en: 'sports club', type: 'Nomen', example: 'Er ist im Sportverein.' },
+                { de: 'sich entspannen', tr: 'dinlenmek', en: 'to relax', type: 'Verb', example: 'Ich muss mich entspannen.' }
+            ]
+        };
+        
+        let currentCards = [];
+        let currentIndex = 0;
+        let sessionStats = { total: 0, correct: 0, hard: 0, medium: 0, easy: 0 };
+        let currentStreak = 0;
+        
+        // Category selection
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadCategory(btn.dataset.category);
+            });
+        });
+        
+        function loadCategory(category) {
+            if (category === 'all') {
+                currentCards = [...vocabularyDB.a1, ...vocabularyDB.a2, ...vocabularyDB.b1];
+            } else {
+                currentCards = vocabularyDB[category] || [];
+            }
+            
+            // Shuffle cards
+            currentCards = shuffleArray([...currentCards]);
+            
+            currentIndex = 0;
+            sessionStats = { total: 0, correct: 0, hard: 0, medium: 0, easy: 0 };
+            currentStreak = 0;
+            
+            document.getElementById('session-complete').style.display = 'none';
+            document.getElementById('flashcard-container').style.display = 'block';
+            
+            updateStats();
+            renderCard();
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function renderCard() {
+            if (currentIndex >= currentCards.length) {
+                showSessionComplete();
+                return;
+            }
+            
+            const card = currentCards[currentIndex];
+            const container = document.getElementById('flashcard-container');
+            
+            container.innerHTML = `
+                <div class="flashcard" id="flashcard" onclick="flipCard()">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <div class="flashcard-type">${card.type}</div>
+                            <div class="flashcard-word">${card.de}</div>
+                            <div class="flashcard-hint">Zum Umdrehen klicken</div>
+                        </div>
+                        <div class="flashcard-back">
+                            <div class="flashcard-type">${card.type}</div>
+                            <div class="flashcard-translation">${card.tr}</div>
+                            <div class="flashcard-example">${card.example}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn hard" onclick="rateCard('hard', event)">
+                        😰 Schwer<br><small>Nochmal lernen</small>
+                    </button>
+                    <button class="difficulty-btn medium" onclick="rateCard('medium', event)">
+                        🤔 Mittel<br><small>Schwierig</small>
+                    </button>
+                    <button class="difficulty-btn easy" onclick="rateCard('easy', event)">
+                        😊 Einfach<br><small>Gewusst!</small>
+                    </button>
+                </div>
+            `;
+            
+            updateStats();
+        }
+        
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+        
+        function rateCard(difficulty, event) {
+            event.stopPropagation();
+            
+            sessionStats.total++;
+            sessionStats[difficulty]++;
+            
+            if (difficulty === 'easy') {
+                sessionStats.correct++;
+                currentStreak++;
+                
+                // Show streak
+                if (currentStreak >= 3) {
+                    const streakEl = document.getElementById('streak-indicator');
+                    streakEl.style.display = 'flex';
+                    document.getElementById('streak-count').textContent = currentStreak;
+                }
+                
+                Toast.success('Super! Weiter so! 🔥');
+            } else if (difficulty === 'medium') {
+                currentStreak = 0;
+                document.getElementById('streak-indicator').style.display = 'none';
+                Toast.info('Gut! Bald wirst du es können!');
+            } else {
+                currentStreak = 0;
+                document.getElementById('streak-indicator').style.display = 'none';
+                Toast.warning('Kein Problem! Übung macht den Meister!');
+            }
+            
+            // Move card to end if hard
+            if (difficulty === 'hard') {
+                const card = currentCards.splice(currentIndex, 1)[0];
+                currentCards.push(card);
+            } else {
+                currentIndex++;
+            }
+            
+            renderCard();
+        }
+        
+        function updateStats() {
+            const total = currentCards.length;
+            const learned = sessionStats.total;
+            const remaining = total - currentIndex;
+            const accuracy = learned > 0 ? Math.round((sessionStats.correct / learned) * 100) : 0;
+            
+            document.getElementById('cards-learned').textContent = learned;
+            document.getElementById('cards-remaining').textContent = remaining;
+            document.getElementById('session-accuracy').textContent = accuracy + '%';
+            
+            const progress = total > 0 ? (currentIndex / total) * 100 : 0;
+            document.getElementById('session-progress').style.width = progress + '%';
+        }
+        
+        function showSessionComplete() {
+            document.getElementById('flashcard-container').style.display = 'none';
+            document.getElementById('session-complete').style.display = 'block';
+            document.getElementById('streak-indicator').style.display = 'none';
+            
+            const accuracy = sessionStats.total > 0 
+                ? Math.round((sessionStats.correct / sessionStats.total) * 100) 
+                : 0;
+            
+            document.getElementById('stat-total').textContent = sessionStats.total;
+            document.getElementById('stat-correct').textContent = sessionStats.correct;
+            document.getElementById('stat-accuracy').textContent = accuracy + '%';
+            
+            // Save to database
+            saveSessionResults();
+        }
+        
+        function saveSessionResults() {
+            // TODO: Save to IndexedDB
+            console.log('Session saved:', sessionStats);
+        }
+        
+        function startNewSession() {
+            const activeCategory = document.querySelector('.category-btn.active');
+            loadCategory(activeCategory ? activeCategory.dataset.category : 'all');
+        }
+        
+        // Initialize
+        loadCategory('all');
+    </script>
+    <script src="js/app.js"></script>
+</body>
+</html>

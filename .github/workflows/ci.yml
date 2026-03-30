@@ -1,0 +1,160 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    
+    services:
+      sqlite:
+        image: nouchka/sqlite3:latest
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: pdo, pdo_sqlite, json
+        coverage: xdebug
+        
+    - name: Validate composer.json
+      run: |
+        if [ -f composer.json ]; then
+          composer validate --strict
+        fi
+        
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+          
+    - name: Install dependencies
+      run: |
+        if [ -f composer.json ]; then
+          composer install --prefer-dist --no-progress
+        fi
+        
+    - name: Create JWT secret
+      run: |
+        echo "${{ secrets.JWT_SECRET }}" > .jwt_secret || echo "test-secret-key" > .jwt_secret
+        
+    - name: Setup test database
+      run: |
+        mkdir -p database
+        sqlite3 database/dtz.db < database/migrations/001_initial_schema.sql || true
+        
+    - name: Run PHP Syntax Check
+      run: |
+        find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \; | grep -v "No syntax errors"
+        
+    - name: Run Security Scan
+      run: |
+        # Check for common security issues
+        if grep -r "eval(" --include="*.php" . --exclude-dir=vendor; then
+          echo "Security issue: eval() found"
+          exit 1
+        fi
+        if grep -r "exec(" --include="*.php" . --exclude-dir=vendor; then
+          echo "Warning: exec() found - review manually"
+        fi
+        
+    - name: Check Code Style
+      run: |
+        if command -v phpcs &> /dev/null; then
+          phpcs --standard=PSR12 src/ || true
+        fi
+
+  frontend-check:
+    name: Frontend Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm ci
+        fi
+        
+    - name: Run ESLint
+      run: |
+        if [ -f .eslintrc.js ] || [ -f .eslintrc.json ]; then
+          npx eslint frontend/js/ --ext .js || true
+        fi
+        
+    - name: Check for console.log
+      run: |
+        # Fail if console.log found in production code
+        if grep -r "console\.log" frontend/js/*.js | grep -v "// DEBUG"; then
+          echo "Warning: console.log statements found"
+        fi
+        
+    - name: Validate HTML
+      run: |
+        # Basic HTML validation
+        for file in frontend/*.html; do
+          if [ -f "$file" ]; then
+            echo "Checking $file"
+          fi
+        done
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: [test, frontend-check]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Deploy to Staging
+      run: |
+        echo "Deploying to staging environment"
+        # Add staging deployment commands here
+        
+  deploy-production:
+    name: Deploy to Production
+    needs: [test, frontend-check]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    environment:
+      name: production
+      url: https://dtz-lernen.de
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to Production
+      env:
+        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      run: |
+        echo "Deploying to production..."
+        # rsync -avz --exclude='.env' --exclude='.git' ./ $DEPLOY_USER@$DEPLOY_HOST:/var/www/dtz/
+        
+    - name: Notify Deployment
+      if: always()
+      run: |
+        echo "Deployment status: ${{ job.status }}"

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soru Yönetimi - Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .container { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1e293b;
+            padding: 20px;
+            border-right: 1px solid #334155;
+        }
+        .sidebar h2 { color: #6366f1; margin-bottom: 20px; font-size: 20px; }
+        .nav-item {
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: #334155;
+            color: #6366f1;
+        }
+        
+        /* Main Content */
+        .main {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        .header h1 { font-size: 28px; }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #6366f1;
+        }
+        .stat-label {
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+        
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-bar select, .filter-bar input {
+            padding: 10px 15px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-success { background: #22c55e; }
+        .btn-danger { background: #ef4444; }
+        .btn-warning { background: #f59e0b; }
+        
+        /* Question Table */
+        .question-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .question-table th {
+            background: #334155;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        .question-table td {
+            padding: 15px;
+            border-bottom: 1px solid #334155;
+        }
+        .question-table tr:hover {
+            background: #252f47;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-lesen { background: #3b82f6; }
+        .badge-hoeren { background: #8b5cf6; }
+        .badge-schreiben { background: #f59e0b; }
+        .badge-sprechen { background: #10b981; }
+        .badge-a1 { background: #64748b; }
+        .badge-a2 { background: #22c55e; }
+        .badge-b1 { background: #6366f1; }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #1e293b;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+        .modal-header {
+            padding: 20px;
+            background: #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(90vh - 140px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .options-grid {
+            display: grid;
+            gap: 10px;
+        }
+        .option-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .option-input input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>🔧 Admin Panel</h2>
+            <nav>
+                <div class="nav-item" onclick="location.href='dashboard.html'">📊 Dashboard</div>
+                <div class="nav-item active" onclick="location.href='questions-new.html'">📝 Soru Yönetimi</div>
+                <div class="nav-item" onclick="location.href='users.html'">👥 Kullanıcılar</div>
+                <div class="nav-item" onclick="location.href='stats.html'">📈 İstatistikler</div>
+                <div class="nav-item" onclick="logout()">🚪 Çıkış</div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="header">
+                <h1>Soru Yönetimi</h1>
+                <button class="btn btn-success" onclick="openModal()">+ Yeni Soru Ekle</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-count">63</div>
+                    <div class="stat-label">Toplam Soru</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="lesen-count">25</div>
+                    <div class="stat-label">Lesen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="hoeren-count">20</div>
+                    <div class="stat-label">Hören</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="schreiben-count">6</div>
+                    <div class="stat-label">Schreiben</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-bar">
+                <select id="filter-module" onchange="filterQuestions()">
+                    <option value="">Tüm Modüller</option>
+                    <option value="lesen">Lesen</option>
+                    <option value="hoeren">Hören</option>
+                    <option value="schreiben">Schreiben</option>
+                    <option value="sprechen">Sprechen</option>
+                </select>
+                <select id="filter-teil" onchange="filterQuestions()">
+                    <option value="">Tüm Teile</option>
+                    <option value="1">Teil 1</option>
+                    <option value="2">Teil 2</option>
+                    <option value="3">Teil 3</option>
+                    <option value="4">Teil 4</option>
+                    <option value="5">Teil 5</option>
+                </select>
+                <select id="filter-level" onchange="filterQuestions()">
+                    <option value="">Tüm Seviyeler</option>
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                </select>
+                <input type="text" id="search-text" placeholder="Soru ara..." onkeyup="filterQuestions()">
+                <button class="btn" onclick="filterQuestions()">🔍 Filtrele</button>
+            </div>
+
+            <!-- Questions Table -->
+            <table class="question-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Modül</th>
+                        <th>Teil</th>
+                        <th>Seviye</th>
+                        <th>Soru</th>
+                        <th>Doğru Cevap</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody id="questions-tbody">
+                    <!-- Sorular buraya JS ile gelecek -->
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Yeni Soru Ekle</h3>
+                <button class="btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="question-form">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Modül</label>
+                            <select id="q-module" required>
+                                <option value="lesen">Lesen</option>
+                                <option value="hoeren">Hören</option>
+                                <option value="schreiben">Schreiben</option>
+                                <option value="sprechen">Sprechen</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Teil</label>
+                            <select id="q-teil" required>
+                                <option value="1">Teil 1</option>
+                                <option value="2">Teil 2</option>
+                                <option value="3">Teil 3</option>
+                                <option value="4">Teil 4</option>
+                                <option value="5">Teil 5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Seviye</label>
+                            <select id="q-level" required>
+                                <option value="A1">A1</option>
+                                <option value="A2" selected>A2</option>
+                                <option value="B1">B1</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Soru Metni</label>
+                        <textarea id="q-question" placeholder="Soruyu yazın..." required></textarea>
+                    </div>
+
+                    <div class="form-group" id="reading-text-group">
+                        <label>Okuma Metni / Audio Metni</label>
+                        <textarea id="q-text" placeholder="Metni yazın..."></textarea>
+                    </div>
+
+                    <div class="form-group" id="options-group">
+                        <label>Seçenekler</label>
+                        <div class="options-grid">
+                            <div class="option-input">
+                                <input type="radio" name="correct" value="A" id="opt-a-radio" checked>
+                                <span>A)</span>
+                                <input type="text" id="opt-a" placeholder="Seçenek A">
+                            </div>
+                            <div class="option-input">
+                                <input type="radio" name="correct" value="B" id="opt-b-radio">
+                                <span>B)</span>
+                                <input type="text" id="opt-b" placeholder="Seçenek B">
+                            </div>
+                            <div class="option-input">
+                                <input type="radio" name="correct" value="C" id="opt-c-radio">
+                                <span>C)</span>
+                                <input type="text" id="opt-c" placeholder="Seçenek C">
+                            </div>
+                            <div class="option-input">
+                                <input type="radio" name="correct" value="D" id="opt-d-radio">
+                                <span>D)</span>
+                                <input type="text" id="opt-d" placeholder="Seçenek D">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Açıklama (Neden doğru/yanlış)</label>
+                        <textarea id="q-explanation" placeholder="Açıklama yazın..."></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button type="button" class="btn" onclick="closeModal()">İptal</button>
+                        <button type="submit" class="btn btn-success">💾 Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Base URL
+        const API_BASE = '../api';
+        
+        // Sorular ve auth token
+        let questions = [];
+        let authToken = localStorage.getItem('token');
+        
+        // Check auth on load
+        if (!authToken) {
+            alert('Lütfen giriş yapın');
+            location.href = 'login.html';
+        }
+        
+        // Load questions from API
+        async function loadQuestions() {
+            try {
+                const response = await fetch(`${API_BASE}/questions-list.php`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.status === 401) {
+                    alert('Oturum süresi doldu, lütfen tekrar giriş yapın');
+                    location.href = 'login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    questions = data.questions.map(q => ({
+                        id: q.id,
+                        module: q.module,
+                        teil: q.teil,
+                        level: q.level,
+                        question: q.content?.question || q.content?.text || 'Soru metni',
+                        text: q.content?.text || '',
+                        correct: q.correct_answer?.answer || '',
+                        explanation: q.explanation || ''
+                    }));
+                    
+                    // Update stats from API counts
+                    document.getElementById('total-count').textContent = data.counts.total;
+                    document.getElementById('lesen-count').textContent = data.counts.lesen;
+                    document.getElementById('hoeren-count').textContent = data.counts.hoeren;
+                    document.getElementById('schreiben-count').textContent = data.counts.schreiben;
+                    
+                    renderQuestions();
+                } else {
+                    showNotification(data.error || 'Hata oluştu', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                showNotification('Sorular yüklenirken hata oluştu', 'error');
+            }
+        }
+
+        function renderQuestions(list = questions) {
+            const tbody = document.getElementById('questions-tbody');
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Soru bulunamadı</td></tr>';
+                return;
+            }
+            tbody.innerHTML = list.map(q => `
+                <tr>
+                    <td>#${q.id}</td>
+                    <td><span class="badge badge-${q.module}">${q.module.toUpperCase()}</span></td>
+                    <td>Teil ${q.teil}</td>
+                    <td><span class="badge badge-${q.level.toLowerCase()}">${q.level}</span></td>
+                    <td>${q.question.substring(0, 60)}...</td>
+                    <td><strong>${q.correct || '-'}</strong></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editQuestion(${q.id})" style="padding: 5px 10px; font-size: 12px;">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteQuestion(${q.id})" style="padding: 5px 10px; font-size: 12px;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function updateStats() {
+            const total = questions.length;
+            const lesen = questions.filter(q => q.module === 'lesen').length;
+            const hoeren = questions.filter(q => q.module === 'hoeren').length;
+            const schreiben = questions.filter(q => q.module === 'schreiben').length;
+            
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('lesen-count').textContent = lesen;
+            document.getElementById('hoeren-count').textContent = hoeren;
+            document.getElementById('schreiben-count').textContent = schreiben;
+        }
+        
+        function showNotification(message, type = 'success') {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position: fixed; top: 20px; right: 20px; 
+                padding: 15px 25px; border-radius: 8px; 
+                color: white; font-weight: 500; z-index: 9999;
+                background: ${type === 'success' ? '#22c55e' : '#ef4444'};
+                animation: slideIn 0.3s ease;
+            `;
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function filterQuestions() {
+            const module = document.getElementById('filter-module').value;
+            const teil = document.getElementById('filter-teil').value;
+            const level = document.getElementById('filter-level').value;
+            const search = document.getElementById('search-text').value.toLowerCase();
+
+            const filtered = questions.filter(q => {
+                return (!module || q.module === module) &&
+                       (!teil || q.teil == teil) &&
+                       (!level || q.level === level) &&
+                       (!search || q.question.toLowerCase().includes(search));
+            });
+
+            renderQuestions(filtered);
+        }
+
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('modal-title').textContent = 'Yeni Soru Ekle';
+            document.getElementById('question-form').reset();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function editQuestion(id) {
+            const q = questions.find(x => x.id === id);
+            if (!q) return;
+
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('modal-title').textContent = 'Soru Düzenle #' + id;
+            
+            document.getElementById('q-module').value = q.module;
+            document.getElementById('q-teil').value = q.teil;
+            document.getElementById('q-level').value = q.level;
+            document.getElementById('q-question').value = q.question;
+            document.getElementById('q-text').value = q.text || '';
+            document.getElementById('q-explanation').value = q.explanation || '';
+            
+            if (q.correct) {
+                document.getElementById(`opt-${q.correct.toLowerCase()}-radio`).checked = true;
+            }
+        }
+
+        async function deleteQuestion(id) {
+            if (!confirm('Bu soruyu silmek istediğinize emin misiniz?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/questions-delete.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Soru başarıyla silindi');
+                    questions = questions.filter(q => q.id !== id);
+                    updateStats();
+                    renderQuestions();
+                } else {
+                    showNotification(data.error || 'Silme hatası', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Soru silinirken hata oluştu', 'error');
+            }
+        }
+
+        document.getElementById('question-form').onsubmit = async function(e) {
+            e.preventDefault();
+            
+            const module = document.getElementById('q-module').value;
+            const teil = document.getElementById('q-teil').value;
+            const level = document.getElementById('q-level').value;
+            const question = document.getElementById('q-question').value;
+            const text = document.getElementById('q-text').value;
+            const explanation = document.getElementById('q-explanation').value;
+            const correct = document.querySelector('input[name="correct"]:checked')?.value || '';
+            
+            // Get options
+            const optA = document.getElementById('opt-a').value;
+            const optB = document.getElementById('opt-b').value;
+            const optC = document.getElementById('opt-c').value;
+            const optD = document.getElementById('opt-d').value;
+            
+            // Prepare content
+            const content = {
+                question: question,
+                text: text
+            };
+            
+            // Add options for multiple choice
+            if (optA || optB || optC || optD) {
+                content.options = [
+                    `A) ${optA}`,
+                    `B) ${optB}`,
+                    `C) ${optC}`,
+                    `D) ${optD}`
+                ];
+            }
+            
+            // Prepare API payload
+            const payload = {
+                module: module,
+                teil: parseInt(teil),
+                level: level,
+                question_type: 'multiple_choice',
+                content: content,
+                correct_answer: { answer: correct },
+                explanation: explanation,
+                difficulty: 3,
+                points: 10
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/questions-create.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`Soru başarıyla eklendi! (ID: #${data.question_id})`);
+                    
+                    // Add to local array
+                    const newQuestion = {
+                        id: data.question_id,
+                        module,
+                        teil,
+                        level,
+                        question,
+                        text,
+                        correct,
+                        explanation
+                    };
+                    questions.unshift(newQuestion);
+                    
+                    updateStats();
+                    renderQuestions();
+                    closeModal();
+                    document.getElementById('question-form').reset();
+                } else {
+                    showNotification(data.error || 'Hata oluştu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Soru kaydedilirken hata oluştu', 'error');
+            }
+        };
+
+        function logout() {
+            localStorage.removeItem('token');
+            location.href = 'login.html';
+        }
+
+        // İlk yükleme
+        loadQuestions();
+    </script>
+</body>
+</html>

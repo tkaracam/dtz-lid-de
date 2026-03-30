@@ -3,85 +3,159 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../src/Auth/AuthController.php';
 require_once __DIR__ . '/../../src/Database/Database.php';
+require_once __DIR__ . '/../../src/Security/SecurityHeaders.php';
 
 use DTZ\Auth\AuthController;
 use DTZ\Database\Database;
+use DTZ\Security\SecurityHeaders;
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
+SecurityHeaders::set();
+SecurityHeaders::setCors();
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Nur GET erlaubt']);
-    exit;
-}
-
-// Auth check
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$token = '';
-if (preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
-    $token = $matches[1];
-}
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Nicht autorisiert']);
-    exit;
-}
-
+// Check admin authentication
 $auth = new AuthController();
-$user = $auth->me($token);
+$user = $auth->authenticate();
 
 if (!$user || $user['role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Admin erforderlich']);
-    exit;
+    SecurityHeaders::jsonResponse(['error' => 'Unauthorized'], 401);
 }
+
+$period = $_GET['period'] ?? '24h';
+$quick = isset($_GET['quick']);
 
 try {
     $db = Database::getInstance();
     
-    // Get stats
+    // Base statistics
     $stats = [
-        'users' => [
-            'total' => $db->selectOne("SELECT COUNT(*) as c FROM users")['c'],
-            'active_today' => $db->selectOne("SELECT COUNT(DISTINCT user_id) as c FROM user_progress WHERE created_at > date('now', '-1 day')")['c'],
-            'new_this_week' => $db->selectOne("SELECT COUNT(*) as c FROM users WHERE created_at > date('now', '-7 days')")['c'],
-        ],
-        'questions' => [
-            'total' => $db->selectOne("SELECT COUNT(*) as c FROM question_pools")['c'],
-            'by_module' => $db->select("SELECT module, COUNT(*) as count FROM question_pools GROUP BY module"),
-        ],
-        'tests' => [
-            'total_attempts' => $db->selectOne("SELECT COUNT(*) as c FROM modelltest_attempts")['c'],
-            'completed' => $db->selectOne("SELECT COUNT(*) as c FROM modelltest_attempts WHERE status = 'completed'")['c'],
-            'avg_score' => round($db->selectOne("SELECT AVG(total_score) as c FROM modelltest_attempts WHERE status = 'completed'")['c'] ?? 0, 1),
-        ],
-        'writing' => [
-            'pending' => $db->selectOne("SELECT COUNT(*) as c FROM writing_submissions WHERE status = 'pending'")['c'],
-            'ai_reviewed' => $db->selectOne("SELECT COUNT(*) as c FROM writing_submissions WHERE status = 'ai_reviewed'")['c'],
-            'approved' => $db->selectOne("SELECT COUNT(*) as c FROM writing_submissions WHERE status = 'approved'")['c'],
-        ],
-        'activity' => $db->select("
-            SELECT date(created_at) as date, COUNT(*) as count 
-            FROM user_progress 
-            WHERE created_at > date('now', '-30 days')
-            GROUP BY date(created_at)
-            ORDER BY date DESC
-            LIMIT 30
-        ")
+        'timestamp' => date('c'),
+        'period' => $period
     ];
     
-    echo json_encode(['success' => true, 'stats' => $stats]);
+    // Total users
+    $userStats = $db->selectOne("SELECT 
+        COUNT(*) as total,
+        COUNT(CASE WHEN subscription_status = 'premium' THEN 1 END) as premium,
+        COUNT(CASE WHEN subscription_status = 'trialing' THEN 1 END) as trial,
+        COUNT(CASE WHEN DATE(created_at) = DATE('now') THEN 1 END) as new_today,
+        COUNT(CASE WHEN DATE(created_at) >= DATE('now', '-7 days') THEN 1 END) as new_this_week
+    FROM users");
+    
+    $stats['total_users'] = (int)$userStats['total'];
+    $stats['premium_users'] = (int)$userStats['premium'];
+    $stats['trial_users'] = (int)$userStats['trial'];
+    $stats['new_users_today'] = (int)$userStats['new_today'];
+    $stats['new_users_week'] = (int)$userStats['new_this_week'];
+    
+    // Pending content for review
+    $pendingWriting = $db->selectOne("SELECT COUNT(*) as count FROM writing_submissions WHERE status = 'pending'");
+    $pendingSpeaking = $db->selectOne("SELECT COUNT(*) as count FROM speaking_submissions WHERE status = 'pending'");
+    $stats['pending_content'] = (int)$pendingWriting['count'] + (int)$pendingSpeaking['count'];
+    $stats['pending_writing'] = (int)$pendingWriting['count'];
+    $stats['pending_speaking'] = (int)$pendingSpeaking['count'];
+    
+    // Quick mode - return early
+    if ($quick) {
+        SecurityHeaders::jsonResponse($stats);
+    }
+    
+    // Revenue statistics (mock for now, integrate with Stripe in production)
+    $revenueStats = $db->selectOne("SELECT 
+        COALESCE(SUM(amount), 0) as total_revenue,
+        COUNT(*) as total_payments
+    FROM payments WHERE status = 'succeeded' AND created_at >= DATE('now', '-30 days')");
+    
+    $stats['monthly_revenue'] = round((float)$revenueStats['total_revenue'], 2);
+    $stats['total_payments'] = (int)$revenueStats['total_payments'];
+    
+    // Previous month for comparison
+    $prevMonthRevenue = $db->selectOne("SELECT COALESCE(SUM(amount), 0) as revenue 
+        FROM payments WHERE status = 'succeeded' 
+        AND created_at >= DATE('now', '-60 days') 
+        AND created_at < DATE('now', '-30 days')");
+    
+    $prevRevenue = (float)$prevMonthRevenue['revenue'];
+    $currentRevenue = (float)$revenueStats['total_revenue'];
+    $stats['revenue_growth'] = $prevRevenue > 0 
+        ? round((($currentRevenue - $prevRevenue) / $prevRevenue) * 100, 1)
+        : 0;
+    
+    // Premium growth
+    $prevMonthPremium = $db->selectOne("SELECT COUNT(*) as count FROM users 
+        WHERE subscription_status = 'premium' 
+        AND created_at < DATE('now', '-30 days')");
+    $prevPremium = (int)$prevMonthPremium['count'];
+    $currentPremium = (int)$userStats['premium'];
+    $stats['premium_growth'] = $prevPremium > 0
+        ? round((($currentPremium - $prevPremium) / $prevPremium) * 100, 1)
+        : ($currentPremium > 0 ? 100 : 0);
+    
+    // Activity data for charts
+    $activityData = $db->selectAll("SELECT 
+        DATE(created_at) as date,
+        COUNT(*) as new_users,
+        COUNT(CASE WHEN subscription_status IN ('premium', 'trialing') THEN 1 END) as conversions
+    FROM users 
+    WHERE created_at >= DATE('now', '-7 days')
+    GROUP BY DATE(created_at)
+    ORDER BY date");
+    
+    $stats['activity_chart'] = array_map(fn($row) => [
+        'date' => $row['date'],
+        'new_users' => (int)$row['new_users'],
+        'conversions' => (int)$row['conversions']
+    ], $activityData);
+    
+    // Question statistics
+    $questionStats = $db->selectOne("SELECT 
+        COUNT(*) as total,
+        COUNT(CASE WHEN is_active = 1 THEN 1 END) as active,
+        COUNT(CASE WHEN module = 'lesen' THEN 1 END) as lesen,
+        COUNT(CASE WHEN module = 'hoeren' THEN 1 END) as hoeren,
+        COUNT(CASE WHEN module = 'schreiben' THEN 1 END) as schreiben,
+        COUNT(CASE WHEN module = 'sprechen' THEN 1 END) as sprechen,
+        COUNT(CASE WHEN module = 'lid' THEN 1 END) as lid
+    FROM question_pools");
+    
+    $stats['questions'] = [
+        'total' => (int)$questionStats['total'],
+        'active' => (int)$questionStats['active'],
+        'by_module' => [
+            'lesen' => (int)$questionStats['lesen'],
+            'hoeren' => (int)$questionStats['hoeren'],
+            'schreiben' => (int)$questionStats['schreiben'],
+            'sprechen' => (int)$questionStats['sprechen'],
+            'lid' => (int)$questionStats['lid']
+        ]
+    ];
+    
+    // Answer statistics
+    $answerStats = $db->selectOne("SELECT 
+        COUNT(*) as total,
+        COUNT(CASE WHEN is_correct = 1 THEN 1 END) as correct,
+        AVG(time_spent_seconds) as avg_time
+    FROM user_answers WHERE created_at >= DATE('now', '-30 days')");
+    
+    $stats['answers'] = [
+        'total_30d' => (int)$answerStats['total'],
+        'correct_count' => (int)$answerStats['correct'],
+        'accuracy_rate' => (int)$answerStats['total'] > 0
+            ? round(((int)$answerStats['correct'] / (int)$answerStats['total']) * 100, 1)
+            : 0,
+        'avg_time_seconds' => round((float)$answerStats['avg_time'], 1)
+    ];
+    
+    // System health
+    $stats['system'] = [
+        'database_size_mb' => round(filesize(__DIR__ . '/../../database/dtz.db') / 1024 / 1024, 2),
+        'php_version' => PHP_VERSION,
+        'memory_usage_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        'uptime_hours' => round(time() / 3600, 1) // Placeholder
+    ];
+    
+    SecurityHeaders::jsonResponse($stats);
     
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Fehler beim Laden: ' . $e->getMessage()]);
+    error_log('Admin stats error: ' . $e->getMessage());
+    SecurityHeaders::jsonResponse(['error' => 'Failed to load statistics'], 500);
 }

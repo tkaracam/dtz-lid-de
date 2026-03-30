@@ -345,6 +345,182 @@
       margin-bottom: 16px;
     }
 
+    /* Pricing Section */
+    .pricing-section {
+      margin-bottom: 32px;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .pricing-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--border);
+      text-align: center;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .pricing-card.popular {
+      border-color: var(--primary);
+      transform: scale(1.02);
+    }
+
+    .pricing-card.popular:hover {
+      transform: scale(1.02) translateY(-4px);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .pricing-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price {
+      font-size: 48px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price span {
+      font-size: 16px;
+      font-weight: 500;
+      -webkit-text-fill-color: var(--text-muted);
+    }
+
+    .pricing-period {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+
+    .pricing-features li {
+      padding: 8px 0;
+      padding-left: 28px;
+      position: relative;
+      font-size: 14px;
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .pricing-btn {
+      width: 100%;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .pricing-btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+    }
+
+    .pricing-btn-primary:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    .pricing-btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .pricing-btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .pricing-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Subscription Status Card */
+    .subscription-card {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .subscription-card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .subscription-card p {
+      opacity: 0.9;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .subscription-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .subscription-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .subscription-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .nav-container {
@@ -391,9 +567,70 @@
         <h3>🎁 Probiertest aktiv</h3>
         <p>Noch <strong id="trialDays">7</strong> Tage kostenlos. Alle Funktionen freigeschaltet.</p>
       </div>
-      <button class="trial-banner-btn" onclick="location.href='/subscription.html'">
+      <button class="trial-banner-btn" onclick="scrollToPricing()">
         Jetzt upgraden
       </button>
+    </div>
+
+    <!-- Subscription Status (shown when premium/trial) -->
+    <div class="subscription-card" id="subscriptionCard" style="display: none;">
+      <h3>⭐ Premium aktiv</h3>
+      <p id="subscriptionText">Dein Abonnement läuft bis zum 31.12.2024</p>
+      <div class="subscription-actions">
+        <button class="subscription-btn" onclick="openCustomerPortal()">
+          Abonnement verwalten
+        </button>
+        <button class="subscription-btn" onclick="cancelSubscription()" id="cancelBtn">
+          Kündigen
+        </button>
+      </div>
+    </div>
+
+    <!-- Free User CTA -->
+    <div class="pricing-section" id="pricingSection" style="display: none;">
+      <h2 class="section-title">🚀 Werde Premium-Mitglied</h2>
+      <p style="color: var(--text-muted); margin-bottom: 16px;">
+        Schalte alle Funktionen frei und bereite dich optimal auf den DTZ vor.
+      </p>
+      
+      <div class="pricing-grid">
+        <!-- Monthly Plan -->
+        <div class="pricing-card">
+          <div class="pricing-name">Monatlich</div>
+          <div class="pricing-price">9,99<span>€</span></div>
+          <div class="pricing-period">pro Monat</div>
+          <ul class="pricing-features">
+            <li>Unbegrenzte Übungsfragen</li>
+            <li>Alle 4 Module (Lesen, Hören, Schreiben, Sprechen)</li>
+            <li>AI-gestützte Schreibübungen</li>
+            <li>Audio-Transkription für Sprechen</li>
+            <li>Detaillierte Statistiken</li>
+            <li>14 Tage kostenlos testen</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-secondary" onclick="startCheckout('monthly')" id="monthlyBtn">
+            Kostenlos testen
+          </button>
+        </div>
+
+        <!-- Yearly Plan -->
+        <div class="pricing-card popular">
+          <div class="pricing-badge">Empfohlen</div>
+          <div class="pricing-name">Jährlich</div>
+          <div class="pricing-price">7,99<span>€</span></div>
+          <div class="pricing-period">pro Monat (95,88€/Jahr)</div>
+          <ul class="pricing-features">
+            <li>Alle Monatsvorteile</li>
+            <li><strong>20% günstiger</strong> als monatlich</li>
+            <li>Unbegrenzte Modelltests</li>
+            <li>Priorisierter KI-Feedback</li>
+            <li>Downloadbare Fortschrittsberichte</li>
+            <li>14 Tage kostenlos testen</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-primary" onclick="startCheckout('yearly')" id="yearlyBtn">
+            Kostenlos testen
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Stats -->
@@ -523,11 +760,8 @@
         if (adminBtn) adminBtn.style.display = 'inline-block';
       }
 
-      // Show trial banner if trialing
-      if (user.subscription_status === 'trialing') {
-        document.getElementById('trialBanner').style.display = 'flex';
-        document.getElementById('trialDays').textContent = user.trial_days_remaining;
-      }
+      // Load subscription status
+      await loadSubscriptionStatus();
 
       // Load stats
       try {
@@ -539,6 +773,204 @@
         }
       } catch (error) {
         console.error('Failed to load stats:', error);
+      }
+    }
+
+    // Load subscription status
+    async function loadSubscriptionStatus() {
+      try {
+        const token = localStorage.getItem('auth_token');
+        const response = await fetch('/api/stripe/status.php', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const data = await response.json();
+        if (!data.success) return;
+
+        const isPremium = data.is_premium;
+        const isTrial = data.is_trial;
+        const subscription = data.subscription;
+
+        // Show appropriate section based on subscription status
+        if (isPremium || isTrial) {
+          // Show subscription card
+          document.getElementById('subscriptionCard').style.display = 'block';
+          document.getElementById('pricingSection').style.display = 'none';
+          
+          // Update subscription text
+          let statusText = '';
+          if (subscription) {
+            if (subscription.cancel_at_period_end) {
+              statusText = `Premium läuft am ${formatDate(subscription.current_period_end)} aus (gekündigt)`;
+              document.getElementById('cancelBtn').textContent = 'Reaktivieren';
+            } else if (isTrial && subscription.trial_end) {
+              statusText = `Testphase: Noch ${subscription.trial_days_remaining} Tage kostenlos`;
+              document.getElementById('trialBanner').style.display = 'flex';
+              document.getElementById('trialDays').textContent = subscription.trial_days_remaining;
+            } else {
+              const renewalDate = formatDate(subscription.current_period_end);
+              statusText = `Premium aktiv. Verlängerung am ${renewalDate}`;
+            }
+          } else {
+            statusText = 'Premium aktiv';
+          }
+          document.getElementById('subscriptionText').textContent = statusText;
+          
+        } else {
+          // Show pricing for free users
+          document.getElementById('subscriptionCard').style.display = 'none';
+          document.getElementById('pricingSection').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Failed to load subscription:', error);
+      }
+    }
+
+    // Format date for display
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('de-DE', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+      });
+    }
+
+    // Start Stripe Checkout
+    async function startCheckout(plan) {
+      const btn = document.getElementById(plan + 'Btn');
+      const originalText = btn.textContent;
+      btn.textContent = 'Wird geladen...';
+      btn.disabled = true;
+
+      try {
+        const token = localStorage.getItem('auth_token');
+        const response = await fetch('/api/stripe/create-checkout.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            plan: plan,
+            success_url: window.location.origin + '/dashboard.html?payment=success',
+            cancel_url: window.location.origin + '/dashboard.html?payment=canceled'
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Checkout fehlgeschlagen');
+        }
+
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+
+      } catch (error) {
+        console.error('Checkout error:', error);
+        alert('Fehler: ' + error.message);
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    // Open Stripe Customer Portal
+    async function openCustomerPortal() {
+      try {
+        const token = localStorage.getItem('auth_token');
+        const response = await fetch('/api/stripe/portal.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            return_url: window.location.origin + '/dashboard.html'
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Portal nicht verfügbar');
+        }
+
+        window.location.href = data.url;
+
+      } catch (error) {
+        console.error('Portal error:', error);
+        alert('Fehler: ' + error.message);
+      }
+    }
+
+    // Cancel subscription
+    async function cancelSubscription() {
+      const btn = document.getElementById('cancelBtn');
+      const isReactivating = btn.textContent === 'Reaktivieren';
+
+      if (isReactivating) {
+        // For reactivation, redirect to customer portal
+        openCustomerPortal();
+        return;
+      }
+
+      if (!confirm('Möchtest du dein Abonnement wirklich kündigen? Du hast Zugriff bis zum Ende der Laufzeit.')) {
+        return;
+      }
+
+      btn.textContent = 'Wird gekündigt...';
+      btn.disabled = true;
+
+      try {
+        const token = localStorage.getItem('auth_token');
+        const response = await fetch('/api/stripe/cancel.php', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Kündigung fehlgeschlagen');
+        }
+
+        alert('Dein Abonnement wurde gekündigt und läuft am Ende der Laufzeit aus.');
+        
+        // Reload to update UI
+        loadSubscriptionStatus();
+
+      } catch (error) {
+        console.error('Cancel error:', error);
+        alert('Fehler: ' + error.message);
+        btn.textContent = 'Kündigen';
+        btn.disabled = false;
+      }
+    }
+
+    // Scroll to pricing section
+    function scrollToPricing() {
+      document.getElementById('pricingSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Handle payment success/cancel from URL params
+    function handlePaymentReturn() {
+      const params = new URLSearchParams(window.location.search);
+      const payment = params.get('payment');
+      
+      if (payment === 'success') {
+        // Remove params from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Show success message
+        setTimeout(() => {
+          alert('🎉 Willkommen bei Premium! Dein Abonnement ist jetzt aktiv.');
+          loadSubscriptionStatus();
+        }, 500);
+      } else if (payment === 'canceled') {
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
 
@@ -589,6 +1021,7 @@
     }
 
     // Initialize
+    handlePaymentReturn();
     loadDashboard();
   </script>
 </body>
