@@ -28,8 +28,26 @@ class Database {
                     PDO::ATTR_EMULATE_PREPARES => false,
                 ]);
             } else {
-                // SQLite - try multiple paths
-                $dbPath = $this->env('DB_PATH', '/var/www/html/database/dtz_production.db');
+                // SQLite - dynamic path resolution
+                $possiblePaths = [
+                    $this->env('DB_PATH'), // Environment variable first
+                    __DIR__ . '/../../database/dtz.db', // Project root (local dev)
+                    '/var/www/html/database/dtz_production.db', // Production
+                    '/var/www/dtz-lid-de/database/dtz.db', // Alternative production
+                    dirname(__DIR__, 2) . '/database/dtz.db', // Relative to src
+                ];
+                
+                $dbPath = null;
+                foreach ($possiblePaths as $path) {
+                    if ($path && (file_exists($path) || is_writable(dirname($path)))) {
+                        $dbPath = $path;
+                        break;
+                    }
+                }
+                
+                if (!$dbPath) {
+                    $dbPath = __DIR__ . '/../../database/dtz.db'; // Default fallback
+                }
                 
                 // Ensure directory exists
                 $dbDir = dirname($dbPath);
