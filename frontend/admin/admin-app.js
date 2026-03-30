@@ -242,17 +242,17 @@ const AdminApp = {
             });
         });
         
-        // Initialize chart
-        this.initActivityChart();
+        // Initialize chart with light theme colors
+        setTimeout(() => this.initActivityChart(), 100);
     },
     
     renderRecentActivities() {
         const activities = [
-            { icon: '✍️', title: 'Neue Writing-Abgabe', meta: 'von Max Mustermann', time: '2 Min.', color: 'bg-blue-500' },
-            { icon: '🎤', title: 'Speaking-Aufnahme', meta: 'Teil 2 - B1 Level', time: '15 Min.', color: 'bg-purple-500' },
-            { icon: '👤', title: 'Neuer Benutzer', meta: 'Anna Schmidt registriert', time: '1 Std.', color: 'bg-green-500' },
-            { icon: '💎', title: 'Premium Upgrade', meta: '€29.90 Umsatz', time: '2 Std.', color: 'bg-yellow-500' },
-            { icon: '⚠️', title: 'System Warnung', meta: 'CPU Auslastung > 80%', time: '3 Std.', color: 'bg-red-500' },
+            { icon: '✍️', title: 'Neue Writing-Abgabe', meta: 'von Max Mustermann', time: '2 Min.', color: 'blue' },
+            { icon: '🎤', title: 'Speaking-Aufnahme', meta: 'Teil 2 - B1 Level', time: '15 Min.', color: 'purple' },
+            { icon: '👤', title: 'Neuer Benutzer', meta: 'Anna Schmidt registriert', time: '1 Std.', color: 'green' },
+            { icon: '💎', title: 'Premium Upgrade', meta: '€29.90 Umsatz', time: '2 Std.', color: 'yellow' },
+            { icon: '⚠️', title: 'System Warnung', meta: 'CPU Auslastung > 80%', time: '3 Std.', color: 'red' },
         ];
         
         return activities.map(a => `
@@ -271,6 +271,14 @@ const AdminApp = {
         const ctx = document.getElementById('activityChart');
         if (!ctx) return;
         
+        // Light theme colors
+        const primaryColor = '#6366f1';
+        const primaryLight = 'rgba(99, 102, 241, 0.15)';
+        const successColor = '#10b981';
+        const successLight = 'rgba(16, 185, 129, 0.15)';
+        const gridColor = 'rgba(148, 163, 184, 0.2)';
+        const textColor = '#64748b';
+        
         this.charts.activity = new Chart(ctx, {
             type: 'line',
             data: {
@@ -278,15 +286,27 @@ const AdminApp = {
                 datasets: [{
                     label: 'Aktive Benutzer',
                     data: [45, 30, 120, 280, 350, 420, 180],
-                    borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderColor: primaryColor,
+                    backgroundColor: primaryLight,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: primaryColor,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
                     tension: 0.4,
                     fill: true
                 }, {
                     label: 'Fragen beantwortet',
                     data: [120, 80, 450, 890, 1200, 1500, 600],
-                    borderColor: '#22c55e',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderColor: successColor,
+                    backgroundColor: successLight,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: successColor,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
                     tension: 0.4,
                     fill: true
                 }]
@@ -294,21 +314,51 @@ const AdminApp = {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            },
+                            color: textColor
+                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: textColor,
+                            font: {
+                                size: 11,
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            }
                         }
                     },
                     x: {
                         grid: {
-                            display: false
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: textColor,
+                            font: {
+                                size: 11,
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            }
                         }
                     }
                 }
@@ -319,40 +369,43 @@ const AdminApp = {
     // ========== USERS ==========
     async loadUsers(container) {
         container.innerHTML = `
-            <div class="page-header">
+            <div class="page-title">
                 <h1>Benutzerverwaltung</h1>
                 <p>Verwalten Sie Benutzer, Rollen und Berechtigungen.</p>
             </div>
             
-            <div class="dashboard-card">
-                <div class="dashboard-card-header" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <input type="text" id="user-search" placeholder="Benutzer suchen..." 
-                           style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--bg);">
-                    <select id="user-filter" style="padding: 0.75rem; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--bg);">
-                        <option value="">Alle Status</option>
-                        <option value="premium">Premium</option>
-                        <option value="free">Free</option>
-                        <option value="trial">Trial</option>
+            <div class="card">
+                <div class="card-header" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="user-search" placeholder="🔍 Benutzer suchen..." 
+                           style="flex: 1; min-width: 200px; padding: 0.875rem 1.25rem; border-radius: 9999px; border: 1px solid var(--border-color); background: var(--bg-tertiary); font-size: 0.9375rem; transition: all 0.2s;">
+                    <select id="user-filter" style="padding: 0.875rem 1.25rem; border-radius: 9999px; border: 1px solid var(--border-color); background: var(--bg-tertiary); font-size: 0.9375rem; min-width: 140px;">
+                        <option value="">📊 Alle Status</option>
+                        <option value="premium">💎 Premium</option>
+                        <option value="free">🆓 Free</option>
+                        <option value="trial">🎯 Trial</option>
                     </select>
                     <button class="btn btn-primary" onclick="AdminApp.showAddUserModal()">
-                        ➕ Benutzer hinzufügen
+                        <span>➕</span>
+                        Benutzer hinzufügen
                     </button>
                 </div>
-                <div class="dashboard-card-body" style="padding: 0;">
-                    <table class="data-table" id="users-table">
-                        <thead>
-                            <tr>
-                                <th>Benutzer</th>
-                                <th>Status</th>
-                                <th>Level</th>
-                                <th>Letzte Aktivität</th>
-                                <th>Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-tbody">
-                            <!-- Users loaded dynamically -->
-                        </tbody>
-                    </table>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-container">
+                        <table class="data-table" id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Benutzer</th>
+                                    <th>Status</th>
+                                    <th>Level</th>
+                                    <th>Letzte Aktivität</th>
+                                    <th style="text-align: right;">Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <tr><td colspan="5" style="text-align: center; padding: 3rem;"><div class="loading"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         `;
@@ -393,32 +446,37 @@ const AdminApp = {
         
         const users = this.data.users;
         
-        tbody.innerHTML = users.map(user => `
+        if (users.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-tertiary);">Keine Benutzer gefunden</td></tr>`;
+            return;
+        }
+        
+        tbody.innerHTML = users.map(user => {
+            const statusClass = user.subscription_status === 'premium' ? 'badge-success' : 
+                               user.subscription_status === 'trialing' ? 'badge-warning' : 'badge-info';
+            const statusText = user.subscription_status === 'premium' ? 'Premium' : 
+                              user.subscription_status === 'trialing' ? 'Trial' : 'Free';
+            
+            return `
             <tr>
                 <td>
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600;">
-                            ${(user.name || user.email).charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                            <div style="font-weight: 500;">${user.name || user.email}</div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">${user.email}</div>
+                    <div class="user-cell">
+                        <div class="user-avatar-sm">${(user.name || user.email).charAt(0).toUpperCase()}</div>
+                        <div class="user-info-sm">
+                            <h4>${Security.escapeHtml(user.name || '')}</h4>
+                            <p>${Security.escapeHtml(user.email)}</p>
                         </div>
                     </div>
                 </td>
-                <td>
-                    <span class="status-badge ${user.subscription_status === 'premium' ? 'active' : user.subscription_status === 'trialing' ? 'pending' : 'inactive'}">
-                        ${user.subscription_status}
-                    </span>
-                </td>
-                <td>${user.level || 'A2'}</td>
-                <td>${user.last_activity || 'Nie'}</td>
-                <td>
-                    <button class="btn btn-sm btn-secondary" onclick="AdminApp.editUser(${user.id})">Bearbeiten</button>
-                    <button class="btn btn-sm btn-danger" onclick="AdminApp.deleteUser(${user.id})">Löschen</button>
+                <td><span class="badge ${statusClass}">${statusText}</span></td>
+                <td><span class="badge badge-info">${user.level || 'A2'}</span></td>
+                <td style="color: var(--text-secondary); font-size: 0.9375rem;">${user.last_activity || 'Nie'}</td>
+                <td style="text-align: right;">
+                    <button class="btn btn-sm btn-secondary" onclick="AdminApp.editUser(${user.id})" style="margin-right: 0.5rem;">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="AdminApp.deleteUser(${user.id})">🗑️</button>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
     },
     
     // ========== QUESTIONS ==========
