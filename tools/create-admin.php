@@ -1,55 +1,59 @@
 <?php
 /**
- * Create admin user script
- * Run: php tools/create-admin.php
+ * Admin User Creator
+ * Usage: php tools/create-admin.php
  */
 
 require_once __DIR__ . '/../src/Database/Database.php';
 
 use DTZ\Database\Database;
 
-// Admin credentials
-$adminEmail = 'admin@dtz-lid.de';
+echo "🔧 DTZ Admin Creator\n";
+echo "====================\n\n";
+
+// Admin bilgileri
+$adminEmail = 'admin@dtz-lernen.de';
 $adminPassword = 'Admin123!';
-$adminName = 'Administrator';
+$adminName = 'System Administrator';
 
 try {
     $db = Database::getInstance();
     
-    // Check if admin exists
-    $existing = $db->selectOne(
-        "SELECT id FROM users WHERE email = ?",
-        [$adminEmail]
-    );
+    // Önce mevcut admin var mı kontrol et
+    $existing = $db->selectOne("SELECT id FROM users WHERE email = ?", [$adminEmail]);
     
     if ($existing) {
-        // Update existing to admin
-        $db->update('users', 
-            ['role' => 'admin'],
-            'id = ?',
-            [$existing['id']]
-        );
-        echo "✅ Existing user updated to admin\n";
-    } else {
-        // Create new admin
-        $passwordHash = password_hash($adminPassword, PASSWORD_ARGON2ID);
+        // Mevcut admini güncelle
+        $db->update('users', [
+            'password_hash' => password_hash($adminPassword, PASSWORD_ARGON2ID),
+            'role' => 'admin',
+            'is_active' => 1,
+            'subscription_status' => 'premium'
+        ], 'id = ?', [$existing['id']]);
         
+        echo "✅ Mevcut admin güncellendi!\n";
+    } else {
+        // Yeni admin oluştur
         $userId = $db->insert('users', [
             'email' => $adminEmail,
+            'password_hash' => password_hash($adminPassword, PASSWORD_ARGON2ID),
             'display_name' => $adminName,
-            'password_hash' => $passwordHash,
             'role' => 'admin',
+            'level' => 'B1',
             'subscription_status' => 'premium',
-            'level' => 'B1'
+            'is_active' => true,
+            'created_at' => date('Y-m-d H:i:s')
         ]);
         
-        echo "✅ Admin user created successfully\n";
+        echo "✅ Yeni admin oluşturuldu!\n";
     }
     
-    echo "\n📧 Email: $adminEmail\n";
-    echo "🔑 Password: $adminPassword\n";
-    echo "\n🔗 Admin Panel: https://www.dtz-lid.de/admin/login.html\n";
+    echo "\n📧 Email: {$adminEmail}\n";
+    echo "🔑 Password: {$adminPassword}\n";
+    echo "👤 Name: {$adminName}\n";
+    echo "\n🌐 Admin Panel: http://localhost:8080/frontend/admin/index.html\n";
     
 } catch (Exception $e) {
-    echo "❌ Error: " . $e->getMessage() . "\n";
+    echo "❌ Hata: " . $e->getMessage() . "\n";
+    exit(1);
 }
